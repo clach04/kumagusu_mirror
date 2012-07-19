@@ -17,7 +17,7 @@
     <PreferenceCategory android:title="@string/pref_category_memo" >
 
         <!-- メモフォルダ -->
-        <som.kumagusu.DirectorySelectDialogPreference
+        <jp.gr.java_conf.kumagusu.DirectorySelectDialogPreference
             android:key="ds_memo_location"
             android:title="@string/pref_ds_memo_location_title" />
 

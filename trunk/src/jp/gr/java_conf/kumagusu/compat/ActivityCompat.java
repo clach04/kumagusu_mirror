@@ -1,8 +1,9 @@
-package som.kumagusu.compat;
+package jp.gr.java_conf.kumagusu.compat;
 
 import java.util.List;
 
-import som.kumagusu.memoio.IMemo;
+import jp.gr.java_conf.kumagusu.memoio.IMemo;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Build;

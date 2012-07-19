@@ -1,13 +1,14 @@
-package som.kumagusu;
+package jp.gr.java_conf.kumagusu;
 
 import java.io.FileNotFoundException;
 
-import som.kumagusu.compat.ActivityCompat;
-import som.kumagusu.control.ConfirmDialog;
-import som.kumagusu.control.InputDialog;
-import som.kumagusu.memoio.MemoType;
-import som.kumagusu.memoio.MemoBuilder;
-import som.kumagusu.memoio.MemoFile;
+import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
+import jp.gr.java_conf.kumagusu.control.InputDialog;
+import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
+import jp.gr.java_conf.kumagusu.memoio.MemoFile;
+import jp.gr.java_conf.kumagusu.memoio.MemoType;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;

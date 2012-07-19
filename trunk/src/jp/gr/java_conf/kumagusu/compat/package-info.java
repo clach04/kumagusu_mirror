@@ -5,4 +5,4 @@
  * @author tarshi
  *
  */
-package som.kumagusu.compat;
+package jp.gr.java_conf.kumagusu.compat;

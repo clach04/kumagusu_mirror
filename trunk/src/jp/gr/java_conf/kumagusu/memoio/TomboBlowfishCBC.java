@@ -1,11 +1,12 @@
-package som.kumagusu.memoio;
+package jp.gr.java_conf.kumagusu.memoio;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-import som.kumagusu.Utilities;
+import jp.gr.java_conf.kumagusu.Utilities;
+
 
 import de.mud.ssh.Cipher;
 

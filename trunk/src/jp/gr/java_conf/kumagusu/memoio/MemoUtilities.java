@@ -1,4 +1,4 @@
-package som.kumagusu.memoio;
+package jp.gr.java_conf.kumagusu.memoio;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import som.kumagusu.R;
+import jp.gr.java_conf.kumagusu.R;
 import android.content.res.Resources;
 import android.os.Environment;
 import android.util.Log;

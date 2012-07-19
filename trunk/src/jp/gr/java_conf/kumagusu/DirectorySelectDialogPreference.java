@@ -1,7 +1,7 @@
-package som.kumagusu;
+package jp.gr.java_conf.kumagusu;
 
-import som.kumagusu.control.DirectorySelectDialog;
-import som.kumagusu.memoio.MemoUtilities;
+import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog;
+import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.DialogPreference;

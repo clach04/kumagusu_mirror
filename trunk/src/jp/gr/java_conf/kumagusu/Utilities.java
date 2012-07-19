@@ -1,4 +1,4 @@
-package som.kumagusu;
+package jp.gr.java_conf.kumagusu;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

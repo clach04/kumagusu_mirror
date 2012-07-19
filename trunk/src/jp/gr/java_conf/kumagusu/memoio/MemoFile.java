@@ -1,4 +1,4 @@
-package som.kumagusu.memoio;
+package jp.gr.java_conf.kumagusu.memoio;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -10,8 +10,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
-import som.kumagusu.CommonData;
-import som.kumagusu.R;
+import jp.gr.java_conf.kumagusu.CommonData;
+
+import jp.gr.java_conf.kumagusu.R;
 
 import android.app.Activity;
 import android.content.Context;

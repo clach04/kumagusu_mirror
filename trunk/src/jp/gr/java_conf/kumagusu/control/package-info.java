@@ -5,4 +5,4 @@
  * @author tarshi
  *
  */
-package som.kumagusu.control;
+package jp.gr.java_conf.kumagusu.control;
