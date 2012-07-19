@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 
 import som.kumagusu.R;
 import android.content.res.Resources;
+import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -68,24 +69,10 @@ public final class MemoUtilities
      */
     private static String getExternalStoragePath()
     {
-        String path;
+        File file = Environment.getExternalStorageDirectory();
+        String sdcard = file.getAbsolutePath();
 
-        // Sumsung GALAXY Tab SC-01C 対応
-        path = System.getenv("EXTERNAL_STORAGE2");
-        if (path != null)
-        {
-            return path;
-        }
-
-        // MOTOROLA Photon ISW11M 対応
-        path = System.getenv("EXTERNAL_ALT_STORAGE");
-        if (path != null)
-        {
-            return path;
-        }
-
-        // その他機種
-        return System.getenv("EXTERNAL_STORAGE");
+        return sdcard;
     }
 
     /**
@@ -105,7 +92,14 @@ public final class MemoUtilities
                 builder.append("(").append(String.valueOf(i)).append(")");
             }
 
-            File defaultFile = new File(getExternalStoragePath(), builder.toString());
+            String sdCardPath = getExternalStoragePath();
+
+            if (sdCardPath == null)
+            {
+                sdCardPath = "/";
+            }
+
+            File defaultFile = new File(sdCardPath, builder.toString());
 
             if ((!defaultFile.exists()) || (!defaultFile.isFile()))
             {
