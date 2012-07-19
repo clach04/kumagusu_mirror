@@ -1,10 +1,10 @@
-package som.kumagusu.control;
+package jp.gr.java_conf.kumagusu.control;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import som.kumagusu.R;
+import jp.gr.java_conf.kumagusu.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;

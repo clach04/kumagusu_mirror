@@ -1,4 +1,4 @@
-package som.kumagusu.memoio;
+package jp.gr.java_conf.kumagusu.memoio;
 
 
 /**

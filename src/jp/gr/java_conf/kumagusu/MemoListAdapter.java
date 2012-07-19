@@ -1,8 +1,9 @@
-package som.kumagusu;
+package jp.gr.java_conf.kumagusu;
 
 import java.util.List;
 
-import som.kumagusu.memoio.IMemo;
+import jp.gr.java_conf.kumagusu.memoio.IMemo;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;

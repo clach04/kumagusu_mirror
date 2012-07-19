@@ -1,6 +1,6 @@
-package som.kumagusu.control;
+package jp.gr.java_conf.kumagusu.control;
 
-import som.kumagusu.R;
+import jp.gr.java_conf.kumagusu.R;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;

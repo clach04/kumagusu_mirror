@@ -1,6 +1,6 @@
-package som.kumagusu;
+package jp.gr.java_conf.kumagusu;
 
-import som.kumagusu.memoio.MemoUtilities;
+import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
 import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;

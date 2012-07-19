@@ -1,8 +1,8 @@
-package som.kumagusu.memoio;
+package jp.gr.java_conf.kumagusu.memoio;
 
 import java.io.File;
 
-import som.kumagusu.R;
+import jp.gr.java_conf.kumagusu.R;
 
 import android.content.Context;
 
