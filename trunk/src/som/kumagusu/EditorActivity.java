@@ -313,7 +313,7 @@ public final class EditorActivity extends Activity
 
         // 自動リンクを設定
         EditText editorEditText = (EditText) findViewById(R.id.editor);
-        if (MainPreferenceActivity.getEnableAutoLink(this))
+        if (MainPreferenceActivity.isEnableAutoLink(this))
         {
             editorEditText.setAutoLinkMask(Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
         }

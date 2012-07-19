@@ -2,8 +2,20 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/ui_setting" >
 
+    <!-- 「表示」カテゴリ -->
+    <PreferenceCategory android:title="@string/pref_category_view" >
+
+        <!-- リストの詳細を表示 -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_list_detail_visibility"
+            android:title="@string/pref_cb_list_detail_visibility" />
+    </PreferenceCategory>
+
     <!-- 「メモ」カテゴリ -->
     <PreferenceCategory android:title="@string/pref_category_memo" >
+
         <!-- メモフォルダ -->
         <som.kumagusu.DirectorySelectDialogPreference
             android:key="ds_memo_location"
@@ -35,6 +47,7 @@
     </PreferenceCategory>
     <!-- 「セキュリティ」カテゴリ -->
     <PreferenceCategory android:title="@string/pref_category_security" >
+
         <!-- バックグラウンド時にメモを閉じる -->
         <ListPreference
             android:defaultValue="60000"
@@ -55,6 +68,7 @@
     </PreferenceCategory>
     <!-- 「エンコーディング」カテゴリ -->
     <PreferenceCategory android:title="@string/pref_category_encoding" >
+
         <!-- エンコーディング -->
         <ListPreference
             android:defaultValue="MS932"
