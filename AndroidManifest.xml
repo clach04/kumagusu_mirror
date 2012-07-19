@@ -25,16 +25,8 @@
             </intent-filter>
         </activity>
         <activity android:name="EditorActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" >
-                </action>
-            </intent-filter>
         </activity>
         <activity android:name="MainPreferenceActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" >
-                </action>
-            </intent-filter>
         </activity>
     </application>
 
