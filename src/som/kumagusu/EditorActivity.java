@@ -338,9 +338,11 @@ public final class EditorActivity extends Activity
     {
         if ((event.getKeyCode() == KeyEvent.KEYCODE_BACK) && (event.getAction() == KeyEvent.ACTION_DOWN))
         {
+            boolean modify = false;
+
             if (isEditable())
             {
-                saveMemoData(new DialogInterface.OnClickListener()
+                modify = saveMemoData(new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
@@ -351,7 +353,8 @@ public final class EditorActivity extends Activity
                     }
                 }, false);
             }
-            else
+
+            if (!modify)
             {
                 // エディタ終了
                 setEditable(false);
@@ -449,9 +452,11 @@ public final class EditorActivity extends Activity
 
         case android.R.id.home: // UPアイコン
 
+            boolean modify = false;
+
             if (isEditable())
             {
-                saveMemoData(new DialogInterface.OnClickListener()
+                modify = saveMemoData(new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
@@ -466,7 +471,8 @@ public final class EditorActivity extends Activity
                     }
                 }, true);
             }
-            else
+
+            if (!modify)
             {
                 // Kumagusuを表示
                 Intent intent = new Intent(EditorActivity.this, Kumagusu.class);
