@@ -12,7 +12,6 @@ import java.util.Random;
 
 import som.kumagusu.CommonData;
 import som.kumagusu.R;
-import som.kumagusu.TomboBlowfishCBC;
 
 import android.app.Activity;
 import android.content.Context;
