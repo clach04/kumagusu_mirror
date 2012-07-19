@@ -27,6 +27,17 @@ public final class MainPreferenceActivity extends PreferenceActivity
     }
 
     /**
+     * 「リストの詳細を表示する」を取得する.
+     *
+     * @param con コンテキスト
+     * @return リストの詳細を表示するときtrue
+     */
+    public static boolean isListDetailVisibility(Context con)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(con).getBoolean("cb_list_detail_visibility", true);
+    }
+
+    /**
      * 「エンコーディング名」を取得する.
      *
      * @param con コンテキスト
@@ -55,7 +66,7 @@ public final class MainPreferenceActivity extends PreferenceActivity
      * @param con コンテキスト
      * @return 自動リンクを使用するときtrue
      */
-    public static boolean getEnableAutoLink(Context con)
+    public static boolean isEnableAutoLink(Context con)
     {
         return PreferenceManager.getDefaultSharedPreferences(con).getBoolean("cb_enable_auto_link", true);
     }

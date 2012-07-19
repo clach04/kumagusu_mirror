@@ -19,11 +19,15 @@
 
     <string name="pref_mn_setting">設定</string>
 
+    <!-- 「メモリスト」カテゴリ -->
+    <string name="pref_category_view">表示</string>
+    <string name="pref_cb_list_detail_visibility">リストの詳細を表示する</string>
+
     <!-- 「メモ」カテゴリ -->
     <string name="pref_category_memo">メモ</string>
     <string name="pref_ds_memo_location_title">メモフォルダ</string>
     <string name="pref_cb_title_link_title">メモファイル名とタイトルを連動する</string>
-    <string name="pref_cb_title_link_summary">Match the first line of the note and file name when you save.</string>
+    <string name="pref_cb_title_link_summary">保存時にメモの１行目とファイル名をあわせます.</string>
     <string name="pref_enable_auto_link">自動リンクを使用する</string>
 
     <!-- 「セキュリティ」カテゴリ -->

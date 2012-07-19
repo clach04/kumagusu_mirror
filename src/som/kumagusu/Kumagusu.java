@@ -811,7 +811,10 @@ public final class Kumagusu extends Activity
      */
     private void initMemoList()
     {
+        // タイトル設定
         setMainTitleText("");
+
+        // リスト初期化
         this.mCurrentFolderMemoFileList.clear();
         this.mCurrentFolderfileList = null;
         this.mCurrentFolderFileListIndex = 0;

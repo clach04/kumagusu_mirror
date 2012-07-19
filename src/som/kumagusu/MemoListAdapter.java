@@ -53,12 +53,16 @@ public final class MemoListAdapter extends ArrayAdapter<IMemo>
             view = convertView;
         }
 
+        View fileDetailAreaView;
+
         ImageView iconImageView;
         TextView titleTextView;
         TextView detailsTextView;
 
         try
         {
+            fileDetailAreaView = (View) view.findViewById(R.id.file_detail_area);
+
             iconImageView = (ImageView) view.findViewById(R.id.memo_type_image);
             titleTextView = (TextView) view.findViewById(R.id.title);
             detailsTextView = (TextView) view.findViewById(R.id.details);
@@ -95,6 +99,16 @@ public final class MemoListAdapter extends ArrayAdapter<IMemo>
         default:
             iconDrawable = getContext().getResources().getDrawable(R.drawable.memo_unknown);
             break;
+        }
+
+        // リストの詳細表示を設定
+        if (MainPreferenceActivity.isListDetailVisibility(getContext()))
+        {
+            fileDetailAreaView.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            fileDetailAreaView.setVisibility(View.GONE);
         }
 
         iconImageView.setImageDrawable(iconDrawable);

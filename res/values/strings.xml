@@ -19,6 +19,10 @@
 
     <string name="pref_mn_setting">Preferences</string>
 
+    <!-- 「メモリスト」カテゴリ -->
+    <string name="pref_category_view">View</string>
+    <string name="pref_cb_list_detail_visibility">To View details of list</string>
+
     <!-- 「メモ」カテゴリ -->
     <string name="pref_category_memo">Note</string>
     <string name="pref_ds_memo_location_title">Notes folder</string>
