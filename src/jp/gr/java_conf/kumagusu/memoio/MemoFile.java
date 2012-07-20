@@ -366,9 +366,11 @@ public final class MemoFile extends AbstractMemo
 
                 fileNameBody = sb.toString();
 
-                // 生成したファイル名と同じファイルが存在する場合、再生成
                 File file = new File(this.folderFile.getAbsolutePath(), fileNameBody);
-                if (!file.exists())
+
+                // 既存ファイルか、生成したファイル名と同じファイルが存在しない場合
+                // ファイル名として採用
+                if ((this.memoFile != null) || (!file.exists()))
                 {
                     return file.getAbsolutePath();
                 }
