@@ -628,7 +628,7 @@ public final class Kumagusu extends Activity
             this.mAutoCloseTimer = null;
 
             // パスワードをクリア
-            CommonData.getInstance(this).clearPasswordList();
+            MainApplication.getInstance(this).clearPasswordList();
 
             // アプリケーションを初期表示
             Intent intent = new Intent(Kumagusu.this, Kumagusu.class);
@@ -645,11 +645,11 @@ public final class Kumagusu extends Activity
         if ((bundle != null) && (bundle.containsKey("CURRENT_FOLDER"))
                 && (bundle.getString("CURRENT_FOLDER").startsWith(MainPreferenceActivity.getMemoLocation(this))))
         {
-            CommonData.getInstance(this).setCurrentMemoFolder(bundle.getString("CURRENT_FOLDER"));
+            MainApplication.getInstance(this).setCurrentMemoFolder(bundle.getString("CURRENT_FOLDER"));
         }
         else
         {
-            CommonData.getInstance(this).setCurrentMemoFolder(null);
+            MainApplication.getInstance(this).setCurrentMemoFolder(null);
         }
 
         // ファイルリスト再生成
@@ -717,7 +717,7 @@ public final class Kumagusu extends Activity
                                 Intent editIntent = new Intent(Kumagusu.this, EditorActivity.class);
 
                                 editIntent.putExtra("FULL_PATH", (String) null);
-                                editIntent.putExtra("CURRENT_FOLDER", CommonData.getInstance(Kumagusu.this)
+                                editIntent.putExtra("CURRENT_FOLDER", MainApplication.getInstance(Kumagusu.this)
                                         .getCurrentMemoFolder());
 
                                 startActivity(editIntent);
@@ -738,7 +738,7 @@ public final class Kumagusu extends Activity
 
                                                 if (folderName.length() > 0)
                                                 {
-                                                    File addFolderFile = new File(CommonData.getInstance(Kumagusu.this)
+                                                    File addFolderFile = new File(MainApplication.getInstance(Kumagusu.this)
                                                             .getCurrentMemoFolder(), folderName);
 
                                                     if (!addFolderFile.exists())
@@ -794,7 +794,7 @@ public final class Kumagusu extends Activity
         case android.R.id.home: // UPアイコン
             // Activetyを呼び出す
             Intent intent = new Intent(Kumagusu.this, Kumagusu.class);
-            intent.putExtra("CURRENT_FOLDER", new File(CommonData.getInstance(this).getCurrentMemoFolder()).getParent());
+            intent.putExtra("CURRENT_FOLDER", new File(MainApplication.getInstance(this).getCurrentMemoFolder()).getParent());
 
             startActivity(intent);
 
@@ -832,12 +832,12 @@ public final class Kumagusu extends Activity
         if (this.mCurrentFolderfileList == null)
         {
             // カレントフォルダのファイルオブジェクト取得
-            if (CommonData.getInstance(this).getCurrentMemoFolder() == null)
+            if (MainApplication.getInstance(this).getCurrentMemoFolder() == null)
             {
-                CommonData.getInstance(this).setCurrentMemoFolder(MainPreferenceActivity.getMemoLocation(this));
+                MainApplication.getInstance(this).setCurrentMemoFolder(MainPreferenceActivity.getMemoLocation(this));
             }
 
-            File currentFolderfile = new File(CommonData.getInstance(this).getCurrentMemoFolder());
+            File currentFolderfile = new File(MainApplication.getInstance(this).getCurrentMemoFolder());
 
             // カレントフォルダが存在しなければ作成
             if (!currentFolderfile.exists())
@@ -846,7 +846,7 @@ public final class Kumagusu extends Activity
             }
 
             // 親フォルダへの移動手段を設定（最上位以外）
-            if (!CommonData.getInstance(this).getCurrentMemoFolder()
+            if (!MainApplication.getInstance(this).getCurrentMemoFolder()
                     .equals(MainPreferenceActivity.getMemoLocation(this)))
             {
                 ActivityCompat.setUpFolderFunction(this, this.mCurrentFolderMemoFileList,
@@ -916,9 +916,9 @@ public final class Kumagusu extends Activity
                                 {
                                     // OK処理
                                     String tryPassword = dialog.getText();
-                                    if (!CommonData.getInstance(Kumagusu.this).getPasswordList().contains(tryPassword))
+                                    if (!MainApplication.getInstance(Kumagusu.this).getPasswordList().contains(tryPassword))
                                     {
-                                        CommonData.getInstance(Kumagusu.this).getPasswordList().add(tryPassword);
+                                        MainApplication.getInstance(Kumagusu.this).getPasswordList().add(tryPassword);
                                     }
                                     createMemoList();
                                 }
@@ -937,11 +937,11 @@ public final class Kumagusu extends Activity
                 }
                 else
                 {
-                    if (CommonData.getInstance(Kumagusu.this).getPasswordList().size() > 0)
+                    if (MainApplication.getInstance(Kumagusu.this).getPasswordList().size() > 0)
                     {
-                        CommonData.getInstance(Kumagusu.this).setLastCorrectPassword(
-                                CommonData.getInstance(Kumagusu.this).getPasswordList()
-                                        .get(CommonData.getInstance(Kumagusu.this).getPasswordList().size() - 1));
+                        MainApplication.getInstance(Kumagusu.this).setLastCorrectPassword(
+                                MainApplication.getInstance(Kumagusu.this).getPasswordList()
+                                        .get(MainApplication.getInstance(Kumagusu.this).getPasswordList().size() - 1));
                     }
                 }
             }
@@ -1006,16 +1006,16 @@ public final class Kumagusu extends Activity
      */
     private void saveListViewStatus()
     {
-        CommonData.MemoListViewStatus listViewStatus = new CommonData.MemoListViewStatus();
+        MainApplication.MemoListViewStatus listViewStatus = new MainApplication.MemoListViewStatus();
 
-        listViewStatus.setLastFolder(CommonData.getInstance(this).getCurrentMemoFolder());
+        listViewStatus.setLastFolder(MainApplication.getInstance(this).getCurrentMemoFolder());
         listViewStatus.setLastTopPosition(this.mListView.getFirstVisiblePosition());
         if (this.mListView.getChildCount() > 0)
         {
             listViewStatus.setLastTopPositionY(this.mListView.getChildAt(0).getTop());
         }
 
-        CommonData.getInstance(this).pushMemoListStatusStack(listViewStatus);
+        MainApplication.getInstance(this).pushMemoListStatusStack(listViewStatus);
     }
 
     /**
@@ -1023,8 +1023,8 @@ public final class Kumagusu extends Activity
      */
     private void loadListViewStatus()
     {
-        CommonData.MemoListViewStatus listViewStatus = CommonData.getInstance(this).popMemoListViewStatus(
-                CommonData.getInstance(this).getCurrentMemoFolder());
+        MainApplication.MemoListViewStatus listViewStatus = MainApplication.getInstance(this).popMemoListViewStatus(
+                MainApplication.getInstance(this).getCurrentMemoFolder());
 
         if (listViewStatus != null)
         {
@@ -1053,7 +1053,7 @@ public final class Kumagusu extends Activity
         MemoBuilder mb = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
                 MainPreferenceActivity.isTitleLink(this));
 
-        if ((dstMemoType != MemoType.Text) && (CommonData.getInstance(this).getLastCorrectPassword() == null))
+        if ((dstMemoType != MemoType.Text) && (MainApplication.getInstance(this).getLastCorrectPassword() == null))
         {
             final MemoFile srcMemoFileTemp = srcMemoFile;
             final MemoType dstMemoTypeTemp = dstMemoType;
@@ -1092,8 +1092,8 @@ public final class Kumagusu extends Activity
 
                                     if (tryPassword1.equals(tryPassword2))
                                     {
-                                        CommonData.getInstance(Kumagusu.this).addPassword(tryPassword1);
-                                        CommonData.getInstance(Kumagusu.this).setLastCorrectPassword(tryPassword1);
+                                        MainApplication.getInstance(Kumagusu.this).addPassword(tryPassword1);
+                                        MainApplication.getInstance(Kumagusu.this).setLastCorrectPassword(tryPassword1);
 
                                         // 再呼出
                                         changeMemoType(srcMemoFileTemp, dstMemoTypeTemp);
@@ -1131,7 +1131,7 @@ public final class Kumagusu extends Activity
         {
             MemoFile dstMemoFile = (MemoFile) mb.build(srcMemoFile.getParent(), dstMemoType);
 
-            if (dstMemoFile.setText(CommonData.getInstance(this).getLastCorrectPassword(), srcMemoData))
+            if (dstMemoFile.setText(MainApplication.getInstance(this).getLastCorrectPassword(), srcMemoData))
             {
                 // メモ種別の変更に成功した場合、元のファイルを削除
                 if (!srcMemoFile.getPath().equals(dstMemoFile.getPath()))
