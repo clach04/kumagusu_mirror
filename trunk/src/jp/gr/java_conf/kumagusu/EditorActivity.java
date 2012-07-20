@@ -365,7 +365,7 @@ public final class EditorActivity extends Activity
             return true;
         }
 
-        return false;
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -536,10 +536,10 @@ public final class EditorActivity extends Activity
                             memoData = memoData.replaceAll("\n", "\r\n");
 
                             // メモを保存
-                            memoFile.setText(memoData);
+                            EditorActivity.this.memoFile.setText(memoData);
 
                             // タイトルを設定
-                            setTitle(memoFile.getTitle());
+                            setTitle(EditorActivity.this.memoFile.getTitle());
 
                             if (postOkNoListener != null)
                             {
