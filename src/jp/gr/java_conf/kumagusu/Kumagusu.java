@@ -135,7 +135,7 @@ public final class Kumagusu extends Activity
     /**
      * カレントディレクトリのファイル.
      */
-    private File[] mCurrentFolderfileList = null;
+    private File[] mCurrentFolderFileList = null;
 
     /**
      * カレントディレクトリのファイルインデックス.
@@ -738,8 +738,8 @@ public final class Kumagusu extends Activity
 
                                                 if (folderName.length() > 0)
                                                 {
-                                                    File addFolderFile = new File(MainApplication.getInstance(Kumagusu.this)
-                                                            .getCurrentMemoFolder(), folderName);
+                                                    File addFolderFile = new File(MainApplication.getInstance(
+                                                            Kumagusu.this).getCurrentMemoFolder(), folderName);
 
                                                     if (!addFolderFile.exists())
                                                     {
@@ -794,7 +794,8 @@ public final class Kumagusu extends Activity
         case android.R.id.home: // UPアイコン
             // Activetyを呼び出す
             Intent intent = new Intent(Kumagusu.this, Kumagusu.class);
-            intent.putExtra("CURRENT_FOLDER", new File(MainApplication.getInstance(this).getCurrentMemoFolder()).getParent());
+            intent.putExtra("CURRENT_FOLDER",
+                    new File(MainApplication.getInstance(this).getCurrentMemoFolder()).getParent());
 
             startActivity(intent);
 
@@ -817,7 +818,7 @@ public final class Kumagusu extends Activity
 
         // リスト初期化
         this.mCurrentFolderMemoFileList.clear();
-        this.mCurrentFolderfileList = null;
+        this.mCurrentFolderFileList = null;
         this.mCurrentFolderFileListIndex = 0;
     }
 
@@ -829,59 +830,17 @@ public final class Kumagusu extends Activity
         MemoBuilder memoBuilder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
                 MainPreferenceActivity.isTitleLink(this));
 
-        if (this.mCurrentFolderfileList == null)
+        // ファイルリストを取得
+        if (this.mCurrentFolderFileList == null)
         {
-            // カレントフォルダのファイルオブジェクト取得
-            if (MainApplication.getInstance(this).getCurrentMemoFolder() == null)
-            {
-                MainApplication.getInstance(this).setCurrentMemoFolder(MainPreferenceActivity.getMemoLocation(this));
-            }
-
-            File currentFolderfile = new File(MainApplication.getInstance(this).getCurrentMemoFolder());
-
-            // カレントフォルダが存在しなければ作成
-            if (!currentFolderfile.exists())
-            {
-                currentFolderfile.mkdirs();
-            }
-
-            // 親フォルダへの移動手段を設定（最上位以外）
-            if (!MainApplication.getInstance(this).getCurrentMemoFolder()
-                    .equals(MainPreferenceActivity.getMemoLocation(this)))
-            {
-                ActivityCompat.setUpFolderFunction(this, this.mCurrentFolderMemoFileList,
-                        memoBuilder.build(currentFolderfile.getParent(), MemoType.ParentFolder));
-            }
-
-            // カレントフォルダのファイル一覧を取得
-            this.mCurrentFolderfileList = currentFolderfile.listFiles();
-
-            if (this.mCurrentFolderfileList == null)
-            {
-                this.mCurrentFolderfileList = new File[0];
-            }
-
-            Arrays.sort(this.mCurrentFolderfileList);
-
-            // カレントフォルダをタイトルに表示
-            File rootFolderFile = new File(MainPreferenceActivity.getMemoLocation(this));
-            String memoCurrentPath = currentFolderfile.getAbsolutePath().substring(
-                    rootFolderFile.getAbsolutePath().length());
-
-            String showTitle = "";
-            if (memoCurrentPath.length() > 0)
-            {
-                showTitle = currentFolderfile.getName();
-            }
-            showTitle += "/";
-
-            setMainTitleText(showTitle);
-
+            // カレントフォルダ内のファイルリストを取得
+            this.mCurrentFolderFileList = getCurrentFileList(memoBuilder);
         }
 
-        for (int i = this.mCurrentFolderFileListIndex; i < this.mCurrentFolderfileList.length; i++)
+        // IMemoリストを生成
+        for (int i = this.mCurrentFolderFileListIndex; i < this.mCurrentFolderFileList.length; i++)
         {
-            File f = this.mCurrentFolderfileList[i];
+            File f = this.mCurrentFolderFileList[i];
 
             IMemo item;
 
@@ -916,7 +875,8 @@ public final class Kumagusu extends Activity
                                 {
                                     // OK処理
                                     String tryPassword = dialog.getText();
-                                    if (!MainApplication.getInstance(Kumagusu.this).getPasswordList().contains(tryPassword))
+                                    if (!MainApplication.getInstance(Kumagusu.this).getPasswordList()
+                                            .contains(tryPassword))
                                     {
                                         MainApplication.getInstance(Kumagusu.this).getPasswordList().add(tryPassword);
                                     }
@@ -989,6 +949,63 @@ public final class Kumagusu extends Activity
         loadListViewStatus();
 
         return;
+    }
+
+    /**
+     * カレントフォルダ内のファイルリストを取得する.
+     *
+     * @param memoBuilder IMemoビルダ
+     * @return ファイルリスト
+     */
+    private File[] getCurrentFileList(MemoBuilder memoBuilder)
+    {
+        // カレントフォルダのファイルオブジェクト取得
+        if (MainApplication.getInstance(this).getCurrentMemoFolder() == null)
+        {
+            MainApplication.getInstance(this).setCurrentMemoFolder(MainPreferenceActivity.getMemoLocation(this));
+        }
+
+        File currentFolderfile = new File(MainApplication.getInstance(this).getCurrentMemoFolder());
+
+        // カレントフォルダが存在しなければ作成
+        if (!currentFolderfile.exists())
+        {
+            currentFolderfile.mkdirs();
+        }
+
+        // 親フォルダへの移動手段を設定（最上位以外）
+        if (!MainApplication.getInstance(this).getCurrentMemoFolder()
+                .equals(MainPreferenceActivity.getMemoLocation(this)))
+        {
+            ActivityCompat.setUpFolderFunction(this, this.mCurrentFolderMemoFileList,
+                    memoBuilder.build(currentFolderfile.getParent(), MemoType.ParentFolder));
+        }
+
+        // カレントフォルダのファイル一覧を取得
+        File[] currentFolderFileList = currentFolderfile.listFiles();
+
+        if (currentFolderFileList == null)
+        {
+            currentFolderFileList = new File[0];
+        }
+
+        Arrays.sort(currentFolderFileList);
+
+        // カレントフォルダをタイトルに表示
+        File rootFolderFile = new File(MainPreferenceActivity.getMemoLocation(this));
+        String memoCurrentPath = currentFolderfile.getAbsolutePath().substring(
+                rootFolderFile.getAbsolutePath().length());
+
+        String showTitle = "";
+        if (memoCurrentPath.length() > 0)
+        {
+            showTitle = currentFolderfile.getName();
+        }
+        showTitle += "/";
+
+        setMainTitleText(showTitle);
+
+        return currentFolderFileList;
     }
 
     /**
