@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="encoding_entries">
+        <item>SJIS</item>
+        <item>UTF-8</item>
+    </string-array>
+    <string-array name="encoding_values">
+        <item>MS932</item>
+        <item>UTF8</item>
+    </string-array>
+    <string-array name="autoclose_delaytime_entries">
+        <item>Disable</item>
+        <item>0 sec.</item>
+        <item>30 sec.</item>
+        <item>1 min.</item>
+        <item>5 min.</item>
+        <item>10 min.</item>
+    </string-array>
+    <string-array name="autoclose_delaytime_values">
+        <item>-1</item>
+        <item>0</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>300000</item>
+        <item>600000</item>
+    </string-array>
+
+    <!-- ファイル操作ダイアログのエントリ -->
+    <string-array name="memo_file_control_dialog_entries_4_text">
+        <item>Copy</item>
+        <item>Move</item>
+        <item>Delete</item>
+        <item>Encrypt</item>
+    </string-array>
+
+    <string-array name="memo_file_control_dialog_entries_4_secret">
+        <item>Copy</item>
+        <item>Move</item>
+        <item>Delete</item>
+        <item>Decrypt</item>
+    </string-array>
+
+    <string-array name="memo_file_control_dialog_entries_4_folder">
+        <item>Copy</item>
+        <item>Move</item>
+        <item>Delete</item>
+        <item>Rename</item>
+    </string-array>
+
+    <string-array name="memo_list_control_dialog_entries">
+        <item>Create a new note</item>
+        <item>Create a new folder</item>
+    </string-array>
+
+</resources>

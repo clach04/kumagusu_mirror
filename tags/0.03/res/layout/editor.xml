@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <!--
+    <TextView
+        android:id="@+id/"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    -->
+
+    <LinearLayout
+        android:id="@+id/edit_search_tool"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <ImageButton
+            android:id="@+id/edit_search_close"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:src="@drawable/check" />
+
+        <EditText
+            android:id="@+id/edit_search_word"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/edit_prev_search"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:src="@drawable/arrow_left" />
+
+        <ImageButton
+            android:id="@+id/edit_next_search"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:src="@drawable/arrow_right" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/editor"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top"
+        android:inputType="text|textAutoComplete|textMultiLine"
+        android:padding="15dp"
+        android:scrollbars="vertical" />
+<!--
+        android:inputType="none"
+        android:inputType="text|textMultiLine"
+
+        android:focusableInTouchMode="true"
+        android:autoLink="web|email|map"
+        android:imeOptions="flagNoExtractUi"
+     -->
+</LinearLayout>
