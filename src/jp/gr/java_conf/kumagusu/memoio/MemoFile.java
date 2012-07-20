@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
-import jp.gr.java_conf.kumagusu.CommonData;
+import jp.gr.java_conf.kumagusu.MainApplication;
 
 import jp.gr.java_conf.kumagusu.R;
 
@@ -119,7 +119,7 @@ public final class MemoFile extends AbstractMemo
         if ((this.memoType == MemoType.Secret1) || (this.memoType == MemoType.Secret2))
         {
             // 暗号化ファイルなら復号
-            for (String password : CommonData.getInstance((Activity) context).getPasswordList())
+            for (String password : MainApplication.getInstance((Activity) context).getPasswordList())
             {
                 strData = decode(password, buffer);
 
@@ -368,9 +368,11 @@ public final class MemoFile extends AbstractMemo
 
                 File file = new File(this.folderFile.getAbsolutePath(), fileNameBody);
 
-                // 既存ファイルか、生成したファイル名と同じファイルが存在しない場合
+                // 既存ファイルで元のファイル名と同じ、
+                // または生成したファイル名と同じファイルが存在しない場合、
                 // ファイル名として採用
-                if ((this.memoFile != null) || (!file.exists()))
+                if (((this.memoFile != null) && (this.memoFile.getAbsolutePath().equals(file.getAbsolutePath())))
+                        || (!file.exists()))
                 {
                     return file.getAbsolutePath();
                 }

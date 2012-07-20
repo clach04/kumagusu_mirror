@@ -91,7 +91,7 @@ public final class Timer
             stop();
 
             // パスワードをクリア
-            CommonData.getInstance((Activity) context).clearPasswordList();
+            MainApplication.getInstance((Activity) context).clearPasswordList();
 
             // アプリケーションを終了する
             Activity act = (Activity) context;

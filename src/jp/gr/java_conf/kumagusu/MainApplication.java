@@ -8,11 +8,11 @@ import android.app.Activity;
 import android.app.Application;
 
 /**
- * Activity間の共有データ.
+ * Applicationクラス.
  *
  * @author tarshi
  */
-public final class CommonData extends Application
+public final class MainApplication extends Application
 {
     @Override
     public void onCreate()
@@ -21,14 +21,14 @@ public final class CommonData extends Application
     }
 
     /**
-     * CommonDataのインスタンスを取得する.
+     * MainApplicationのインスタンスを取得する.
      *
      * @param act Activity
-     * @return CommonDataインスタンス
+     * @return MainApplicationインスタンス
      */
-    public static CommonData getInstance(Activity act)
+    public static MainApplication getInstance(Activity act)
     {
-        return (CommonData) act.getApplication();
+        return (MainApplication) act.getApplication();
     }
 
     /**
@@ -121,7 +121,7 @@ public final class CommonData extends Application
     /**
      * メモリスト状態.
      */
-    private Stack<MemoListViewStatus> memoListStatusStack = new Stack<CommonData.MemoListViewStatus>();
+    private Stack<MemoListViewStatus> memoListStatusStack = new Stack<MainApplication.MemoListViewStatus>();
 
     /**
      * メモリスト状態を保存.

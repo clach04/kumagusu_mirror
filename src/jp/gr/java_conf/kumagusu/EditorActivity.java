@@ -194,7 +194,7 @@ public final class EditorActivity extends Activity
                     // OK処理
                     String tryPassword = dialog.getText();
 
-                    CommonData.getInstance(EditorActivity.this).addPassword(tryPassword);
+                    MainApplication.getInstance(EditorActivity.this).addPassword(tryPassword);
 
                     setMemoData();
                 }
@@ -309,7 +309,7 @@ public final class EditorActivity extends Activity
         if (this.autoCloseTimer.stop())
         {
             // パスワードをクリア
-            CommonData.getInstance(this).clearPasswordList();
+            MainApplication.getInstance(this).clearPasswordList();
         }
 
         // 自動リンクを設定
