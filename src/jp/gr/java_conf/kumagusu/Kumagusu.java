@@ -3,28 +3,28 @@ package jp.gr.java_conf.kumagusu;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog;
+import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog.OnDirectoryListDialogListener;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
 import jp.gr.java_conf.kumagusu.control.ListDialog;
-import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog.OnDirectoryListDialogListener;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
 import jp.gr.java_conf.kumagusu.memoio.MemoFolder;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -133,14 +133,14 @@ public final class Kumagusu extends Activity
     private List<IMemo> mCurrentFolderMemoFileList = new ArrayList<IMemo>();
 
     /**
-     * カレントディレクトリのファイル.
+     * メモビルダ.
      */
-    private File[] mCurrentFolderFileList = null;
+    private MemoBuilder memoBuilder = null;
 
     /**
-     * カレントディレクトリのファイルインデックス.
+     * カレントディレクトリのファイル.
      */
-    private int mCurrentFolderFileListIndex = 0;
+    private LinkedList<File> mCurrentFolderFileQueue = new LinkedList<File>();
 
     /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
@@ -592,6 +592,9 @@ public final class Kumagusu extends Activity
             {
             }
         });
+
+        // メモリスト処理初期化
+        initMemoList();
     }
 
     @Override
@@ -605,6 +608,12 @@ public final class Kumagusu extends Activity
         if (this.mAutoCloseTimer != null)
         {
             this.mAutoCloseTimer.start();
+        }
+
+        // ワーカスレッド破棄
+        if (this.memoCreater != null)
+        {
+            this.memoCreater.cancel(true);
         }
     }
 
@@ -809,17 +818,37 @@ public final class Kumagusu extends Activity
     }
 
     /**
-     * 内部情報を初期化する.
+     * メモ作成ワーカースレッド.
+     */
+    private MemoCreater memoCreater = null;
+
+    /**
+     * メモリスト処理を初期化する.
      */
     private void initMemoList()
     {
+        this.memoBuilder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
+                MainPreferenceActivity.isTitleLink(this));
+    }
+
+    /**
+     * メモリストをクリアする.
+     */
+    private void clearMemoList()
+    {
+        // メモリスト生成処理をキャンセル
+        if (this.memoCreater != null)
+        {
+            this.memoCreater.cancel(true);
+            this.memoCreater = null;
+        }
+
         // タイトル設定
         setMainTitleText("");
 
         // リスト初期化
         this.mCurrentFolderMemoFileList.clear();
-        this.mCurrentFolderFileList = null;
-        this.mCurrentFolderFileListIndex = 0;
+        this.mCurrentFolderFileQueue.clear();
     }
 
     /**
@@ -827,126 +856,14 @@ public final class Kumagusu extends Activity
      */
     private void createMemoList()
     {
-        MemoBuilder memoBuilder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
-                MainPreferenceActivity.isTitleLink(this));
-
         // ファイルリストを取得
-        if (this.mCurrentFolderFileList == null)
+        for (File f : getCurrentFileList())
         {
-            // カレントフォルダ内のファイルリストを取得
-            this.mCurrentFolderFileList = getCurrentFileList(memoBuilder);
+            this.mCurrentFolderFileQueue.add(f);
         }
 
-        // IMemoリストを生成
-        for (int i = this.mCurrentFolderFileListIndex; i < this.mCurrentFolderFileList.length; i++)
-        {
-            File f = this.mCurrentFolderFileList[i];
-
-            IMemo item;
-
-            try
-            {
-                item = memoBuilder.buildFromFile(f.getAbsolutePath());
-            }
-            catch (Exception ex)
-            {
-                continue;
-            }
-
-            if (item.getMemoType() == MemoType.None)
-            {
-                continue;
-            }
-
-            // 暗号化ファイルが解読出来ていない場合、新しいパスワードを入力
-            if (item instanceof MemoFile)
-            {
-                MemoFile memoItem = (MemoFile) item;
-
-                if (!memoItem.isDecryptFg())
-                {
-                    final InputDialog dialog = new InputDialog();
-                    dialog.showDialog(this, getResources().getString(R.string.ui_td_input_password),
-                            InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
-                            new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface d, int which)
-                                {
-                                    // OK処理
-                                    String tryPassword = dialog.getText();
-                                    if (!MainApplication.getInstance(Kumagusu.this).getPasswordList()
-                                            .contains(tryPassword))
-                                    {
-                                        MainApplication.getInstance(Kumagusu.this).getPasswordList().add(tryPassword);
-                                    }
-                                    createMemoList();
-                                }
-                            }, new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface d, int which)
-                                {
-                                    // キャンセル処理
-                                }
-                            });
-
-                    this.mCurrentFolderFileListIndex = i;
-
-                    return;
-                }
-                else
-                {
-                    if (MainApplication.getInstance(Kumagusu.this).getPasswordList().size() > 0)
-                    {
-                        MainApplication.getInstance(Kumagusu.this).setLastCorrectPassword(
-                                MainApplication.getInstance(Kumagusu.this).getPasswordList()
-                                        .get(MainApplication.getInstance(Kumagusu.this).getPasswordList().size() - 1));
-                    }
-                }
-            }
-
-            this.mCurrentFolderMemoFileList.add(item);
-        }
-
-        // XMLで定義したandroid:idの値を指定してListViewを取得します。
-        mListView.setAdapter(new MemoListAdapter(this, this.mCurrentFolderMemoFileList));
-
-        Collections.sort(this.mCurrentFolderMemoFileList, new Comparator<IMemo>()
-        {
-            public int compare(IMemo src, IMemo target)
-            {
-                int diff;
-
-                if (src.getMemoType() == MemoType.ParentFolder)
-                {
-                    diff = -1;
-                }
-                else if (target.getMemoType() == MemoType.ParentFolder)
-                {
-                    diff = 1;
-                }
-                else
-
-                if ((src.getMemoType() == MemoType.Folder) && (target.getMemoType() != MemoType.Folder))
-                {
-                    diff = -1;
-                }
-                else if ((src.getMemoType() != MemoType.Folder) && (target.getMemoType() == MemoType.Folder))
-                {
-                    diff = 1;
-                }
-                else
-                {
-                    diff = src.getTitle().compareToIgnoreCase(target.getTitle());
-                }
-
-                return diff;
-            }
-        });
-
-        // 表示位置を復元
-        loadListViewStatus();
+        this.memoCreater = new MemoCreater(this.mCurrentFolderFileQueue, this.memoBuilder);
+        this.memoCreater.execute();
 
         return;
     }
@@ -954,10 +871,9 @@ public final class Kumagusu extends Activity
     /**
      * カレントフォルダ内のファイルリストを取得する.
      *
-     * @param memoBuilder IMemoビルダ
      * @return ファイルリスト
      */
-    private File[] getCurrentFileList(MemoBuilder memoBuilder)
+    private File[] getCurrentFileList()
     {
         // カレントフォルダのファイルオブジェクト取得
         if (MainApplication.getInstance(this).getCurrentMemoFolder() == null)
@@ -978,7 +894,7 @@ public final class Kumagusu extends Activity
                 .equals(MainPreferenceActivity.getMemoLocation(this)))
         {
             ActivityCompat.setUpFolderFunction(this, this.mCurrentFolderMemoFileList,
-                    memoBuilder.build(currentFolderfile.getParent(), MemoType.ParentFolder));
+                    this.memoBuilder.build(currentFolderfile.getParent(), MemoType.ParentFolder));
         }
 
         // カレントフォルダのファイル一覧を取得
@@ -1014,7 +930,7 @@ public final class Kumagusu extends Activity
     private void refreshMemoList()
     {
         // ファイルリスト再生成
-        initMemoList();
+        clearMemoList();
         createMemoList();
     }
 
@@ -1170,5 +1086,209 @@ public final class Kumagusu extends Activity
     private void setMainTitleText(String titleText)
     {
         setTitle(titleText);
+    }
+
+    /**
+     * Memo作成処理.
+     *
+     * @author tadashi
+     *
+     */
+    private class MemoCreater extends AsyncTask<Void, Boolean, Integer>
+    {
+        /**
+         * Fileキュー.
+         */
+        private LinkedList<File> fileQueue;
+
+        /**
+         * メモビルダー.
+         */
+        private MemoBuilder memoBuilder;
+
+        /**
+         * Memo作成処理を初期化する.
+         *
+         * @param fQueue Fileキュー
+         * @param mBuilder Memoビルダ
+         */
+        public MemoCreater(LinkedList<File> fQueue, MemoBuilder mBuilder)
+        {
+            this.fileQueue = fQueue;
+            this.memoBuilder = mBuilder;
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params)
+        {
+            while (this.fileQueue.size() > 0)
+            {
+                File f = this.fileQueue.peek();
+
+                if (f == null)
+                {
+                    break;
+                }
+
+                // キャンセルなら終了
+                if (isCancelled())
+                {
+                    return 1;
+                }
+
+                IMemo item;
+
+                try
+                {
+                    item = this.memoBuilder.buildFromFile(f.getAbsolutePath());
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
+
+                if (item.getMemoType() == MemoType.None)
+                {
+                    continue;
+                }
+
+                if (item instanceof MemoFile)
+                {
+                    MemoFile memoItem = (MemoFile) item;
+
+                    // 暗号化ファイルが解読出来ていない場合、新しいパスワードを入力
+                    if (!memoItem.isDecryptFg())
+                    {
+                        // パスワード入力ダイアログ表示をUIスレッドに指示
+                        publishProgress(false);
+
+                        // 待機
+                        return 0;
+                    }
+                    else
+                    {
+                        // 最後の正しいパスワードを保存
+                        if (MainApplication.getInstance(Kumagusu.this).getPasswordList().size() > 0)
+                        {
+                            MainApplication.getInstance(Kumagusu.this)
+                                    .setLastCorrectPassword(
+                                            MainApplication
+                                                    .getInstance(Kumagusu.this)
+                                                    .getPasswordList()
+                                                    .get(MainApplication.getInstance(Kumagusu.this).getPasswordList()
+                                                            .size() - 1));
+                        }
+                    }
+                }
+
+                // キューの最古Fileを削除
+                this.fileQueue.remove();
+
+                Kumagusu.this.mCurrentFolderMemoFileList.add(item);
+            }
+
+            // キャンセルなら終了
+            if (isCancelled())
+            {
+                return 1;
+            }
+
+            // UIスレッドにMemoをPOST
+            publishProgress(true);
+
+            return 0;
+        }
+
+        @Override
+        protected void onProgressUpdate(Boolean... values)
+        {
+            if (values.length == 0)
+            {
+                return;
+            }
+
+            if (!values[0])
+            {
+                final InputDialog dialog = new InputDialog();
+                dialog.showDialog(Kumagusu.this, getResources().getString(R.string.ui_td_input_password),
+                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface d, int which)
+                            {
+                                // OK処理
+                                String tryPassword = dialog.getText();
+                                if (!MainApplication.getInstance(Kumagusu.this).getPasswordList().contains(tryPassword))
+                                {
+                                    MainApplication.getInstance(Kumagusu.this).getPasswordList().add(tryPassword);
+                                }
+
+                                // ワーカスレッド再生成
+                                Kumagusu.this.memoCreater = new MemoCreater(Kumagusu.this.mCurrentFolderFileQueue,
+                                        Kumagusu.this.memoBuilder);
+                                Kumagusu.this.memoCreater.execute();
+
+                                cancel(true);
+                            }
+                        }, new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface d, int which)
+                            {
+                                // キャンセル処理
+                                cancel(true);
+                            }
+                        });
+                return;
+            }
+
+            MemoListAdapter memoListAdapter = new MemoListAdapter(Kumagusu.this,
+                    Kumagusu.this.mCurrentFolderMemoFileList);
+            Kumagusu.this.mListView.setAdapter(memoListAdapter);
+
+            memoListAdapter.sort(new Comparator<IMemo>()
+            {
+                /**
+                 * ソート項目を比較する.
+                 *
+                 * @param src 比較ベース
+                 * @param target 比較対象
+                 * @return 比較結果
+                 */
+                public int compare(IMemo src, IMemo target)
+                {
+                    int diff;
+
+                    if (src.getMemoType() == MemoType.ParentFolder)
+                    {
+                        diff = -1;
+                    }
+                    else if (target.getMemoType() == MemoType.ParentFolder)
+                    {
+                        diff = 1;
+                    }
+                    else
+
+                    if ((src.getMemoType() == MemoType.Folder) && (target.getMemoType() != MemoType.Folder))
+                    {
+                        diff = -1;
+                    }
+                    else if ((src.getMemoType() != MemoType.Folder) && (target.getMemoType() == MemoType.Folder))
+                    {
+                        diff = 1;
+                    }
+                    else
+                    {
+                        diff = src.getTitle().compareToIgnoreCase(target.getTitle());
+                    }
+
+                    return diff;
+                }
+            });
+
+            // 表示位置を復元
+            loadListViewStatus();
+        }
     }
 }
