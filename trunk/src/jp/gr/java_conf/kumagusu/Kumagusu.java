@@ -143,6 +143,11 @@ public final class Kumagusu extends Activity
     private LinkedList<File> mCurrentFolderFileQueue = new LinkedList<File>();
 
     /**
+     * メモ作成ワーカースレッド.
+     */
+    private MemoCreater memoCreater = null;
+
+    /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
      *
      * @param savedInstanceState Activityの状態
@@ -818,11 +823,6 @@ public final class Kumagusu extends Activity
     }
 
     /**
-     * メモ作成ワーカースレッド.
-     */
-    private MemoCreater memoCreater = null;
-
-    /**
      * メモリスト処理を初期化する.
      */
     private void initMemoList()
@@ -1094,7 +1094,7 @@ public final class Kumagusu extends Activity
      * @author tadashi
      *
      */
-    private class MemoCreater extends AsyncTask<Void, Boolean, Integer>
+    private class MemoCreater extends AsyncTask<Void, Boolean, Boolean>
     {
         /**
          * Fileキュー.
@@ -1119,7 +1119,7 @@ public final class Kumagusu extends Activity
         }
 
         @Override
-        protected Integer doInBackground(Void... params)
+        protected Boolean doInBackground(Void... params)
         {
             while (this.fileQueue.size() > 0)
             {
@@ -1133,7 +1133,7 @@ public final class Kumagusu extends Activity
                 // キャンセルなら終了
                 if (isCancelled())
                 {
-                    return 1;
+                    return false;
                 }
 
                 IMemo item;
@@ -1163,7 +1163,7 @@ public final class Kumagusu extends Activity
                         publishProgress(false);
 
                         // 待機
-                        return 0;
+                        return true;
                     }
                     else
                     {
@@ -1190,19 +1190,25 @@ public final class Kumagusu extends Activity
             // キャンセルなら終了
             if (isCancelled())
             {
-                return 1;
+                return false;
             }
 
             // UIスレッドにMemoをPOST
             publishProgress(true);
 
-            return 0;
+            return true;
         }
 
         @Override
         protected void onProgressUpdate(Boolean... values)
         {
             if (values.length == 0)
+            {
+                return;
+            }
+
+            // キャンセルなら終了
+            if (isCancelled())
             {
                 return;
             }
@@ -1228,8 +1234,6 @@ public final class Kumagusu extends Activity
                                 Kumagusu.this.memoCreater = new MemoCreater(Kumagusu.this.mCurrentFolderFileQueue,
                                         Kumagusu.this.memoBuilder);
                                 Kumagusu.this.memoCreater.execute();
-
-                                cancel(true);
                             }
                         }, new DialogInterface.OnClickListener()
                         {
@@ -1237,7 +1241,6 @@ public final class Kumagusu extends Activity
                             public void onClick(DialogInterface d, int which)
                             {
                                 // キャンセル処理
-                                cancel(true);
                             }
                         });
                 return;
@@ -1289,6 +1292,8 @@ public final class Kumagusu extends Activity
 
             // 表示位置を復元
             loadListViewStatus();
+
+            Kumagusu.this.memoCreater = null;
         }
     }
 }
