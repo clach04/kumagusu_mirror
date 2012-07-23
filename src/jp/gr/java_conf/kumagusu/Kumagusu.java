@@ -148,7 +148,7 @@ public final class Kumagusu extends Activity
     /**
      * メモ作成ワーカースレッド.
      */
-    private MemoCreator memoCreator = null;
+    private MemoCreateTask memoCreator = null;
 
     /**
      * メモ表示モード.
@@ -977,7 +977,7 @@ public final class Kumagusu extends Activity
             this.mCurrentFolderFileQueue.add(f);
         }
 
-        this.memoCreator = new MemoCreator(this, this.memoListViewMode, this.mCurrentFolderFileQueue, this.memoBuilder,
+        this.memoCreator = new MemoCreateTask(this, this.memoListViewMode, this.mCurrentFolderFileQueue, this.memoBuilder,
                 this.mListView, this.mCurrentFolderMemoFileList);
         this.memoCreator.execute();
     }
