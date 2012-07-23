@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
-
 import android.app.Activity;
 import android.app.Application;
 
@@ -145,7 +143,7 @@ public final class MainApplication extends Application
             String popLastFolder = popStatus.getLastFolder();
 
             // すでに同じフォルダの情報であれば、入れ替え
-            if (popStatus.matchKey(status.getMemoListViewMode(), status.getLastFolder()))
+            if (popLastFolder.equals(status.getLastFolder()))
             {
                 this.memoListStatusStack.pop(); // 削除
                 this.memoListStatusStack.push(status);
@@ -168,11 +166,10 @@ public final class MainApplication extends Application
     /**
      * 指定フォルダのメモリスト状態を返す.
      *
-     * @param viewMode メモリスト表示モード
      * @param currentFolder 現在のフォルダ
      * @return メモリスト状態
      */
-    public MemoListViewStatus popMemoListViewStatus(MemoListViewMode viewMode, String currentFolder)
+    public MemoListViewStatus popMemoListViewStatus(String currentFolder)
     {
         MemoListViewStatus result = null;
 
@@ -180,7 +177,7 @@ public final class MainApplication extends Application
         {
             MemoListViewStatus status = this.memoListStatusStack.get(i);
 
-            if (status.matchKey(viewMode, currentFolder))
+            if (currentFolder.equals(status.getLastFolder()))
             {
                 result = status;
                 break;
@@ -191,6 +188,31 @@ public final class MainApplication extends Application
     }
 
     /**
+     * メモリスト状態（検索用）.
+     */
+    private MemoListViewStatus memoListStatus4Search = null;
+
+    /**
+     * メモリスト状態（検索用）を返す.
+     *
+     * @return メモリスト状態（検索用）
+     */
+    public MemoListViewStatus getMemoListStatus4Search()
+    {
+        return memoListStatus4Search;
+    }
+
+    /**
+     * メモリスト状態（検索用）を設定する.
+     *
+     * @param status メモリスト状態（検索用）
+     */
+    public void setMemoListStatus4Search(MemoListViewStatus status)
+    {
+        this.memoListStatus4Search = status;
+    }
+
+    /**
      * メモリストの状態.
      *
      * @author tarshi
@@ -198,11 +220,6 @@ public final class MainApplication extends Application
      */
     public static final class MemoListViewStatus
     {
-        /**
-         * メモリスト表示モード.
-         */
-        private MemoListViewMode memoListViewMode = MemoListViewMode.FOLDER_VIEW;
-
         /**
          * 最後の表示フォルダ.
          */
@@ -217,26 +234,6 @@ public final class MainApplication extends Application
          * 最後のリスト表示位置.
          */
         private int lastTopPositionY = 0;
-
-        /**
-         * メモリスト表示モードを返す.
-         *
-         * @return メモリスト表示モード
-         */
-        public MemoListViewMode getMemoListViewMode()
-        {
-            return this.memoListViewMode;
-        }
-
-        /**
-         * メモリスト表示モードを設定する.
-         *
-         * @param mode メモリスト表示モード
-         */
-        public void setMemoListViewMode(MemoListViewMode mode)
-        {
-            this.memoListViewMode = mode;
-        }
 
         /**
          * 最後の表示フォルダを返す.
@@ -296,18 +293,6 @@ public final class MainApplication extends Application
         public void setLastTopPositionY(int posY)
         {
             this.lastTopPositionY = posY;
-        }
-
-        /**
-         * メモリスト表示モードと最後の表示フォルダが一致するか?
-         *
-         * @param viewMode リスト表示モード
-         * @param lFolder 最後の表示フォルダ
-         * @return 一致する場合true
-         */
-        public boolean matchKey(MemoListViewMode viewMode, String lFolder)
-        {
-            return ((this.memoListViewMode) == viewMode) && (this.lastFolder.equals(lFolder));
         }
     }
 }

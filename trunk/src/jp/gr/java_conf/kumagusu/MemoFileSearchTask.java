@@ -1,95 +1,76 @@
 package jp.gr.java_conf.kumagusu;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
-import jp.gr.java_conf.kumagusu.memoio.MemoFile;
-import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.widget.ListView;
 
 /**
- * メモファイルを検索し、メモリストを作成する.
+ * 検索メモリスト作成処理.
  *
  * @author tarshi
  *
  */
-public final class MemoFileSearchTask extends AsyncTask<Void, MemoFile, Boolean>
+public final class MemoFileSearchTask extends AbstractMemoCreateTask
 {
     /**
-     * アクティビティ.
+     * 検索フォルダ.
      */
-    private Activity activity;
+    private String baseFolder;
 
     /**
-     * 表示先のListView.
+     * 検索ワード.
      */
-    private ListView targetListView;
-
-    /**
-     * Fileキュー.
-     */
-    private LinkedList<File> fileQueue;
-
-    /**
-     * メモビルダー.
-     */
-    private MemoBuilder memoBuilder;
-
-    /**
-     * メモリスト.
-     */
-    private List<IMemo> memoList;
-
-    /**
-     * メモリスト表示モード.
-     */
-    private MemoListViewMode memoListViewMode;
-
     private String searchWords;
 
     /**
+     * 検索メモリスト作成処理を初期化する.
      *
-     * @param act
-     * @param viewMode
-     * @param fQueue
-     * @param mBuilder
-     * @param lView
-     * @param mList
+     * @param act アクティビティー
+     * @param viewMode メモリスト表示モード
+     * @param bFolder 検索フォルダ
+     * @param mBuilder Memoビルダ
+     * @param lView ListView
+     * @param mList メモリスト
+     * @param sWords 検索ワード
      */
-    public MemoFileSearchTask(Activity act, MemoListViewMode viewMode, LinkedList<File> fQueue, MemoBuilder mBuilder,
+    public MemoFileSearchTask(Activity act, MemoListViewMode viewMode, String bFolder, MemoBuilder mBuilder,
             ListView lView, List<IMemo> mList, String sWords)
     {
-        this.activity = act;
-        this.memoListViewMode = viewMode;
-        this.fileQueue = fQueue;
-        this.memoBuilder = mBuilder;
-        this.targetListView = lView;
-        this.memoList = mList;
+        super(act, viewMode, mBuilder, lView, mList);
+
+        this.baseFolder = bFolder;
         this.searchWords = sWords;
+    }
+
+    @Override
+    protected void onPreExecute()
+    {
+        setMainTitleText(null, getActivity().getResources().getString(R.string.search_memo_list_post_title_start));
     }
 
     @Override
     protected Boolean doInBackground(Void... params)
     {
         // メモファイルの検索処理
+        findMemoFile(new File(this.baseFolder), (List<IMemo>) new ArrayList<IMemo>());
 
-        // TODO 自動生成されたメソッド・スタブ
-        return null;
+        return true;
     }
 
-    @Override
-    protected void onProgressUpdate(MemoFile... values)
-    {
-    }
-
-    private void findMemoFile(File targetFolderFile)
+    /**
+     * 指定検索ワードを含むメモファイルを検索する.
+     *
+     * @param targetFolderFile 検索フォルダ
+     * @param iMemoList 検索結果保存先リスト
+     */
+    @SuppressWarnings("unchecked")
+    private void findMemoFile(File targetFolderFile, List<IMemo> iMemoList)
     {
         // フォルダが存在しない場合終了
         if ((!targetFolderFile.exists()) || (!targetFolderFile.isDirectory()))
@@ -101,35 +82,36 @@ public final class MemoFileSearchTask extends AsyncTask<Void, MemoFile, Boolean>
 
         for (File file : files)
         {
+            // キャンセルなら終了
+            if (isCancelled())
+            {
+                return;
+            }
+
             if (file.isDirectory())
             {
-                findMemoFile(file.getAbsoluteFile());
+                findMemoFile(file.getAbsoluteFile(), iMemoList);
             }
             else
             {
-                MemoFile memoFile;
-
-                try
-                {
-                    memoFile = (MemoFile) this.memoBuilder.buildFromFile(file.getAbsolutePath());
-                }
-                catch (FileNotFoundException e)
-                {
-                    continue;
-                }
-
-                if (memoFile.getMemoType() == MemoType.None)
-                {
-                    continue;
-                }
-
-                if (memoFile.getText().contains(this.searchWords))
-                {
-                    publishProgress(memoFile);
-                }
+                decryptMemoFile(file, iMemoList, this.searchWords);
             }
         }
 
+        // キャンセルなら終了
+        if (isCancelled())
+        {
+            return;
+        }
+
+        publishProgress(iMemoList);
+
         return;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean result)
+    {
+        setMainTitleText(null, getActivity().getResources().getString(R.string.search_memo_list_post_title_end));
     }
 }

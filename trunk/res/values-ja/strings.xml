@@ -62,6 +62,10 @@
     <string name="ui_edit_end">編集終了</string>
     <string name="ui_confirm">確認</string>
 
+    <!-- メモリスト -->
+    <string name="memo_list_post_title_start"> を表示中......</string>
+    <string name="memo_list_post_title_end"></string>
+
     <!-- ファイル操作ダイアログ -->
     <string name="memo_file_control_dialog_title">メモの操作</string>
     <string name="memo_file_control_dialog_delete_title">削除</string>
@@ -87,7 +91,7 @@
 
     <!-- メモ検索 -->
     <string name="search_memo_control_dialog_title">検索</string>
-    <string name="search_memo_list_post_title_start"> を検索中</string>
+    <string name="search_memo_list_post_title_start"> を検索中......</string>
     <string name="search_memo_list_post_title_end"> の検索結果</string>
 
     <!--
