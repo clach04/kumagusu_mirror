@@ -3,7 +3,6 @@ package jp.gr.java_conf.kumagusu;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,7 +23,6 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -145,7 +143,7 @@ public final class Kumagusu extends Activity
     /**
      * メモ作成ワーカースレッド.
      */
-    private MemoCreater memoCreater = null;
+    private MemoCreator memoCreator = null;
 
     /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
@@ -616,9 +614,9 @@ public final class Kumagusu extends Activity
         }
 
         // ワーカスレッド破棄
-        if (this.memoCreater != null)
+        if (this.memoCreator != null)
         {
-            this.memoCreater.cancel(true);
+            this.memoCreator.cancel(true);
         }
     }
 
@@ -837,10 +835,10 @@ public final class Kumagusu extends Activity
     private void clearMemoList()
     {
         // メモリスト生成処理をキャンセル
-        if (this.memoCreater != null)
+        if (this.memoCreator != null)
         {
-            this.memoCreater.cancel(true);
-            this.memoCreater = null;
+            this.memoCreator.cancel(true);
+            this.memoCreator = null;
         }
 
         // タイトル設定
@@ -862,8 +860,8 @@ public final class Kumagusu extends Activity
             this.mCurrentFolderFileQueue.add(f);
         }
 
-        this.memoCreater = new MemoCreater(this.mCurrentFolderFileQueue, this.memoBuilder);
-        this.memoCreater.execute();
+        this.memoCreator = new MemoCreator(this, this.mCurrentFolderFileQueue, this.memoBuilder, this.mListView);
+        this.memoCreator.execute();
 
         return;
     }
@@ -949,21 +947,6 @@ public final class Kumagusu extends Activity
         }
 
         MainApplication.getInstance(this).pushMemoListStatusStack(listViewStatus);
-    }
-
-    /**
-     * リストの表示位置を復元する.
-     */
-    private void loadListViewStatus()
-    {
-        MainApplication.MemoListViewStatus listViewStatus = MainApplication.getInstance(this).popMemoListViewStatus(
-                MainApplication.getInstance(this).getCurrentMemoFolder());
-
-        if (listViewStatus != null)
-        {
-            this.mListView.setSelectionFromTop(listViewStatus.getLastTopPosition(),
-                    listViewStatus.getLastTopPositionY());
-        }
     }
 
     /**
@@ -1086,214 +1069,5 @@ public final class Kumagusu extends Activity
     private void setMainTitleText(String titleText)
     {
         setTitle(titleText);
-    }
-
-    /**
-     * Memo作成処理.
-     *
-     * @author tadashi
-     *
-     */
-    private class MemoCreater extends AsyncTask<Void, Boolean, Boolean>
-    {
-        /**
-         * Fileキュー.
-         */
-        private LinkedList<File> fileQueue;
-
-        /**
-         * メモビルダー.
-         */
-        private MemoBuilder memoBuilder;
-
-        /**
-         * Memo作成処理を初期化する.
-         *
-         * @param fQueue Fileキュー
-         * @param mBuilder Memoビルダ
-         */
-        public MemoCreater(LinkedList<File> fQueue, MemoBuilder mBuilder)
-        {
-            this.fileQueue = fQueue;
-            this.memoBuilder = mBuilder;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params)
-        {
-            while (this.fileQueue.size() > 0)
-            {
-                File f = this.fileQueue.peek();
-
-                if (f == null)
-                {
-                    break;
-                }
-
-                // キャンセルなら終了
-                if (isCancelled())
-                {
-                    return false;
-                }
-
-                IMemo item;
-
-                try
-                {
-                    item = this.memoBuilder.buildFromFile(f.getAbsolutePath());
-                }
-                catch (Exception ex)
-                {
-                    continue;
-                }
-
-                if (item.getMemoType() == MemoType.None)
-                {
-                    continue;
-                }
-
-                if (item instanceof MemoFile)
-                {
-                    MemoFile memoItem = (MemoFile) item;
-
-                    // 暗号化ファイルが解読出来ていない場合、新しいパスワードを入力
-                    if (!memoItem.isDecryptFg())
-                    {
-                        // パスワード入力ダイアログ表示をUIスレッドに指示
-                        publishProgress(false);
-
-                        // 待機
-                        return true;
-                    }
-                    else
-                    {
-                        // 最後の正しいパスワードを保存
-                        if (MainApplication.getInstance(Kumagusu.this).getPasswordList().size() > 0)
-                        {
-                            MainApplication.getInstance(Kumagusu.this)
-                                    .setLastCorrectPassword(
-                                            MainApplication
-                                                    .getInstance(Kumagusu.this)
-                                                    .getPasswordList()
-                                                    .get(MainApplication.getInstance(Kumagusu.this).getPasswordList()
-                                                            .size() - 1));
-                        }
-                    }
-                }
-
-                // キューの最古Fileを削除
-                this.fileQueue.remove();
-
-                Kumagusu.this.mCurrentFolderMemoFileList.add(item);
-            }
-
-            // キャンセルなら終了
-            if (isCancelled())
-            {
-                return false;
-            }
-
-            // UIスレッドにMemoをPOST
-            publishProgress(true);
-
-            return true;
-        }
-
-        @Override
-        protected void onProgressUpdate(Boolean... values)
-        {
-            if (values.length == 0)
-            {
-                return;
-            }
-
-            // キャンセルなら終了
-            if (isCancelled())
-            {
-                return;
-            }
-
-            if (!values[0])
-            {
-                final InputDialog dialog = new InputDialog();
-                dialog.showDialog(Kumagusu.this, getResources().getString(R.string.ui_td_input_password),
-                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
-                        new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface d, int which)
-                            {
-                                // OK処理
-                                String tryPassword = dialog.getText();
-                                if (!MainApplication.getInstance(Kumagusu.this).getPasswordList().contains(tryPassword))
-                                {
-                                    MainApplication.getInstance(Kumagusu.this).getPasswordList().add(tryPassword);
-                                }
-
-                                // ワーカスレッド再生成
-                                Kumagusu.this.memoCreater = new MemoCreater(Kumagusu.this.mCurrentFolderFileQueue,
-                                        Kumagusu.this.memoBuilder);
-                                Kumagusu.this.memoCreater.execute();
-                            }
-                        }, new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface d, int which)
-                            {
-                                // キャンセル処理
-                            }
-                        });
-                return;
-            }
-
-            MemoListAdapter memoListAdapter = new MemoListAdapter(Kumagusu.this,
-                    Kumagusu.this.mCurrentFolderMemoFileList);
-            Kumagusu.this.mListView.setAdapter(memoListAdapter);
-
-            memoListAdapter.sort(new Comparator<IMemo>()
-            {
-                /**
-                 * ソート項目を比較する.
-                 *
-                 * @param src 比較ベース
-                 * @param target 比較対象
-                 * @return 比較結果
-                 */
-                public int compare(IMemo src, IMemo target)
-                {
-                    int diff;
-
-                    if (src.getMemoType() == MemoType.ParentFolder)
-                    {
-                        diff = -1;
-                    }
-                    else if (target.getMemoType() == MemoType.ParentFolder)
-                    {
-                        diff = 1;
-                    }
-                    else
-
-                    if ((src.getMemoType() == MemoType.Folder) && (target.getMemoType() != MemoType.Folder))
-                    {
-                        diff = -1;
-                    }
-                    else if ((src.getMemoType() != MemoType.Folder) && (target.getMemoType() == MemoType.Folder))
-                    {
-                        diff = 1;
-                    }
-                    else
-                    {
-                        diff = src.getTitle().compareToIgnoreCase(target.getTitle());
-                    }
-
-                    return diff;
-                }
-            });
-
-            // 表示位置を復元
-            loadListViewStatus();
-
-            Kumagusu.this.memoCreater = null;
-        }
     }
 }
