@@ -84,6 +84,11 @@
     <string name="memo_list_control_dialog_add_error_duplicate">There is already a folder of a same name.</string>
     <string name="memo_list_control_dialog_add_error_noinput">The folder name is not inputted. </string>
 
+    <!-- メモ検索 -->
+    <string name="search_memo_control_dialog_title">Search</string>
+    <string name="search_memo_list_post_title_start"> Searching ....</string>
+    <string name="search_memo_list_post_title_end">  Search result</string>
+
     <!--
     ******************************************************************
      その他

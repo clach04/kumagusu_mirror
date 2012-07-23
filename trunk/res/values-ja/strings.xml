@@ -85,6 +85,11 @@
     <string name="memo_list_control_dialog_add_error_duplicate">すでに同名のフォルダがあります.</string>
     <string name="memo_list_control_dialog_add_error_noinput">フォルダ名が入力されていません.</string>
 
+    <!-- メモ検索 -->
+    <string name="search_memo_control_dialog_title">検索</string>
+    <string name="search_memo_list_post_title_start"> を検索中</string>
+    <string name="search_memo_list_post_title_end"> の検索結果</string>
+
     <!--
     ******************************************************************
      その他
