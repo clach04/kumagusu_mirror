@@ -860,7 +860,8 @@ public final class Kumagusu extends Activity
             this.mCurrentFolderFileQueue.add(f);
         }
 
-        this.memoCreator = new MemoCreator(this, this.mCurrentFolderFileQueue, this.memoBuilder, this.mListView);
+        this.memoCreator = new MemoCreator(this, this.mCurrentFolderFileQueue, this.memoBuilder, this.mListView,
+                this.mCurrentFolderMemoFileList);
         this.memoCreator.execute();
 
         return;
