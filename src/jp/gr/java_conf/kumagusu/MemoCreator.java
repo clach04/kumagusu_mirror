@@ -1,11 +1,11 @@
 package jp.gr.java_conf.kumagusu;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
@@ -20,7 +20,7 @@ import android.widget.ListView;
 /**
  * メモ生成処理.
  *
- * @author somiya
+ * @author tarshi
  *
  */
 public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
@@ -51,6 +51,11 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
     private List<IMemo> memoList;
 
     /**
+     * メモリスト表示モード.
+     */
+    private MemoListViewMode memoListViewMode;
+
+    /**
      * 同期用オブジェクト.
      */
     private Object syncObject;
@@ -59,14 +64,17 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
      * Memo作成処理を初期化する.
      *
      * @param act アクティビティ
+     * @param viewMode メモリスト表示モード
      * @param fQueue Fileキュー
      * @param mBuilder Memoビルダ
      * @param lView ListView
      * @param mList メモリスト
      */
-    public MemoCreator(Activity act, LinkedList<File> fQueue, MemoBuilder mBuilder, ListView lView, List<IMemo> mList)
+    public MemoCreator(Activity act, MemoListViewMode viewMode, LinkedList<File> fQueue, MemoBuilder mBuilder,
+            ListView lView, List<IMemo> mList)
     {
         this.activity = act;
+        this.memoListViewMode = viewMode;
         this.fileQueue = fQueue;
         this.memoBuilder = mBuilder;
         this.targetListView = lView;
@@ -274,7 +282,8 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
     private void loadListViewStatus()
     {
         MainApplication.MemoListViewStatus listViewStatus = MainApplication.getInstance(this.activity)
-                .popMemoListViewStatus(MainApplication.getInstance(this.activity).getCurrentMemoFolder());
+                .popMemoListViewStatus(this.memoListViewMode,
+                        MainApplication.getInstance(this.activity).getCurrentMemoFolder());
 
         if (listViewStatus != null)
         {
