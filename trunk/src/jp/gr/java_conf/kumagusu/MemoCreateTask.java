@@ -23,7 +23,7 @@ import android.widget.ListView;
  * @author tarshi
  *
  */
-public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
+public final class MemoCreateTask extends AsyncTask<Void, List<IMemo>, Boolean>
 {
     /**
      * アクティビティ.
@@ -56,9 +56,14 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
     private MemoListViewMode memoListViewMode;
 
     /**
+     * メモリストのアダプタ
+     */
+    private MemoListAdapter memoListAdapter = null;
+
+    /**
      * 同期用オブジェクト.
      */
-    private Object syncObject;
+    private Object syncObject = new Object();
 
     /**
      * Memo作成処理を初期化する.
@@ -70,7 +75,7 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
      * @param lView ListView
      * @param mList メモリスト
      */
-    public MemoCreator(Activity act, MemoListViewMode viewMode, LinkedList<File> fQueue, MemoBuilder mBuilder,
+    public MemoCreateTask(Activity act, MemoListViewMode viewMode, LinkedList<File> fQueue, MemoBuilder mBuilder,
             ListView lView, List<IMemo> mList)
     {
         this.activity = act;
@@ -78,11 +83,10 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
         this.fileQueue = fQueue;
         this.memoBuilder = mBuilder;
         this.targetListView = lView;
-
         this.memoList = mList;
-        this.syncObject = new Object();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Boolean doInBackground(Void... params)
     {
@@ -122,7 +126,7 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
                     if (!memoItem.isDecryptFg())
                     {
                         // パスワード入力ダイアログ表示をUIスレッドに指示
-                        publishProgress(false);
+                        publishProgress((List<IMemo>[]) null);
 
                         // 待機
                         try
@@ -169,30 +173,25 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
         }
 
         // UIスレッドにMemoをPOST
-        publishProgress(true);
+        publishProgress(this.memoList);
 
         return true;
     }
 
     @Override
-    protected void onProgressUpdate(Boolean... values)
+    protected void onProgressUpdate(List<IMemo>... values)
     {
-        if (values.length == 0)
-        {
-            return;
-        }
-
         // キャンセルなら終了
         if (isCancelled())
         {
             return;
         }
 
-        if (!values[0])
+        if (values == null)
         {
             final InputDialog dialog = new InputDialog();
-            dialog.showDialog(MemoCreator.this.activity,
-                    MemoCreator.this.activity.getResources().getString(R.string.ui_td_input_password),
+            dialog.showDialog(MemoCreateTask.this.activity,
+                    MemoCreateTask.this.activity.getResources().getString(R.string.ui_td_input_password),
                     InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
                     new DialogInterface.OnClickListener()
                     {
@@ -201,17 +200,17 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
                         {
                             // OK処理
                             String tryPassword = dialog.getText();
-                            if (!MainApplication.getInstance(MemoCreator.this.activity).getPasswordList()
+                            if (!MainApplication.getInstance(MemoCreateTask.this.activity).getPasswordList()
                                     .contains(tryPassword))
                             {
-                                MainApplication.getInstance(MemoCreator.this.activity).getPasswordList()
+                                MainApplication.getInstance(MemoCreateTask.this.activity).getPasswordList()
                                         .add(tryPassword);
                             }
 
                             // ワーカスレッド再開
-                            synchronized (MemoCreator.this.syncObject)
+                            synchronized (MemoCreateTask.this.syncObject)
                             {
-                                MemoCreator.this.syncObject.notifyAll();
+                                MemoCreateTask.this.syncObject.notifyAll();
                             }
                         }
                     }, new DialogInterface.OnClickListener()
@@ -228,8 +227,11 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
         else
         {
             // ListViewにメモリストを設定
-            MemoListAdapter memoListAdapter = new MemoListAdapter(this.activity, this.memoList);
-            this.targetListView.setAdapter(memoListAdapter);
+            if (this.memoListAdapter == null)
+            {
+                this.memoListAdapter = new MemoListAdapter(this.activity, values[0]);
+                this.targetListView.setAdapter(memoListAdapter);
+            }
 
             memoListAdapter.sort(new Comparator<IMemo>()
             {
