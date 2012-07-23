@@ -101,54 +101,57 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
             }
             catch (Exception ex)
             {
-                continue;
+                item = null;
             }
 
-            if (item.getMemoType() == MemoType.None)
+            if ((item != null) && (item.getMemoType() != MemoType.None))
             {
-                continue;
-            }
-
-            if (item instanceof MemoFile)
-            {
-                MemoFile memoItem = (MemoFile) item;
-
-                // 暗号化ファイルが解読出来ていない場合、新しいパスワードを入力
-                if (!memoItem.isDecryptFg())
+                if (item instanceof MemoFile)
                 {
-                    // パスワード入力ダイアログ表示をUIスレッドに指示
-                    publishProgress(false);
+                    MemoFile memoItem = (MemoFile) item;
 
-                    // 待機
-                    try
+                    // 暗号化ファイルが解読出来ていない場合、新しいパスワードを入力
+                    if (!memoItem.isDecryptFg())
                     {
-                        synchronized (this.syncObject)
+                        // パスワード入力ダイアログ表示をUIスレッドに指示
+                        publishProgress(false);
+
+                        // 待機
+                        try
                         {
-                            this.syncObject.wait();
+                            synchronized (this.syncObject)
+                            {
+                                this.syncObject.wait();
+                            }
+                        }
+                        catch (InterruptedException ex)
+                        {
+                        }
+
+                        continue;
+                    }
+                    else
+                    {
+                        // 最後の正しいパスワードを保存
+                        if (MainApplication.getInstance(this.activity).getPasswordList().size() > 0)
+                        {
+                            MainApplication.getInstance(this.activity)
+                                    .setLastCorrectPassword(
+                                            MainApplication
+                                                    .getInstance(this.activity)
+                                                    .getPasswordList()
+                                                    .get(MainApplication.getInstance(this.activity).getPasswordList()
+                                                            .size() - 1));
                         }
                     }
-                    catch (InterruptedException ex)
-                    {
-                    }
+                }
 
-                    continue;
-                }
-                else
-                {
-                    // 最後の正しいパスワードを保存
-                    if (MainApplication.getInstance(this.activity).getPasswordList().size() > 0)
-                    {
-                        MainApplication.getInstance(this.activity).setLastCorrectPassword(
-                                MainApplication.getInstance(this.activity).getPasswordList()
-                                        .get(MainApplication.getInstance(this.activity).getPasswordList().size() - 1));
-                    }
-                }
+                // Memo追加
+                this.memoList.add(item);
             }
 
             // キューの最古Fileを削除
             this.fileQueue.remove();
-
-            this.memoList.add(item);
         }
 
         // キャンセルなら終了
