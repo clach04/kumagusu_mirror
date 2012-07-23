@@ -62,6 +62,10 @@
     <string name="ui_edit_end">Finished editing</string>
     <string name="ui_confirm">Confirmation</string>
 
+    <!-- メモリスト -->
+    <string name="memo_list_post_title_start"> Decrypting......</string>
+    <string name="memo_list_post_title_end"></string>
+
     <!-- ファイル操作ダイアログ -->
     <string name="memo_file_control_dialog_title">Operation of Note</string>
     <string name="memo_file_control_dialog_delete_title">Delete</string>
@@ -86,8 +90,8 @@
 
     <!-- メモ検索 -->
     <string name="search_memo_control_dialog_title">Search</string>
-    <string name="search_memo_list_post_title_start"> Searching ....</string>
-    <string name="search_memo_list_post_title_end">  Search result</string>
+    <string name="search_memo_list_post_title_start"> Searching......</string>
+    <string name="search_memo_list_post_title_end"> Search result</string>
 
     <!--
     ******************************************************************

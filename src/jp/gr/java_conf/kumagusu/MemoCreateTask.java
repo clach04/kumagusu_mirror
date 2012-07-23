@@ -1,72 +1,31 @@
 package jp.gr.java_conf.kumagusu;
 
 import java.io.File;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
-import jp.gr.java_conf.kumagusu.control.InputDialog;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
-import jp.gr.java_conf.kumagusu.memoio.MemoFile;
-import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import android.app.Activity;
-import android.content.DialogInterface;
-import android.os.AsyncTask;
-import android.text.InputType;
 import android.widget.ListView;
 
 /**
- * メモ生成処理.
+ * フォルダ内メモ生成処理.
  *
  * @author tarshi
  *
  */
-public final class MemoCreateTask extends AsyncTask<Void, List<IMemo>, Boolean>
+public final class MemoCreateTask extends AbstractMemoCreateTask
 {
-    /**
-     * アクティビティ.
-     */
-    private Activity activity;
-
-    /**
-     * 表示先のListView.
-     */
-    private ListView targetListView;
-
     /**
      * Fileキュー.
      */
     private LinkedList<File> fileQueue;
 
     /**
-     * メモビルダー.
-     */
-    private MemoBuilder memoBuilder;
-
-    /**
-     * メモリスト.
-     */
-    private List<IMemo> memoList;
-
-    /**
-     * メモリスト表示モード.
-     */
-    private MemoListViewMode memoListViewMode;
-
-    /**
-     * メモリストのアダプタ
-     */
-    private MemoListAdapter memoListAdapter = null;
-
-    /**
-     * 同期用オブジェクト.
-     */
-    private Object syncObject = new Object();
-
-    /**
-     * Memo作成処理を初期化する.
+     * フォルダ内メモ生成処理を初期化する.
      *
      * @param act アクティビティ
      * @param viewMode メモリスト表示モード
@@ -78,18 +37,23 @@ public final class MemoCreateTask extends AsyncTask<Void, List<IMemo>, Boolean>
     public MemoCreateTask(Activity act, MemoListViewMode viewMode, LinkedList<File> fQueue, MemoBuilder mBuilder,
             ListView lView, List<IMemo> mList)
     {
-        this.activity = act;
-        this.memoListViewMode = viewMode;
+        super(act, viewMode, mBuilder, lView, mList);
+
         this.fileQueue = fQueue;
-        this.memoBuilder = mBuilder;
-        this.targetListView = lView;
-        this.memoList = mList;
+    }
+
+    @Override
+    protected void onPreExecute()
+    {
+        setMainTitleText(null, getActivity().getResources().getString(R.string.memo_list_post_title_start));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Boolean doInBackground(Void... params)
     {
+        List<IMemo> iMemoList = new ArrayList<IMemo>();
+
         while (this.fileQueue.size() > 0)
         {
             File f = this.fileQueue.peek();
@@ -105,61 +69,9 @@ public final class MemoCreateTask extends AsyncTask<Void, List<IMemo>, Boolean>
                 return false;
             }
 
-            IMemo item;
-
-            try
+            if (!decryptMemoFile(f, iMemoList, null))
             {
-                item = this.memoBuilder.buildFromFile(f.getAbsolutePath());
-            }
-            catch (Exception ex)
-            {
-                item = null;
-            }
-
-            if ((item != null) && (item.getMemoType() != MemoType.None))
-            {
-                if (item instanceof MemoFile)
-                {
-                    MemoFile memoItem = (MemoFile) item;
-
-                    // 暗号化ファイルが解読出来ていない場合、新しいパスワードを入力
-                    if (!memoItem.isDecryptFg())
-                    {
-                        // パスワード入力ダイアログ表示をUIスレッドに指示
-                        publishProgress((List<IMemo>[]) null);
-
-                        // 待機
-                        try
-                        {
-                            synchronized (this.syncObject)
-                            {
-                                this.syncObject.wait();
-                            }
-                        }
-                        catch (InterruptedException ex)
-                        {
-                        }
-
-                        continue;
-                    }
-                    else
-                    {
-                        // 最後の正しいパスワードを保存
-                        if (MainApplication.getInstance(this.activity).getPasswordList().size() > 0)
-                        {
-                            MainApplication.getInstance(this.activity)
-                                    .setLastCorrectPassword(
-                                            MainApplication
-                                                    .getInstance(this.activity)
-                                                    .getPasswordList()
-                                                    .get(MainApplication.getInstance(this.activity).getPasswordList()
-                                                            .size() - 1));
-                        }
-                    }
-                }
-
-                // Memo追加
-                this.memoList.add(item);
+                continue;
             }
 
             // キューの最古Fileを削除
@@ -173,124 +85,14 @@ public final class MemoCreateTask extends AsyncTask<Void, List<IMemo>, Boolean>
         }
 
         // UIスレッドにMemoをPOST
-        publishProgress(this.memoList);
+        publishProgress(iMemoList);
 
         return true;
     }
 
     @Override
-    protected void onProgressUpdate(List<IMemo>... values)
+    protected void onPostExecute(Boolean result)
     {
-        // キャンセルなら終了
-        if (isCancelled())
-        {
-            return;
-        }
-
-        if (values == null)
-        {
-            final InputDialog dialog = new InputDialog();
-            dialog.showDialog(MemoCreateTask.this.activity,
-                    MemoCreateTask.this.activity.getResources().getString(R.string.ui_td_input_password),
-                    InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
-                    new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface d, int which)
-                        {
-                            // OK処理
-                            String tryPassword = dialog.getText();
-                            if (!MainApplication.getInstance(MemoCreateTask.this.activity).getPasswordList()
-                                    .contains(tryPassword))
-                            {
-                                MainApplication.getInstance(MemoCreateTask.this.activity).getPasswordList()
-                                        .add(tryPassword);
-                            }
-
-                            // ワーカスレッド再開
-                            synchronized (MemoCreateTask.this.syncObject)
-                            {
-                                MemoCreateTask.this.syncObject.notifyAll();
-                            }
-                        }
-                    }, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface d, int which)
-                        {
-                            // キャンセル処理
-                            cancel(true);
-                        }
-                    });
-            return;
-        }
-        else
-        {
-            // ListViewにメモリストを設定
-            if (this.memoListAdapter == null)
-            {
-                this.memoListAdapter = new MemoListAdapter(this.activity, values[0]);
-                this.targetListView.setAdapter(memoListAdapter);
-            }
-
-            memoListAdapter.sort(new Comparator<IMemo>()
-            {
-                /**
-                 * ソート項目を比較する.
-                 *
-                 * @param src 比較ベース
-                 * @param target 比較対象
-                 * @return 比較結果
-                 */
-                public int compare(IMemo src, IMemo target)
-                {
-                    int diff;
-
-                    if (src.getMemoType() == MemoType.ParentFolder)
-                    {
-                        diff = -1;
-                    }
-                    else if (target.getMemoType() == MemoType.ParentFolder)
-                    {
-                        diff = 1;
-                    }
-                    else
-
-                    if ((src.getMemoType() == MemoType.Folder) && (target.getMemoType() != MemoType.Folder))
-                    {
-                        diff = -1;
-                    }
-                    else if ((src.getMemoType() != MemoType.Folder) && (target.getMemoType() == MemoType.Folder))
-                    {
-                        diff = 1;
-                    }
-                    else
-                    {
-                        diff = src.getTitle().compareToIgnoreCase(target.getTitle());
-                    }
-
-                    return diff;
-                }
-            });
-
-            // 表示位置を復元
-            loadListViewStatus();
-        }
-    }
-
-    /**
-     * リストの表示位置を復元する.
-     */
-    private void loadListViewStatus()
-    {
-        MainApplication.MemoListViewStatus listViewStatus = MainApplication.getInstance(this.activity)
-                .popMemoListViewStatus(this.memoListViewMode,
-                        MainApplication.getInstance(this.activity).getCurrentMemoFolder());
-
-        if (listViewStatus != null)
-        {
-            this.targetListView.setSelectionFromTop(listViewStatus.getLastTopPosition(),
-                    listViewStatus.getLastTopPositionY());
-        }
+        setMainTitleText(null, getActivity().getResources().getString(R.string.memo_list_post_title_end));
     }
 }

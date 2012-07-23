@@ -148,7 +148,7 @@ public final class Kumagusu extends Activity
     /**
      * メモ作成ワーカースレッド.
      */
-    private MemoCreateTask memoCreator = null;
+    private AbstractMemoCreateTask memoCreator = null;
 
     /**
      * メモ表示モード.
@@ -175,9 +175,9 @@ public final class Kumagusu extends Activity
     }
 
     /**
-     * 検索文字.
+     * 検索ワード.
      */
-    private String searchStrings = null;
+    private String searchWords = null;
 
     /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
@@ -696,7 +696,7 @@ public final class Kumagusu extends Activity
             if ((bundle.containsKey("VIEW_MODE")) && (bundle.getString("VIEW_MODE").equals("SEARCH")))
             {
                 this.memoListViewMode = MemoListViewMode.SEARCH_VIEW;
-                this.searchStrings = bundle.getString("SEARCH_STRINGS");
+                this.searchWords = bundle.getString("SEARCH_WORDS");
             }
 
             if ((bundle.containsKey("CURRENT_FOLDER"))
@@ -737,9 +737,6 @@ public final class Kumagusu extends Activity
         actionItemSearch.setIcon(R.drawable.search);
         ActivityCompat.setShowAsAction4ActionBar(actionItemSearch);
 
-        //TODO 当面非表示
-        actionItemSearch.setVisible(false);
-
         // メニュー項目「設定」
         MenuItem actionItemSetting = menu.add(Menu.NONE, MENU_ID_SETTING, Menu.NONE, R.string.ui_setting);
         actionItemSetting.setIcon(R.drawable.setting);
@@ -774,12 +771,15 @@ public final class Kumagusu extends Activity
                         {
                             if (searchMemoDialog.getText().length() > 0)
                             {
+                                // メモリストの状態をクリア
+                                MainApplication.getInstance(Kumagusu.this).setMemoListStatus4Search(null);
+
                                 // Activetyを呼び出す
                                 Intent intent = new Intent(Kumagusu.this, Kumagusu.class);
                                 intent.putExtra("CURRENT_FOLDER", new File(MainApplication.getInstance(Kumagusu.this)
                                         .getCurrentMemoFolder()).getParent());
                                 intent.putExtra("VIEW_MODE", "SEARCH");
-                                intent.putExtra("SEARCH_STRINGS", searchMemoDialog.getText());
+                                intent.putExtra("SEARCH_WORDS", searchMemoDialog.getText());
 
                                 startActivity(intent);
                             }
@@ -931,7 +931,7 @@ public final class Kumagusu extends Activity
         }
 
         // タイトルをクリア
-        setMainTitleText("", null);
+        setTitle("");
 
         // リスト初期化
         this.mCurrentFolderMemoFileList.clear();
@@ -947,15 +947,11 @@ public final class Kumagusu extends Activity
         switch (this.memoListViewMode)
         {
         case FOLDER_VIEW: // フォルダ表示
-            // タイトル表示
-            setMainTitleText(null, null);
             // フォルダ内のメモを表示
             memoFolderView();
             break;
 
         case SEARCH_VIEW: // メモ検索表示
-            // タイトル表示
-            setMainTitleText(null, getResources().getString(R.string.search_memo_list_post_title_start));
             // 検索結果のメモを表示
             memoSearchView(MainApplication.getInstance(this).getCurrentMemoFolder());
             break;
@@ -977,8 +973,8 @@ public final class Kumagusu extends Activity
             this.mCurrentFolderFileQueue.add(f);
         }
 
-        this.memoCreator = new MemoCreateTask(this, this.memoListViewMode, this.mCurrentFolderFileQueue, this.memoBuilder,
-                this.mListView, this.mCurrentFolderMemoFileList);
+        this.memoCreator = new MemoCreateTask(this, this.memoListViewMode, this.mCurrentFolderFileQueue,
+                this.memoBuilder, this.mListView, this.mCurrentFolderMemoFileList);
         this.memoCreator.execute();
     }
 
@@ -989,9 +985,12 @@ public final class Kumagusu extends Activity
      */
     private void memoSearchView(String searchFolder)
     {
-        for (File f : getFileList(searchFolder))
+        if (MainApplication.getInstance(Kumagusu.this).getCurrentMemoFolder() != null)
         {
-
+            this.memoCreator = new MemoFileSearchTask(this, this.memoListViewMode, MainApplication.getInstance(this)
+                    .getCurrentMemoFolder(), this.memoBuilder, this.mListView, this.mCurrentFolderMemoFileList,
+                    this.searchWords);
+            this.memoCreator.execute();
         }
     }
 
@@ -1039,7 +1038,6 @@ public final class Kumagusu extends Activity
     {
         MainApplication.MemoListViewStatus listViewStatus = new MainApplication.MemoListViewStatus();
 
-        listViewStatus.setMemoListViewMode(this.memoListViewMode);
         listViewStatus.setLastFolder(MainApplication.getInstance(this).getCurrentMemoFolder());
         listViewStatus.setLastTopPosition(this.mListView.getFirstVisiblePosition());
         if (this.mListView.getChildCount() > 0)
@@ -1047,7 +1045,19 @@ public final class Kumagusu extends Activity
             listViewStatus.setLastTopPositionY(this.mListView.getChildAt(0).getTop());
         }
 
-        MainApplication.getInstance(this).pushMemoListStatusStack(listViewStatus);
+        switch (this.memoListViewMode)
+        {
+        case FOLDER_VIEW:
+            MainApplication.getInstance(this).pushMemoListStatusStack(listViewStatus);
+            break;
+
+        case SEARCH_VIEW:
+            MainApplication.getInstance(this).setMemoListStatus4Search(listViewStatus);
+            break;
+
+        default:
+            break;
+        }
     }
 
     /**
@@ -1160,39 +1170,5 @@ public final class Kumagusu extends Activity
                 }
             }
         }
-    }
-
-    /**
-     * タイトルバーにタイトルを設定する.
-     *
-     * @param titleText タイトル文字列
-     * @param postTitleText 付加タイトル文字列
-     */
-    private void setMainTitleText(String titleText, String postTitleText)
-    {
-        StringBuilder titleBuilder = new StringBuilder();
-
-        // タイトルの指定がなければカレントフォルダを表示
-        if (titleText == null)
-        {
-            File currentFolderFile = new File(MainApplication.getInstance(this).getCurrentMemoFolder());
-            File rootFolderFile = new File(MainPreferenceActivity.getMemoLocation(this));
-            String memoCurrentPath = currentFolderFile.getAbsolutePath().substring(
-                    rootFolderFile.getAbsolutePath().length());
-
-            if (memoCurrentPath.length() > 0)
-            {
-                titleBuilder.append(currentFolderFile.getName());
-            }
-            titleBuilder.append("/");
-        }
-
-        // 付加タイトル文字列があれば付加
-        if (postTitleText != null)
-        {
-            titleBuilder.append(postTitleText);
-        }
-
-        setTitle(titleBuilder.toString());
     }
 }
