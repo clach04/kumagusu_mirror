@@ -62,15 +62,16 @@ public final class MemoCreator extends AsyncTask<Void, Boolean, Boolean>
      * @param fQueue Fileキュー
      * @param mBuilder Memoビルダ
      * @param lView ListView
+     * @param mList メモリスト
      */
-    public MemoCreator(Activity act, LinkedList<File> fQueue, MemoBuilder mBuilder, ListView lView)
+    public MemoCreator(Activity act, LinkedList<File> fQueue, MemoBuilder mBuilder, ListView lView, List<IMemo> mList)
     {
         this.activity = act;
         this.fileQueue = fQueue;
         this.memoBuilder = mBuilder;
         this.targetListView = lView;
 
-        this.memoList = new ArrayList<IMemo>();
+        this.memoList = mList;
         this.syncObject = new Object();
     }
 
