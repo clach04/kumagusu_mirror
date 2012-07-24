@@ -64,7 +64,7 @@
     <string name="ui_close">Close</string>
 
     <!-- メモリスト -->
-    <string name="memo_list_post_title_start"> Decrypting......</string>
+    <string name="memo_list_post_title_start">Updating List....</string>
     <string name="memo_list_post_title_end"></string>
 
     <!-- ファイル操作ダイアログ -->
@@ -91,8 +91,8 @@
 
     <!-- メモ検索 -->
     <string name="search_memo_control_dialog_title">Search</string>
-    <string name="search_memo_list_post_title_start"> Searching......</string>
-    <string name="search_memo_list_post_title_end"> Search result</string>
+    <string name="search_memo_list_post_title_start">Searching Note....</string>
+    <string name="search_memo_list_post_title_end">Results</string>
 
     <!--
     ******************************************************************
