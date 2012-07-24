@@ -32,6 +32,8 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 /**
@@ -670,17 +672,11 @@ public final class Kumagusu extends Activity
         // タイムアウトの確認
         if ((this.mAutoCloseTimer.stop()) && (!this.mExecutedChildActivityFg))
         {
-            // タイマを破棄
-            this.mAutoCloseTimer = null;
-
             // パスワードをクリア
             MainApplication.getInstance(this).clearPasswordList();
 
-            // アプリケーションを初期表示
-            Intent intent = new Intent(Kumagusu.this, Kumagusu.class);
-            startActivity(intent);
-
-            return;
+            // リストをクリア
+            clearMemoList();
         }
 
         // エディタ起動中クリア
@@ -712,7 +708,10 @@ public final class Kumagusu extends Activity
         }
 
         // ファイルリスト再生成
-        refreshMemoList();
+        if ((this.memoListViewMode != MemoListViewMode.SEARCH_VIEW) || (this.mCurrentFolderMemoFileList.size() == 0))
+        {
+            refreshMemoList();
+        }
     }
 
     @Override
@@ -757,6 +756,10 @@ public final class Kumagusu extends Activity
         case MENU_ID_SETTING: // 設定
             // 設定画面を表示
             Intent prefIntent = new Intent(Kumagusu.this, MainPreferenceActivity.class);
+
+            // 子Activity起動中設定
+            mExecutedChildActivityFg = true;
+
             startActivity(prefIntent);
             break;
 
@@ -776,10 +779,13 @@ public final class Kumagusu extends Activity
 
                                 // Activetyを呼び出す
                                 Intent intent = new Intent(Kumagusu.this, Kumagusu.class);
-                                intent.putExtra("CURRENT_FOLDER", new File(MainApplication.getInstance(Kumagusu.this)
-                                        .getCurrentMemoFolder()).getParent());
+                                intent.putExtra("CURRENT_FOLDER", MainApplication.getInstance(Kumagusu.this)
+                                        .getCurrentMemoFolder());
                                 intent.putExtra("VIEW_MODE", "SEARCH");
                                 intent.putExtra("SEARCH_WORDS", searchMemoDialog.getText());
+
+                                // 子Activity起動中設定
+                                mExecutedChildActivityFg = true;
 
                                 startActivity(intent);
                             }
@@ -810,6 +816,9 @@ public final class Kumagusu extends Activity
                                 editIntent.putExtra("FULL_PATH", (String) null);
                                 editIntent.putExtra("CURRENT_FOLDER", MainApplication.getInstance(Kumagusu.this)
                                         .getCurrentMemoFolder());
+
+                                // 子Activity起動中設定
+                                mExecutedChildActivityFg = true;
 
                                 startActivity(editIntent);
                                 break;
@@ -883,13 +892,8 @@ public final class Kumagusu extends Activity
             break;
 
         case android.R.id.home: // UPアイコン
-            // Activetyを呼び出す
-            Intent intent = new Intent(Kumagusu.this, Kumagusu.class);
-            intent.putExtra("CURRENT_FOLDER",
-                    new File(MainApplication.getInstance(this).getCurrentMemoFolder()).getParent());
-
-            startActivity(intent);
-
+            // 上位Activetyを呼び出す
+            finish();
             break;
 
         default:
@@ -934,7 +938,13 @@ public final class Kumagusu extends Activity
         setTitle("");
 
         // リスト初期化
-        this.mCurrentFolderMemoFileList.clear();
+        @SuppressWarnings("unchecked")
+        ArrayAdapter<IMemo> adapter = (ArrayAdapter<IMemo>) this.mListView.getAdapter();
+        if (adapter != null)
+        {
+            adapter.clear();
+        }
+
         this.mCurrentFolderFileQueue.clear();
     }
 
@@ -981,13 +991,28 @@ public final class Kumagusu extends Activity
     /**
      * メモを検索する.
      *
-     * @param 検索フォルダ
+     * @param searchFolder 検索フォルダ
      */
     private void memoSearchView(String searchFolder)
     {
+        // 検索結果リストのクローズ手段を設定
+        Button closeButton = (Button) findViewById(R.id.close_button);
+        closeButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                // アクティビティを終了
+                finish();
+            }
+        });
+
+        ActivityCompat.setCloseSearchResultFunction(this, closeButton);
+
+        // メモを検索
         if (MainApplication.getInstance(Kumagusu.this).getCurrentMemoFolder() != null)
         {
-            this.memoCreator = new MemoFileSearchTask(this, this.memoListViewMode, MainApplication.getInstance(this)
+            this.memoCreator = new MemoSearchTask(this, this.memoListViewMode, MainApplication.getInstance(this)
                     .getCurrentMemoFolder(), this.memoBuilder, this.mListView, this.mCurrentFolderMemoFileList,
                     this.searchWords);
             this.memoCreator.execute();

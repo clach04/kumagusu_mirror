@@ -310,6 +310,11 @@ public final class EditorActivity extends Activity
         {
             // パスワードをクリア
             MainApplication.getInstance(this).clearPasswordList();
+
+            // エディタ終了
+            finish();
+
+            return;
         }
 
         // 自動リンクを設定
@@ -465,10 +470,8 @@ public final class EditorActivity extends Activity
                         // YesおよびNoのときエディタ終了
                         setEditable(false);
 
-                        // Kumagusuを表示
-                        Intent intent = new Intent(EditorActivity.this, Kumagusu.class);
-                        intent.putExtra("CURRENT_FOLDER", EditorActivity.this.memoFile.getParent());
-                        startActivity(intent);
+                        // エディタ終了
+                        finish();
                     }
                 }, true);
             }
@@ -476,9 +479,7 @@ public final class EditorActivity extends Activity
             if (!modify)
             {
                 // Kumagusuを表示
-                Intent intent = new Intent(EditorActivity.this, Kumagusu.class);
-                intent.putExtra("CURRENT_FOLDER", this.memoFile.getParent());
-                startActivity(intent);
+                finish();
             }
             break;
 
@@ -616,14 +617,8 @@ public final class EditorActivity extends Activity
             // タイマを破棄
             this.autoCloseTimer = null;
 
-            Intent intent = new Intent(EditorActivity.this, Kumagusu.class);
-            intent.putExtra("CURRENT_FOLDER", memoFile.getParent());
-
-            // Activetyを呼び出す
-            if (intent != null)
-            {
-                startActivity(intent);
-            }
+            // エディタ終了
+            finish();
         }
     }
 

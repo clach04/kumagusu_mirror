@@ -16,7 +16,7 @@ import android.widget.ListView;
  * @author tarshi
  *
  */
-public final class MemoFileSearchTask extends AbstractMemoCreateTask
+public final class MemoSearchTask extends AbstractMemoCreateTask
 {
     /**
      * 検索フォルダ.
@@ -24,9 +24,9 @@ public final class MemoFileSearchTask extends AbstractMemoCreateTask
     private String baseFolder;
 
     /**
-     * 検索ワード.
+     * 検索ワード（小文字）.
      */
-    private String searchWords;
+    private String searchLowerCaseWords;
 
     /**
      * 検索メモリスト作成処理を初期化する.
@@ -39,13 +39,13 @@ public final class MemoFileSearchTask extends AbstractMemoCreateTask
      * @param mList メモリスト
      * @param sWords 検索ワード
      */
-    public MemoFileSearchTask(Activity act, MemoListViewMode viewMode, String bFolder, MemoBuilder mBuilder,
+    public MemoSearchTask(Activity act, MemoListViewMode viewMode, String bFolder, MemoBuilder mBuilder,
             ListView lView, List<IMemo> mList, String sWords)
     {
         super(act, viewMode, mBuilder, lView, mList);
 
         this.baseFolder = bFolder;
-        this.searchWords = sWords;
+        this.searchLowerCaseWords = sWords.toLowerCase();
     }
 
     @Override
@@ -58,7 +58,7 @@ public final class MemoFileSearchTask extends AbstractMemoCreateTask
     protected Boolean doInBackground(Void... params)
     {
         // メモファイルの検索処理
-        findMemoFile(new File(this.baseFolder), (List<IMemo>) new ArrayList<IMemo>());
+        findMemoFile(new File(this.baseFolder));
 
         return true;
     }
@@ -67,10 +67,9 @@ public final class MemoFileSearchTask extends AbstractMemoCreateTask
      * 指定検索ワードを含むメモファイルを検索する.
      *
      * @param targetFolderFile 検索フォルダ
-     * @param iMemoList 検索結果保存先リスト
      */
     @SuppressWarnings("unchecked")
-    private void findMemoFile(File targetFolderFile, List<IMemo> iMemoList)
+    private void findMemoFile(File targetFolderFile)
     {
         // フォルダが存在しない場合終了
         if ((!targetFolderFile.exists()) || (!targetFolderFile.isDirectory()))
@@ -79,6 +78,7 @@ public final class MemoFileSearchTask extends AbstractMemoCreateTask
         }
 
         File[] files = targetFolderFile.listFiles();
+        List<IMemo> iMemoList = new ArrayList<IMemo>();
 
         for (File file : files)
         {
@@ -90,11 +90,11 @@ public final class MemoFileSearchTask extends AbstractMemoCreateTask
 
             if (file.isDirectory())
             {
-                findMemoFile(file.getAbsoluteFile(), iMemoList);
+                findMemoFile(file.getAbsoluteFile());
             }
             else
             {
-                decryptMemoFile(file, iMemoList, this.searchWords);
+                decryptMemoFile(file, iMemoList, this.searchLowerCaseWords);
             }
         }
 

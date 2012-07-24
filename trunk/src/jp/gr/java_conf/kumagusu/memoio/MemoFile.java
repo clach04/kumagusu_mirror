@@ -36,6 +36,16 @@ public final class MemoFile extends AbstractMemo
     private boolean isDecryptFg = false;
 
     /**
+     * 読込ファイルの最終更新日時
+     */
+    private long lastModifyTime = 0;
+
+    /**
+     * メモタイトル.
+     */
+    private String title = null;
+
+    /**
      * 既存ファイルを使用する場合（表示時）のコンストラクタ.
      *
      * @param context コンテキスト
@@ -64,28 +74,28 @@ public final class MemoFile extends AbstractMemo
     {
         this.memoPassword = null;
 
-        if ((this.memoType != MemoType.Text) && (this.memoType != MemoType.Secret1)
-                && (this.memoType != MemoType.Secret2))
+        if ((this.getMemoType() != MemoType.Text) && (this.getMemoType() != MemoType.Secret1)
+                && (this.getMemoType() != MemoType.Secret2))
         {
             return "";
         }
 
-        if (this.memoFile == null)
+        if (this.getMemoFile() == null)
         {
             return "";
         }
 
         // ファイルを読み込む
         BufferedInputStream bis = null;
-        byte[] buffer = new byte[(int) this.memoFile.length()];
+        byte[] buffer = new byte[(int) this.getMemoFile().length()];
 
         try
         {
-            bis = new BufferedInputStream(new FileInputStream(this.memoFile));
+            bis = new BufferedInputStream(new FileInputStream(this.getMemoFile()));
 
             int length = bis.read(buffer);
 
-            if (length != this.memoFile.length())
+            if (length != this.getMemoFile().length())
             {
                 return "";
             }
@@ -116,10 +126,10 @@ public final class MemoFile extends AbstractMemo
         // エンコーディングに従い、String化
         String strData = null;
 
-        if ((this.memoType == MemoType.Secret1) || (this.memoType == MemoType.Secret2))
+        if ((this.getMemoType() == MemoType.Secret1) || (this.getMemoType() == MemoType.Secret2))
         {
             // 暗号化ファイルなら復号
-            for (String password : MainApplication.getInstance((Activity) context).getPasswordList())
+            for (String password : MainApplication.getInstance((Activity) getContext()).getPasswordList())
             {
                 strData = decode(password, buffer);
 
@@ -145,7 +155,7 @@ public final class MemoFile extends AbstractMemo
 
             try
             {
-                strData = new String(buffer, this.encodingName);
+                strData = new String(buffer, this.getEncodingName());
             }
             catch (UnsupportedEncodingException e)
             {
@@ -176,8 +186,8 @@ public final class MemoFile extends AbstractMemo
      */
     public boolean setText(String password, String memoData)
     {
-        if ((this.memoType != MemoType.Text) && (this.memoType != MemoType.Secret1)
-                && (this.memoType != MemoType.Secret2))
+        if ((this.getMemoType() != MemoType.Text) && (this.getMemoType() != MemoType.Secret1)
+                && (this.getMemoType() != MemoType.Secret2))
         {
             return false;
         }
@@ -185,7 +195,7 @@ public final class MemoFile extends AbstractMemo
         // バイトデータ生成
         byte[] buffer = null;
 
-        if ((this.memoType == MemoType.Secret1) || (this.memoType == MemoType.Secret2))
+        if ((this.getMemoType() == MemoType.Secret1) || (this.getMemoType() == MemoType.Secret2))
         {
             // 暗号化ファイルなら暗号化
             if (password == null)
@@ -200,7 +210,7 @@ public final class MemoFile extends AbstractMemo
 
             try
             {
-                TomboBlowfishCBC cbc = new TomboBlowfishCBC(this.encodingName);
+                TomboBlowfishCBC cbc = new TomboBlowfishCBC(this.getEncodingName());
                 buffer = cbc.encrypt(password, memoData);
                 this.memoPassword = password;
             }
@@ -214,7 +224,7 @@ public final class MemoFile extends AbstractMemo
             // 通常テキスト
             try
             {
-                buffer = memoData.getBytes(this.encodingName);
+                buffer = memoData.getBytes(this.getEncodingName());
             }
             catch (UnsupportedEncodingException e)
             {
@@ -238,11 +248,11 @@ public final class MemoFile extends AbstractMemo
                 // 元のファイル名から変わったときは元のファイルを削除
                 if (this.getPath() != null)
                 {
-                    this.memoFile.delete();
+                    this.getMemoFile().delete();
                 }
 
                 // Fileオブジェクトを再生成
-                this.memoFile = new File(memoFileNewPath);
+                this.setMemoFile(new File(memoFileNewPath));
             }
 
             bos = new BufferedOutputStream(new FileOutputStream(memoFileNewPath, false));
@@ -298,7 +308,7 @@ public final class MemoFile extends AbstractMemo
 
         try
         {
-            TomboBlowfishCBC cbc = new TomboBlowfishCBC(this.encodingName);
+            TomboBlowfishCBC cbc = new TomboBlowfishCBC(this.getEncodingName());
             strData = cbc.decrypt(password, buffer);
         }
         catch (IOException e)
@@ -320,7 +330,7 @@ public final class MemoFile extends AbstractMemo
     {
         // 新規の場合は、ファイル名を生成
         // 既存の場合は、連動する場合のみファイル名を生成
-        if ((this.memoFile == null) || ((this.titleLinkFg) && (this.memoType != MemoType.Secret2)))
+        if ((this.getMemoFile() == null) || ((this.isTitleLinkFg()) && (this.getMemoType() != MemoType.Secret2)))
         {
             String fileNameBody;
 
@@ -329,7 +339,7 @@ public final class MemoFile extends AbstractMemo
                 StringBuilder sb = new StringBuilder();
 
                 // ファイル名をランダムにする
-                if (this.memoType == MemoType.Secret2)
+                if (this.getMemoType() == MemoType.Secret2)
                 {
                     Random random = new Random();
                     for (int j = 0; j < 16; j++)
@@ -350,7 +360,7 @@ public final class MemoFile extends AbstractMemo
 
                     if (sb.length() == 0)
                     {
-                        sb.append(this.context.getResources().getString(R.string.etc_memo_file_untitled));
+                        sb.append(this.getContext().getResources().getString(R.string.etc_memo_file_untitled));
                     }
 
                     if (i > 0)
@@ -362,16 +372,16 @@ public final class MemoFile extends AbstractMemo
                 }
 
                 sb.append(".");
-                sb.append(MemoUtilities.type2Ext(this.memoType));
+                sb.append(MemoUtilities.type2Ext(this.getMemoType()));
 
                 fileNameBody = sb.toString();
 
-                File file = new File(this.folderFile.getAbsolutePath(), fileNameBody);
+                File file = new File(this.getFolderFile().getAbsolutePath(), fileNameBody);
 
                 // 既存ファイルで元のファイル名と同じ、
                 // または生成したファイル名と同じファイルが存在しない場合、
                 // ファイル名として採用
-                if (((this.memoFile != null) && (this.memoFile.getAbsolutePath().equals(file.getAbsolutePath())))
+                if (((this.getMemoFile() != null) && (this.getMemoFile().getAbsolutePath().equals(file.getAbsolutePath())))
                         || (!file.exists()))
                 {
                     return file.getAbsolutePath();
@@ -422,36 +432,37 @@ public final class MemoFile extends AbstractMemo
     @Override
     public String getTitle()
     {
-        String title = null;
+        long nowLastModifyTime = (this.getMemoFile() != null) ? this.getMemoFile().lastModified() : 0;
 
-        if ((this.memoType == MemoType.Text) || (this.memoType == MemoType.Secret1)
-                || (this.memoType == MemoType.Secret2))
+        if ((this.title == null) || (this.lastModifyTime != nowLastModifyTime))
         {
-            title = getFirstLineOfText(getText());
-        }
-        else if (this.memoType == MemoType.Folder)
-        {
-            title = getName() + "/";
+            if ((this.getMemoType() == MemoType.Text) || (this.getMemoType() == MemoType.Secret1)
+                    || (this.getMemoType() == MemoType.Secret2))
+            {
+                this.title = getFirstLineOfText(getText());
+            }
+
+            if ((this.title == null) || (this.title.length() == 0))
+            {
+                this.title = this.getContext().getResources().getString(R.string.etc_memo_type_none);
+            }
         }
 
-        if ((title == null) || (title.length() == 0))
-        {
-            title = this.context.getResources().getString(R.string.etc_memo_type_none);
-        }
+        this.lastModifyTime = nowLastModifyTime;
 
-        return title;
+        return this.title;
     }
 
     @Override
     public String getPath()
     {
-        return (this.memoFile != null) ? this.memoFile.getAbsolutePath() : null;
+        return (this.getMemoFile() != null) ? this.getMemoFile().getAbsolutePath() : null;
     }
 
     @Override
     public String getName()
     {
-        return (this.memoFile != null) ? this.memoFile.getName() : null;
+        return (this.getMemoFile() != null) ? this.getMemoFile().getName() : null;
     }
 
     @Override
@@ -470,7 +481,7 @@ public final class MemoFile extends AbstractMemo
     @Override
     public String getParent()
     {
-        return (this.memoFile != null) ? this.memoFile.getParent() : null;
+        return (this.getMemoFile() != null) ? this.getMemoFile().getParent() : null;
     }
 
     /**
