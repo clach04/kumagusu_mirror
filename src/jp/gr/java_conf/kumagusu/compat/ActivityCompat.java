@@ -8,7 +8,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Build;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 
 /**
  * SDKバージョン間のActionBarサポート状況を吸収する処理.
@@ -116,6 +118,27 @@ public final class ActivityCompat
         {
             // ファイルリストに..を表示
             memoList.add(parentItem);
+        }
+    }
+
+    /**
+     * 検索結果リストのクローズ手段を設定する.
+     *
+     * @param act アクティビティ
+     * @param closeButton クローズボタン（3.0未満のとき使用）
+     */
+    public static void setCloseSearchResultFunction(Activity act, Button closeButton)
+    {
+        // 3.0以上か？
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+        {
+            // UPアイコンを表示
+            act.getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        else
+        {
+            // クローズボタンを表示
+            closeButton.setVisibility(View.VISIBLE);
         }
     }
 }

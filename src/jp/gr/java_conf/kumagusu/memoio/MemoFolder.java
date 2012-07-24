@@ -37,18 +37,18 @@ public final class MemoFolder extends AbstractMemo
     {
         String title = null;
 
-        if (this.memoType == MemoType.Folder)
+        if (this.getMemoType() == MemoType.Folder)
         {
-            title = getName() + "/";
+            title = getName();
         }
-        else if (this.memoType == MemoType.ParentFolder)
+        else if (this.getMemoType() == MemoType.ParentFolder)
         {
             title = "..";
         }
 
         if ((title == null) || (title.length() == 0))
         {
-            title = this.context.getResources().getString(R.string.etc_memo_type_none);
+            title = this.getContext().getResources().getString(R.string.etc_memo_type_none);
         }
 
         return title;
@@ -57,7 +57,7 @@ public final class MemoFolder extends AbstractMemo
     @Override
     public String getName()
     {
-        return (this.folderFile != null) ? this.folderFile.getName() : null;
+        return (this.getFolderFile() != null) ? this.getFolderFile().getName() : null;
     }
 
     @Override
@@ -73,15 +73,15 @@ public final class MemoFolder extends AbstractMemo
     @Override
     public String getPath()
     {
-        return (this.folderFile != null) ? this.folderFile.getAbsolutePath() : null;
+        return (this.getFolderFile() != null) ? this.getFolderFile().getAbsolutePath() : null;
     }
 
     @Override
     public String getParent()
     {
-        if (this.folderFile != null)
+        if (this.getFolderFile() != null)
         {
-            return this.folderFile.getParent();
+            return this.getFolderFile().getParent();
         }
         else
         {

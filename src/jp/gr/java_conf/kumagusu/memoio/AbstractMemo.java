@@ -14,32 +14,32 @@ abstract class AbstractMemo implements IMemo
     /**
      * メモの保存フォルダオブジェクト.
      */
-    protected File folderFile;
+    private File folderFile;
 
     /**
      * エンコーディング名.
      */
-    protected String encodingName;
+    private String encodingName;
 
     /**
      * メモ内容とタイトルをリンクするか？.
      */
-    protected boolean titleLinkFg;
+    private boolean titleLinkFg;
 
     /**
      * メモのFileオブジェクト.
      */
-    protected File memoFile;
+    private File memoFile;
 
     /**
      * メモ種別.
      */
-    protected MemoType memoType;
+    private MemoType memoType;
 
     /**
      * コンテキスト.
      */
-    protected Context context;
+    private Context context;
 
     /**
      * 既存ファイルを使用する場合（表示時）のコンストラクタ.
@@ -60,12 +60,12 @@ abstract class AbstractMemo implements IMemo
         if (mFileOrDir.isFile()) // メモ
         {
             this.memoFile = mFileOrDir;
-            this.folderFile = new File(this.memoFile.getParent());
+            this.folderFile = this.memoFile.getParentFile();
         }
         else if (mFileOrDir.isDirectory()) // フォルダ
         {
             this.memoFile = null;
-            this.folderFile = new File(mFileOrDir.getAbsolutePath());
+            this.folderFile = mFileOrDir;
         }
         else
         {
@@ -77,5 +77,65 @@ abstract class AbstractMemo implements IMemo
     public MemoType getMemoType()
     {
         return this.memoType;
+    }
+
+    /**
+     * メモの保存フォルダオブジェクトを返す.
+     *
+     * @return メモの保存フォルダオブジェクト
+     */
+    protected File getFolderFile()
+    {
+        return folderFile;
+    }
+
+    /**
+     * エンコーディング名を返す.
+     *
+     * @return エンコーディング名
+     */
+    protected String getEncodingName()
+    {
+        return encodingName;
+    }
+
+    /**
+     * メモ内容とタイトルをリンクするか?
+     *
+     * @return trueのときメモ内容とタイトルをリンクする
+     */
+    protected boolean isTitleLinkFg()
+    {
+        return titleLinkFg;
+    }
+
+    /**
+     * メモのFileオブジェクトを返す.
+     *
+     * @return メモのFileオブジェクト
+     */
+    protected File getMemoFile()
+    {
+        return memoFile;
+    }
+
+    /**
+     * メモのFileオブジェクトを設定する.
+     *
+     * @param file メモのFileオブジェクト
+     */
+    protected void setMemoFile(File file)
+    {
+        this.memoFile = file;
+    }
+
+    /**
+     * コンテキストを返す.
+     *
+     * @return コンテキスト
+     */
+    protected Context getContext()
+    {
+        return context;
     }
 }

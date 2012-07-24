@@ -143,13 +143,16 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
         }
         else
         {
-            this.memoList.addAll(values[0]);
-
             // ListViewにメモリストを設定
             if (this.memoListAdapter == null)
             {
+                this.memoList.addAll(values[0]);
                 this.memoListAdapter = new MemoListAdapter(this.activity, this.memoList);
                 this.targetListView.setAdapter(memoListAdapter);
+            }
+            else
+            {
+                this.memoListAdapter.addAll(values[0]);
             }
 
             memoListAdapter.sort(new Comparator<IMemo>()
@@ -202,10 +205,10 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
      *
      * @param f メモファイル
      * @param iMemoList メモリスト
-     * @param searchWords 検索ワード
+     * @param searchLowerCaseWords 検索ワード(常に小文字で入力すること）
      * @return itemがメモの時true
      */
-    protected final boolean decryptMemoFile(File f, List<IMemo> iMemoList, String searchWords)
+    protected final boolean decryptMemoFile(File f, List<IMemo> iMemoList, String searchLowerCaseWords)
     {
         IMemo item;
 
@@ -240,6 +243,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
                     }
                     catch (InterruptedException ex)
                     {
+                        return false;
                     }
 
                     return false;
@@ -254,7 +258,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
                                         .get(MainApplication.getInstance(getActivity()).getPasswordList().size() - 1));
                     }
 
-                    if ((searchWords != null) && (!memoItem.getText().contains(searchWords)))
+                    if ((searchLowerCaseWords != null)
+                            && (!memoItem.getText().toLowerCase().contains(searchLowerCaseWords)))
                     {
                         return true;
                     }
@@ -319,12 +324,16 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             {
                 titleBuilder.append(currentFolderFile.getName());
             }
-            titleBuilder.append("/");
+            else
+            {
+                titleBuilder.append("/");
+            }
         }
 
         // 付加タイトル文字列があれば付加
         if (postTitleText != null)
         {
+            titleBuilder.append(" ");
             titleBuilder.append(postTitleText);
         }
 
