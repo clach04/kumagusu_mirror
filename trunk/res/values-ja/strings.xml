@@ -64,7 +64,7 @@
     <string name="ui_close">閉じる</string>
 
     <!-- メモリスト -->
-    <string name="memo_list_post_title_start"> を表示中......</string>
+    <string name="memo_list_post_title_start">更新中....</string>
     <string name="memo_list_post_title_end"></string>
 
     <!-- ファイル操作ダイアログ -->
@@ -92,8 +92,8 @@
 
     <!-- メモ検索 -->
     <string name="search_memo_control_dialog_title">検索</string>
-    <string name="search_memo_list_post_title_start"> を検索中......</string>
-    <string name="search_memo_list_post_title_end"> の検索結果</string>
+    <string name="search_memo_list_post_title_start">検索中....</string>
+    <string name="search_memo_list_post_title_end">検索結果</string>
 
     <!--
     ******************************************************************
