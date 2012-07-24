@@ -744,20 +744,26 @@ public final class Kumagusu extends Activity
 
         Log.d("Kumagusu", "*** START onCreateOptionsMenu()");
 
-        // メニュー項目「新規」
-        MenuItem actionItemCreate = menu.add(Menu.NONE, MENU_ID_CREATE_MEMO, Menu.NONE, R.string.ui_create);
-        actionItemCreate.setIcon(R.drawable.memo_folder_add);
-        ActivityCompat.setShowAsAction4ActionBar(actionItemCreate);
+        if (this.memoListViewMode == MemoListViewMode.FOLDER_VIEW)
+        {
+            // メニュー項目「新規」
+            MenuItem actionItemCreate = menu.add(Menu.NONE, MENU_ID_CREATE_MEMO, Menu.NONE, R.string.ui_create);
+            actionItemCreate.setIcon(R.drawable.memo_folder_add);
+            ActivityCompat.setShowAsAction4ActionBar(actionItemCreate);
+        }
 
         // メニュー項目「リフレッシュ」
         MenuItem actionItemRefresh = menu.add(Menu.NONE, MENU_ID_REFRESH, Menu.NONE, R.string.ui_refresh);
         actionItemRefresh.setIcon(R.drawable.refresh);
         ActivityCompat.setShowAsAction4ActionBar(actionItemRefresh);
 
-        // メニュー項目「検索」
-        MenuItem actionItemSearch = menu.add(Menu.NONE, MENU_ID_SEARCH, Menu.NONE, R.string.ui_search);
-        actionItemSearch.setIcon(R.drawable.search);
-        ActivityCompat.setShowAsAction4ActionBar(actionItemSearch);
+        if (this.memoListViewMode == MemoListViewMode.FOLDER_VIEW)
+        {
+            // メニュー項目「検索」
+            MenuItem actionItemSearch = menu.add(Menu.NONE, MENU_ID_SEARCH, Menu.NONE, R.string.ui_search);
+            actionItemSearch.setIcon(R.drawable.search);
+            ActivityCompat.setShowAsAction4ActionBar(actionItemSearch);
+        }
 
         // メニュー項目「設定」
         MenuItem actionItemSetting = menu.add(Menu.NONE, MENU_ID_SETTING, Menu.NONE, R.string.ui_setting);
