@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string-array name="encoding_entries">
         <item>SJIS</item>
         <item>UTF-8</item>
@@ -27,26 +28,30 @@
 
     <!-- ファイル操作ダイアログのエントリ -->
     <string-array name="memo_file_control_dialog_entries_4_text">
-        <item>メモをコピー</item>
-        <item>メモを移動</item>
-        <item>メモを削除</item>
-        <item>メモを暗号化</item>
+        <item>コピー</item>
+        <item>移動</item>
+        <item>削除</item>
+        <item>暗号化</item>
     </string-array>
-
+    <string-array name="memo_file_control_dialog_entries_4_text_2">
+        <item>コピー</item>
+        <item>移動</item>
+        <item>削除</item>
+        <item>暗号化</item>
+        <item>暗号化(ﾊﾟｽﾜｰﾄﾞ再入力)</item>
+    </string-array>
     <string-array name="memo_file_control_dialog_entries_4_secret">
-        <item>メモをコピー</item>
-        <item>メモを移動</item>
-        <item>メモを削除</item>
-        <item>メモを復号化</item>
+        <item>コピー</item>
+        <item>移動</item>
+        <item>削除</item>
+        <item>復号化</item>
     </string-array>
-
     <string-array name="memo_file_control_dialog_entries_4_folder">
-        <item>フォルダをコピー</item>
-        <item>フォルダを移動</item>
-        <item>フォルダを削除</item>
-        <item>フォルダ名の変更</item>
+        <item>コピー</item>
+        <item>移動</item>
+        <item>削除</item>
+        <item>名前の変更</item>
     </string-array>
-
     <string-array name="memo_list_control_dialog_entries">
         <item>メモを追加</item>
         <item>フォルダを追加</item>
