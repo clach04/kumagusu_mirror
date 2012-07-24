@@ -93,6 +93,11 @@ public final class Kumagusu extends Activity
     private static final int FILE_CONTROL_ID_ENCRYPT_OR_DECRYPT = 3;
 
     /**
+     * ファイルコントロールID「暗号化(ﾊﾟｽﾜｰﾄﾞ入力)」.
+     */
+    private static final int FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD = 4;
+
+    /**
      * フォルダコントロールID「コピー」.
      */
     private static final int FOLDER_CONTROL_ID_COPY = 0;
@@ -279,8 +284,16 @@ public final class Kumagusu extends Activity
                         final MemoType change2MemoType;
                         if (selectedItem.getMemoType() == MemoType.Text)
                         {
-                            dialogEntries = getResources().getStringArray(
-                                    R.array.memo_file_control_dialog_entries_4_text);
+                            if (MainApplication.getInstance(Kumagusu.this).getLastCorrectPassword() == null)
+                            {
+                                dialogEntries = getResources().getStringArray(
+                                        R.array.memo_file_control_dialog_entries_4_text);
+                            }
+                            else
+                            {
+                                dialogEntries = getResources().getStringArray(
+                                        R.array.memo_file_control_dialog_entries_4_text_2);
+                            }
                             change2MemoType = MemoType.Secret1;
                         }
                         else
@@ -395,6 +408,15 @@ public final class Kumagusu extends Activity
 
                                         case FILE_CONTROL_ID_ENCRYPT_OR_DECRYPT: // 暗号化・復号化
                                             changeMemoType((MemoFile) Kumagusu.this.mSelectedMemoFile, change2MemoType);
+                                            break;
+
+                                        case FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD: // 暗号化(ﾊﾟｽﾜｰﾄﾞ入力)
+                                            if (change2MemoType == MemoType.Secret1)
+                                            {
+                                                MainApplication.getInstance(Kumagusu.this).setLastCorrectPassword(null);
+                                                changeMemoType((MemoFile) Kumagusu.this.mSelectedMemoFile,
+                                                        change2MemoType);
+                                            }
                                             break;
 
                                         default:
