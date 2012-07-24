@@ -20,8 +20,9 @@
 
         <ImageButton
             android:id="@+id/edit_search_close"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@null"
             android:src="@drawable/check" />
 
         <EditText
@@ -33,14 +34,16 @@
 
         <ImageButton
             android:id="@+id/edit_prev_search"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@null"
             android:src="@drawable/arrow_left" />
 
         <ImageButton
             android:id="@+id/edit_next_search"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@null"
             android:src="@drawable/arrow_right" />
     </LinearLayout>
 
