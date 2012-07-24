@@ -708,7 +708,8 @@ public final class Kumagusu extends Activity
         }
 
         // ファイルリスト再生成
-        if ((this.memoListViewMode != MemoListViewMode.SEARCH_VIEW) || (this.mCurrentFolderMemoFileList.size() == 0))
+        if ((this.memoListViewMode != MemoListViewMode.SEARCH_VIEW) || (this.mCurrentFolderMemoFileList.size() == 0)
+                || (this.memoCreator == null) || (this.memoCreator.isCancelled()))
         {
             refreshMemoList();
         }
