@@ -1,4 +1,4 @@
-package jp.gr.java_conf.kumagusu;
+package jp.gr.java_conf.kumagusu.worker;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
+import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import android.app.Activity;

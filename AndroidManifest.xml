@@ -27,7 +27,7 @@
         </activity>
         <activity android:name=".EditorActivity" >
         </activity>
-        <activity android:name=".MainPreferenceActivity" >
+        <activity android:name=".preference.MainPreferenceActivity" >
         </activity>
     </application>
 

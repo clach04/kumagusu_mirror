@@ -3,6 +3,7 @@ package jp.gr.java_conf.kumagusu;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
+import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

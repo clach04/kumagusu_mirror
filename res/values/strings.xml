@@ -110,6 +110,7 @@
     <string name="etc_memo_type_none">(Unknown)</string>
 
     <!-- メモファイル処理 -->
-    <string name="etc_memo_file_untitled">untitled</string>
-
+    <string name="etc_memo_file_untitled_4_filename">untitled</string>
+    <string name="etc_memo_file_untitled_4_title">(untitled)</string>
+    
 </resources>
