@@ -653,9 +653,6 @@ public final class Kumagusu extends Activity
             {
             }
         });
-
-        // メモリスト処理初期化
-        initMemoList();
     }
 
     @Override
@@ -933,19 +930,14 @@ public final class Kumagusu extends Activity
     }
 
     /**
-     * メモリスト処理を初期化する.
-     */
-    private void initMemoList()
-    {
-        this.memoBuilder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
-                MainPreferenceActivity.isTitleLink(this));
-    }
-
-    /**
      * ファイルリストをリフレッシュする.
      */
     private void refreshMemoList()
     {
+        // ビルダを生成
+        this.memoBuilder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
+                MainPreferenceActivity.isTitleLink(this));
+
         // ファイルリスト再生成
         clearMemoList();
         createMemoList();

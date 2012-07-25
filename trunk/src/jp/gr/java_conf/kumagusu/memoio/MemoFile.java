@@ -36,7 +36,7 @@ public final class MemoFile extends AbstractMemo
     private boolean isDecryptFg = false;
 
     /**
-     * 読込ファイルの最終更新日時
+     * 読込ファイルの最終更新日時.
      */
     private long lastModifyTime = 0;
 
