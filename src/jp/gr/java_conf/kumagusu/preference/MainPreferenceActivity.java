@@ -1,8 +1,13 @@
 package jp.gr.java_conf.kumagusu.preference;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -130,5 +135,44 @@ public final class MainPreferenceActivity extends PreferenceActivity
         }
 
         return delayTime;
+    }
+
+    /**
+     * 「定型文」を取得する.
+     *
+     * @param con コンテキスト
+     * @return 定型文リスト
+     */
+    public static List<String> getFixedPhraseStrings(Context con)
+    {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(con);
+
+        int fixedPhraseStringsCount = sp.getInt("list_fixed_phrase_strings_count", 0);
+
+        // 設定がなければデフォルト設定を保存
+        if (fixedPhraseStringsCount == 0)
+        {
+            Editor editor = sp.edit();
+
+            editor.putInt("list_fixed_phrase_strings_count", 2);
+
+            editor.putString("list_fixed_phrase_strings_0", "%y/%M/%d");
+            editor.putString("list_fixed_phrase_strings_1", "%h:%m:%s");
+
+            editor.commit();
+
+            fixedPhraseStringsCount = 2;
+        }
+
+        List<String> resultList = new ArrayList<String>();
+
+        for (int i = 0; i < fixedPhraseStringsCount; i++)
+        {
+            String fixedPhraseString = sp.getString("list_fixed_phrase_strings_" + i, "");
+
+            resultList.add(fixedPhraseString);
+        }
+
+        return resultList;
     }
 }

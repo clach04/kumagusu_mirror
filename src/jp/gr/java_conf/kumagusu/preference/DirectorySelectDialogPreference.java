@@ -9,7 +9,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 /**
- * 設定のメモフォルダ選択処理のリスナ.
+ * 設定のメモフォルダ選択処理.
  *
  * @author tarshi
  *
@@ -18,7 +18,7 @@ public final class DirectorySelectDialogPreference extends DialogPreference impl
         DirectorySelectDialog.OnDirectoryListDialogListener
 {
     /**
-     * 設定のメモフォルダ選択処理のリスナを初期化する.
+     * 設定のメモフォルダ選択処理を初期化する.
      *
      * @param context コンテキスト
      * @param attrs 属性
