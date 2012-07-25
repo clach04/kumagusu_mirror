@@ -8,12 +8,9 @@ import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+import android.widget.Button;
 import android.widget.ListView;
 
 /**
@@ -24,15 +21,6 @@ import android.widget.ListView;
  */
 public final class InputFixedPhraseDialogPreference extends DialogPreference
 {
-    private ViewGroup parentViewGroup = null;
-
-    @Override
-    protected View onCreateView(ViewGroup parent)
-    {
-        this.parentViewGroup = parent;
-        return super.onCreateView(parent);
-    }
-
     @Override
     protected void onBindView(View view)
     {
@@ -45,9 +33,6 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
         // ダイアログビルダを生成
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialogBuilder.setTitle(getContext().getResources().getString(R.string.pref_fixed_phrase_dialog_title));
-
-        // 定型文入力のレイアウトからViewを設定
-        // alertDialogBuilder.setView(view);
 
         // OKボタンの処理
         alertDialogBuilder.setPositiveButton(getContext().getString(R.string.ui_ok),
@@ -73,9 +58,6 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                     }
                 });
 
-        // ダイアログ生成
-        AlertDialog dialog = alertDialogBuilder.create();
-
         // カスタムViewを取得
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View view = inflater.inflate(R.layout.pref_input_fixed_phrase_dialog, null);
@@ -85,6 +67,18 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                 android.R.layout.simple_list_item_1, MainPreferenceActivity.getFixedPhraseStrings(getContext()));
 
         ListView listView = (ListView) view.findViewById(R.id.fixed_phrase_list);
+
+        // LinearLayout layoutView = new LinearLayout(getContext());
+        // layoutView.setLayoutParams(new
+        // LayoutParams(LayoutParams.MATCH_PARENT, 300));
+        // listView = new ListView(getContext());
+        // layoutView.addView(listView, new
+        // LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        //
+        // Button button = new Button(getContext());
+        // button.setText(getContext().getResources().getString(R.string.ui_add));
+        // layoutView.addView(button, new
+        // LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
         listView.setAdapter(listViewAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -96,6 +90,18 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
             }
         });
 
+        Button button = (Button) view.findViewById(R.id.add_button);
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+
+            }
+        });
+
+        // 定型文入力のレイアウトからViewを設定
+        AlertDialog dialog = alertDialogBuilder.create();
         dialog.setView(view, 0, 0, 0, 0);
 
         // ダイアログ表示
