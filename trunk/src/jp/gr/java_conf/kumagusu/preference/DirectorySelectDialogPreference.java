@@ -1,4 +1,4 @@
-package jp.gr.java_conf.kumagusu;
+package jp.gr.java_conf.kumagusu.preference;
 
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog;
 import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;

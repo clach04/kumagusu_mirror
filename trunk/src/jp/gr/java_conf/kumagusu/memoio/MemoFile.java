@@ -360,7 +360,7 @@ public final class MemoFile extends AbstractMemo
 
                     if (sb.length() == 0)
                     {
-                        sb.append(this.getContext().getResources().getString(R.string.etc_memo_file_untitled));
+                        sb.append(this.getContext().getResources().getString(R.string.etc_memo_file_untitled_4_filename));
                     }
 
                     if (i > 0)
@@ -444,7 +444,7 @@ public final class MemoFile extends AbstractMemo
 
             if ((this.title == null) || (this.title.length() == 0))
             {
-                this.title = this.getContext().getResources().getString(R.string.etc_memo_type_none);
+                this.title = this.getContext().getResources().getString(R.string.etc_memo_file_untitled_4_title);
             }
         }
 

@@ -8,6 +8,7 @@ import jp.gr.java_conf.kumagusu.control.InputDialog;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
+import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

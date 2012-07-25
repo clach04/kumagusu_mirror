@@ -1,15 +1,19 @@
-package jp.gr.java_conf.kumagusu;
+package jp.gr.java_conf.kumagusu.worker;
 
 import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
+import jp.gr.java_conf.kumagusu.MainApplication;
+import jp.gr.java_conf.kumagusu.MemoListAdapter;
+import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
+import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.AsyncTask;

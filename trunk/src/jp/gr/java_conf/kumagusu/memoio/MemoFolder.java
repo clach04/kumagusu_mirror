@@ -48,7 +48,7 @@ public final class MemoFolder extends AbstractMemo
 
         if ((title == null) || (title.length() == 0))
         {
-            title = this.getContext().getResources().getString(R.string.etc_memo_type_none);
+            title = this.getContext().getResources().getString(R.string.etc_memo_file_untitled_4_title);
         }
 
         return title;
