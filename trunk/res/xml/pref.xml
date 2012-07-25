@@ -17,7 +17,7 @@
     <PreferenceCategory android:title="@string/pref_category_memo" >
 
         <!-- メモフォルダ -->
-        <jp.gr.java_conf.kumagusu.DirectorySelectDialogPreference
+        <jp.gr.java_conf.kumagusu.preference.DirectorySelectDialogPreference
             android:key="ds_memo_location"
             android:title="@string/pref_ds_memo_location_title" />
 
@@ -44,7 +44,12 @@
             android:key="cb_enable_editor_title"
             android:title="@string/pref_enable_editor_title" />
         -->
-    </PreferenceCategory>
+
+        <!-- 定型文 -->
+        <jp.gr.java_conf.kumagusu.preference.InputFixedPhraseDialogPreference
+            android:title="@string/pref_fixed_phrase_dialog_title" />
+
+        </PreferenceCategory>
     <!-- 「セキュリティ」カテゴリ -->
     <PreferenceCategory android:title="@string/pref_category_security" >
 

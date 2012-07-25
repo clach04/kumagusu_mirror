@@ -29,7 +29,8 @@
     <string name="pref_cb_title_link_title">To synchronize the title and file name</string>
     <string name="pref_cb_title_link_summary">Match the first line of the note and file name when you save.</string>
     <string name="pref_enable_auto_link">Using auto links</string>
-
+    <string name="pref_fixed_phrase_dialog_title">Fixed phrase</string>
+    
     <!-- 「セキュリティ」カテゴリ -->
     <string name="pref_category_security">Security</string>
     <string name="pref_cb_randam_name_title">To a random file name at the time of encryption</string>
@@ -62,6 +63,7 @@
     <string name="ui_edit_end">Finished editing</string>
     <string name="ui_confirm">Confirmation</string>
     <string name="ui_close">Close</string>
+    <string name="ui_add">Add</string>
 
     <!-- メモリスト -->
     <string name="memo_list_post_title_start">Updating List....</string>
@@ -112,5 +114,5 @@
     <!-- メモファイル処理 -->
     <string name="etc_memo_file_untitled_4_filename">untitled</string>
     <string name="etc_memo_file_untitled_4_title">(untitled)</string>
-    
+
 </resources>
