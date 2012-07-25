@@ -412,7 +412,7 @@ public final class MemoFile extends AbstractMemo
 
             String firstLine;
 
-            if (crPosition > 0)
+            if (crPosition >= 0)
             {
                 firstLine = text.substring(0, crPosition).trim();
             }
