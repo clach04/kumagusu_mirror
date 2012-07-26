@@ -555,8 +555,12 @@ public final class Kumagusu extends Activity
                                             final InputDialog renameFolderDialog = new InputDialog();
                                             renameFolderDialog.setText(Kumagusu.this.mSelectedMemoFile.getName());
 
-                                            renameFolderDialog.showDialog(Kumagusu.this, Kumagusu.this.getResources()
-                                                    .getString(R.string.folder_rename_control_dialog_title),
+                                            renameFolderDialog.showDialog(
+                                                    Kumagusu.this,
+                                                    Kumagusu.this.getResources().getDrawable(
+                                                            R.drawable.folder_operation),
+                                                    Kumagusu.this.getResources().getString(
+                                                            R.string.folder_rename_control_dialog_title),
                                                     InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
                                                     {
                                                         @Override
@@ -795,9 +799,9 @@ public final class Kumagusu extends Activity
 
         case MENU_ID_SEARCH: // 検索（メモ検索）
             final InputDialog searchMemoDialog = new InputDialog();
-            searchMemoDialog.showDialog(Kumagusu.this,
-                    this.getResources().getString(R.string.search_memo_control_dialog_title),
-                    InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
+            searchMemoDialog.showDialog(Kumagusu.this, this.getResources().getDrawable(R.drawable.search), this
+                    .getResources().getString(R.string.search_memo_control_dialog_title), InputType.TYPE_CLASS_TEXT,
+                    new DialogInterface.OnClickListener()
                     {
                         @Override
                         public void onClick(DialogInterface dialog, int which)
@@ -856,6 +860,7 @@ public final class Kumagusu extends Activity
                             case FILE_LIST_CONTROL_ID_ADD_FOLDER: // フォルダ追加
                                 final InputDialog addFolderDialog = new InputDialog();
                                 addFolderDialog.showDialog(Kumagusu.this,
+                                        Kumagusu.this.getResources().getDrawable(R.drawable.folder_add),
                                         Kumagusu.this.getResources()
                                                 .getString(R.string.folder_add_control_dialog_title),
                                         InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()

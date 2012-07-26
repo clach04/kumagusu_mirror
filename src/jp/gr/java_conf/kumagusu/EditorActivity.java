@@ -1,10 +1,12 @@
 package jp.gr.java_conf.kumagusu;
 
 import java.io.FileNotFoundException;
+import java.util.Date;
 
 import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
+import jp.gr.java_conf.kumagusu.control.ListDialog;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
@@ -16,6 +18,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.util.Linkify;
@@ -66,6 +69,11 @@ public final class EditorActivity extends Activity
      * メニュー項目「編集終了」.
      */
     private static final int MENU_ID_EDIT_END = (Menu.FIRST + 2);
+
+    /**
+     * メニュー項目「定型文」.
+     */
+    private static final int MENU_ID_FIXED_PHRASE = (Menu.FIRST + 3);
 
     /**
      * 開いた時点でのメモ内容.
@@ -396,6 +404,12 @@ public final class EditorActivity extends Activity
         actionItemEditEnd.setIcon(R.drawable.save);
         ActivityCompat.setShowAsAction4ActionBar(actionItemEditEnd);
 
+        // メニュー項目「定型文」
+        MenuItem actionItemFixedPhrese = menu.add(Menu.NONE, MENU_ID_FIXED_PHRASE, Menu.NONE,
+                R.string.fixed_phrase_dialog_title);
+        actionItemFixedPhrese.setIcon(R.drawable.fixed_phrase);
+        ActivityCompat.setShowAsAction4ActionBar(actionItemFixedPhrese);
+
         return ret;
     }
 
@@ -405,6 +419,7 @@ public final class EditorActivity extends Activity
         // 編集中フラグによりメニューの項目を切り替え
         menu.findItem(MENU_ID_EDIT).setVisible(!editable);
         menu.findItem(MENU_ID_EDIT_END).setVisible(editable);
+        menu.findItem(MENU_ID_FIXED_PHRASE).setVisible(editable);
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -455,6 +470,34 @@ public final class EditorActivity extends Activity
                 // メニュー項目を再表示
                 ActivityCompat.refreshMenu4ActionBar(EditorActivity.this);
             }
+            break;
+
+        case MENU_ID_FIXED_PHRASE: // 定型文
+            final String[] fixedPhraseStrings = MainPreferenceActivity.getFixedPhraseStrings(this).toArray(new String[0]);
+            Date nowDate = new Date();
+
+            for (int i = 0; i < fixedPhraseStrings.length; i++)
+            {
+                fixedPhraseStrings[i] = Utilities.getDateTimeFormattedString(this, fixedPhraseStrings[i], nowDate);
+            }
+
+            ListDialog.showDialog(this, getResources().getDrawable(R.drawable.fixed_phrase),
+                    getResources().getString(R.string.fixed_phrase_dialog_title), fixedPhraseStrings,
+                    new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            String insertString = fixedPhraseStrings[which];
+                            EditText memoEditText = (EditText) findViewById(R.id.editor);
+
+                            int cStart = memoEditText.getSelectionStart();
+                            int cEnd = memoEditText.getSelectionEnd();
+                            Editable memoEditable = memoEditText.getText();
+
+                            memoEditable.replace(Math.min(cStart, cEnd), Math.max(cStart, cEnd), insertString);
+                        }
+                    });
             break;
 
         case android.R.id.home: // UPアイコン

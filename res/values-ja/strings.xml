@@ -96,6 +96,9 @@
     <string name="search_memo_list_post_title_start">検索中....</string>
     <string name="search_memo_list_post_title_end">検索結果</string>
 
+    <!-- 定型文 -->
+    <string name="fixed_phrase_dialog_title">定型文</string>
+
     <!--
     ******************************************************************
      その他

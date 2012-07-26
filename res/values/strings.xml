@@ -30,7 +30,7 @@
     <string name="pref_cb_title_link_summary">Match the first line of the note and file name when you save.</string>
     <string name="pref_enable_auto_link">Using auto links</string>
     <string name="pref_fixed_phrase_dialog_title">Fixed phrase</string>
-    
+
     <!-- 「セキュリティ」カテゴリ -->
     <string name="pref_category_security">Security</string>
     <string name="pref_cb_randam_name_title">To a random file name at the time of encryption</string>
@@ -95,6 +95,9 @@
     <string name="search_memo_control_dialog_title">Search</string>
     <string name="search_memo_list_post_title_start">Searching Note....</string>
     <string name="search_memo_list_post_title_end">Results</string>
+
+    <!-- 定型文 -->
+    <string name="fixed_phrase_dialog_title">Fixed Phrase</string>
 
     <!--
     ******************************************************************

@@ -1,10 +1,11 @@
 package jp.gr.java_conf.kumagusu;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+
+import android.content.Context;
 
 /**
  * ユーティリティー.
@@ -21,108 +22,115 @@ public final class Utilities
     {
     }
 
+    // /**
+    // * Key→Format変換マップ.
+    // */
+    // private static HashMap<String, String> dateTimeFormatPatterns = null;
+    //
+    // /**
+    // * Key→Format変換マップを取得する.
+    // *
+    // * @param con コンテキスト
+    // * @return Key→Format変換マップ
+    // */
+    // private static HashMap<String, String> getDateTimeFormatPatterns(Context
+    // con)
+    // {
+    // if (dateTimeFormatPatterns == null)
+    // {
+    // String[] keyStrings =
+    // con.getResources().getStringArray(R.array.fixed_phrase_escape_item_values);
+    // String[] formatLetterStrings = con.getResources().getStringArray(
+    // R.array.fixed_phrase_escape_item_format_values);
+    //
+    // assert keyStrings.length == formatLetterStrings.length;
+    //
+    // dateTimeFormatPatterns = new HashMap<String, String>();
+    //
+    // for (int i = 0; i < keyStrings.length; i++)
+    // {
+    // dateTimeFormatPatterns.put(keyStrings[0], formatLetterStrings[i]);
+    // }
+    // }
+    //
+    // return dateTimeFormatPatterns;
+    // }
+
     /**
-     * Int32値をバイトデータに変換する.
+     * 現在の日付を埋め込んだ文字列を返す.
      *
-     * @param value int32値
-     * @param byteArray バイトデータ書込先バイト配列
-     * @param startPos 書込開始位置
-     * @throws IOException IO例外
+     * @param con コンテキスト
+     * @param baseString 元の文字列
+     * @return 現在の日付を埋め込んだ文字列
      */
-    public static void int2ByteArray(int value, byte[] byteArray, int startPos) throws IOException
+    public static String getDateTimeFormattedString(Context con, String baseString)
     {
-        DataOutputStream out = null;
-
-        try
-        {
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-
-            out = new DataOutputStream(bout);
-
-            value = Integer.reverseBytes(value);
-            out.writeInt(value);
-
-            byte[] outBytes = bout.toByteArray();
-
-            for (int i = 0; i < 4; i++)
-            {
-                byteArray[i + startPos] = outBytes[i];
-
-            }
-
-        }
-        finally
-        {
-            if (out != null)
-            {
-                out.close();
-                out = null;
-            }
-        }
+        return getDateTimeFormattedString(con, baseString, new Date());
     }
 
     /**
-     * バイトデータをInt32値に変換する.
+     * 現在の日付を埋め込んだ文字列を返す.
      *
-     * @param byteArray バイトデータが書き込まれたバイト配列
-     * @param startPos バイトデータの開始位置
-     * @return Int32値
-     * @throws IOException IO例外
+     * @param con コンテキスト
+     * @param baseString 元の文字列
+     * @param date 日時
+     * @return 現在の日付を埋め込んだ文字列
      */
-    public static int byteArray2int(byte[] byteArray, int startPos) throws IOException
+    public static String getDateTimeFormattedString(Context con, String baseString, Date date)
     {
-        DataInputStream in = null;
+        String[] keyStrings = con.getResources().getStringArray(R.array.fixed_phrase_escape_item_values);
+        String[] formatLetterStrings = con.getResources()
+                .getStringArray(R.array.fixed_phrase_escape_item_format_values);
+        assert keyStrings.length == formatLetterStrings.length;
 
-        try
+        String patternString = baseString;
+
+        for (int i = 0; i < keyStrings.length; i++)
         {
-            ByteArrayInputStream bin = new ByteArrayInputStream(byteArray, startPos, 4);
+            String[] formatLeSplitStrings = formatLetterStrings[i].split(",");
+            String formatLetter;
+            Locale locale;
 
-            in = new DataInputStream(bin);
-
-            int value = in.readInt();
-
-            value = Integer.reverseBytes(value);
-
-            return value;
-        }
-        finally
-        {
-            if (in != null)
+            if (formatLeSplitStrings.length >= 1)
             {
-                in.close();
+                formatLetter = formatLeSplitStrings[0];
+            }
+            else
+            {
+                assert false;
+                continue;
+            }
+
+            if ((formatLeSplitStrings.length >= 2) && (formatLeSplitStrings[1].equals("1")))
+            {
+                locale = Locale.ENGLISH;
+            }
+            else
+            {
+                locale = Locale.getDefault();
+            }
+
+            if ((keyStrings[i].equals("%%")) || (keyStrings[i].equals("''")))
+            {
+                continue;
+            }
+
+            if (keyStrings[i].equals("%n"))
+            {
+                patternString = patternString.replace(keyStrings[i], formatLetter);
+            }
+            else
+            {
+                SimpleDateFormat formatter = new SimpleDateFormat(formatLetter, locale);
+                String dateString = formatter.format(date);
+
+                patternString = patternString.replace(keyStrings[i], dateString);
             }
         }
-    }
 
-    /**
-     * バイトオーダを変換する.
-     *
-     * @param byteArray バイト配列
-     * @param length 変換するバイト数
-     * @param startPos 開始位置
-     * @return 変換結果
-     */
-    public static boolean changeByteOrder(byte[] byteArray, int length, int startPos)
-    {
-        if ((byteArray.length - startPos) < length)
-        {
-            return false;
-        }
+        patternString = patternString.replace("%%", "%");
 
-        for (int i = startPos + 3; i < startPos + length; i += 4)
-        {
-            byte[] tmp = new byte[4];
+        return patternString;
 
-            tmp[0] = byteArray[i - 3];
-            tmp[1] = byteArray[i - 2];
-            tmp[2] = byteArray[i - 1];
-            tmp[3] = byteArray[i - 0];
-
-            byteArray[i - 3] = tmp[3];
-            byteArray[i - 2] = tmp[2];
-            byteArray[i - 1] = tmp[1];
-            byteArray[i - 0] = tmp[0];
-        }
-        return true;
     }
 }
