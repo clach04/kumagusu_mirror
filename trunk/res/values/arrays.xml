@@ -39,6 +39,7 @@
         <item>Hour in AM/PM (00..11)</item>
         <item>Hour in AM/PM (01..12)</item>
         <item>Hour in day (00..23)</item>
+        <item>AM/PM marker(locale)</item>
         <item>AM/PM marker</item>
         <item>Minute in hour (01,02..)</item>
         <item>Second in minute (01,02..)</item>
@@ -59,6 +60,7 @@
         <item>%I</item>
         <item>%h</item>
         <item>%a</item>
+        <item>%A</item>
         <item>%m</item>
         <item>%s</item>
         <item>%%</item>
@@ -74,14 +76,23 @@
         <item>d</item>
         <item>EEE</item>
         <item>EEE,1</item>
-        <item>K</item>
+        <item>KK</item>
         <item>hh</item>
         <item>HH</item>
         <item>a</item>
+        <item>a,1</item>
         <item>mm</item>
         <item>ss</item>
         <item>%</item>
         <item>\n</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_values_default">
+        <item>%y/%M/%d %h:%m:%s</item>
+        <item>%y/%M/%d</item>
+        <item>%h:%m:%s</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_entries_operation">
+        <item>Delete</item>
     </string-array>
 
     <!-- ファイル操作ダイアログのエントリ -->

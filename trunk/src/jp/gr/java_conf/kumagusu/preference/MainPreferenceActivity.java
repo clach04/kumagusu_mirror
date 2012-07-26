@@ -154,16 +154,22 @@ public final class MainPreferenceActivity extends PreferenceActivity
         {
             Editor editor = sp.edit();
 
-            editor.putInt("list_fixed_phrase_strings_count", 2);
+            String[] defaultPatterns = con.getResources().getStringArray(
+                    R.array.fixed_phrase_escape_item_values_default);
 
-            editor.putString("list_fixed_phrase_strings_0", "%y/%M/%d");
-            editor.putString("list_fixed_phrase_strings_1", "%h:%m:%s");
+            editor.putInt("list_fixed_phrase_strings_count", defaultPatterns.length);
+
+            for (int i = 0; i < defaultPatterns.length; i++)
+            {
+                editor.putString("list_fixed_phrase_strings_" + i, defaultPatterns[i]);
+            }
 
             editor.commit();
 
-            fixedPhraseStringsCount = 2;
+            fixedPhraseStringsCount = defaultPatterns.length;
         }
 
+        // 設定取得
         List<String> resultList = new ArrayList<String>();
 
         for (int i = 0; i < fixedPhraseStringsCount; i++)

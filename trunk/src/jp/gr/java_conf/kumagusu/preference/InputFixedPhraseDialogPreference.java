@@ -3,11 +3,13 @@ package jp.gr.java_conf.kumagusu.preference;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.R;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
 import jp.gr.java_conf.kumagusu.control.ListDialog;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.DialogPreference;
@@ -17,6 +19,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -29,6 +32,11 @@ import android.widget.ListView;
  */
 public final class InputFixedPhraseDialogPreference extends DialogPreference
 {
+    /**
+     * 削除.
+     */
+    private static final int FIXED_PHRASE_ENTRIES_CONTROL_ID_DELETE = 0;
+
     @Override
     protected void onBindView(View view)
     {
@@ -79,6 +87,8 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
         ListView listView = (ListView) view.findViewById(R.id.fixed_phrase_list);
 
         listView.setAdapter(listViewAdapter);
+
+        // リストのクリック処理
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             /**
@@ -146,6 +156,60 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                                         });
                             }
                         }, getContext().getResources().getString(R.string.fixed_phrase_pattern_letters));
+            }
+        });
+
+        // リストの長押しイベント
+        listView.setOnItemLongClickListener(new OnItemLongClickListener()
+        {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id)
+            {
+                ListDialog.showDialog(getContext(), null,
+                        getContext().getResources().getString(R.string.pref_fixed_phrase_entries_control_dialog_title),
+                        getContext().getResources().getStringArray(R.array.fixed_phrase_escape_item_entries_operation),
+                        new OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                switch (which)
+                                {
+                                case FIXED_PHRASE_ENTRIES_CONTROL_ID_DELETE: // 削除
+                                    // 削除の確認ダイアログを表示
+                                    ConfirmDialog.showDialog(
+                                            getContext(),
+                                            getContext().getResources().getDrawable(android.R.drawable.ic_menu_delete),
+                                            getContext().getResources().getString(
+                                                    R.string.pref_fixed_phrase_entries_control_dialog_delete_title),
+                                            getContext().getResources().getString(
+                                                    R.string.pref_fixed_phrase_entries_control_dialog_delete_message),
+                                            ConfirmDialog.PositiveCaptionKind.YES, new OnClickListener()
+                                            {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which)
+                                                {
+                                                    // 削除
+                                                    fixedPhraseStrings.remove(position);
+                                                    listViewAdapter.notifyDataSetChanged();
+                                                }
+                                            }, new OnClickListener()
+                                            {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which)
+                                                {
+                                                    // キャンセル
+                                                }
+                                            });
+                                    break;
+
+                                default:
+                                    break;
+                                }
+                            }
+                        });
+
+                return true;
             }
         });
 

@@ -30,6 +30,9 @@
     <string name="pref_cb_title_link_summary">Match the first line of the note and file name when you save.</string>
     <string name="pref_enable_auto_link">Using auto links</string>
     <string name="pref_fixed_phrase_dialog_title">Fixed phrase</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_title">Operation of fixed phrase</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_delete_title">Delete</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_delete_message">Is a fixed phrase deleted?</string>
 
     <!-- 「セキュリティ」カテゴリ -->
     <string name="pref_category_security">Security</string>
