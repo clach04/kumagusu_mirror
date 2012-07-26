@@ -2,14 +2,14 @@
 <resources>
 
     <!-- 設定のエントリ -->
-    <!--
     <string-array name="encoding_entries">
+        <item>SJIS</item>
+        <item>UTF-8</item>
     </string-array>
-    -->
-    <!--
     <string-array name="encoding_values">
+        <item>MS932</item>
+        <item>UTF8</item>
     </string-array>
-    -->
     <string-array name="autoclose_delaytime_entries">
         <item>無効</item>
         <item>即クローズ</item>
@@ -18,10 +18,14 @@
         <item>5 分</item>
         <item>10 分</item>
     </string-array>
-    <!--
     <string-array name="autoclose_delaytime_values">
+        <item>-1</item>
+        <item>0</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>300000</item>
+        <item>600000</item>
     </string-array>
-    -->
     <string-array name="fixed_phrase_escape_item_entries">
         <item>年4桁(2012)</item>
         <item>年下2桁(12)</item>
@@ -42,14 +46,51 @@
         <item>%</item>
         <item>改行</item>
     </string-array>
-    <!--
     <string-array name="fixed_phrase_escape_item_values">
+        <item>%y</item>
+        <item>%Y</item>
+        <item>%MM</item>
+        <item>%M</item>
+        <item>%b</item>
+        <item>%d</item>
+        <item>%D</item>
+        <item>%w</item>
+        <item>%W</item>
+        <item>%H</item>
+        <item>%I</item>
+        <item>%h</item>
+        <item>%a</item>
+        <item>%A</item>
+        <item>%m</item>
+        <item>%s</item>
+        <item>%%</item>
+        <item>%n</item>
     </string-array>
-    -->
-    <!--
     <string-array name="fixed_phrase_escape_item_format_values">
+        <item>yyyy</item>
+        <item>yy</item>
+        <item>MM</item>
+        <item>M</item>
+        <item>MMM,1</item>
+        <item>dd</item>
+        <item>d</item>
+        <item>EEE</item>
+        <item>EEE,1</item>
+        <item>KK</item>
+        <item>hh</item>
+        <item>HH</item>
+        <item>a</item>
+        <item>a,1</item>
+        <item>mm</item>
+        <item>ss</item>
+        <item>%</item>
+        <item>\n</item>
     </string-array>
-    -->
+    <string-array name="fixed_phrase_escape_item_values_default">
+        <item>%y/%M/%d %h:%m:%s</item>
+        <item>%y/%M/%d</item>
+        <item>%h:%m:%s</item>
+    </string-array>
     <string-array name="fixed_phrase_escape_item_entries_operation">
         <item>削除</item>
     </string-array>
