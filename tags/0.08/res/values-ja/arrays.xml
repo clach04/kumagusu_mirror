@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 設定のエントリ -->
+    <string-array name="encoding_entries">
+        <item>SJIS</item>
+        <item>UTF-8</item>
+    </string-array>
+    <string-array name="encoding_values">
+        <item>MS932</item>
+        <item>UTF8</item>
+    </string-array>
+    <string-array name="autoclose_delaytime_entries">
+        <item>無効</item>
+        <item>即クローズ</item>
+        <item>30 秒</item>
+        <item>1 分</item>
+        <item>5 分</item>
+        <item>10 分</item>
+    </string-array>
+    <string-array name="autoclose_delaytime_values">
+        <item>-1</item>
+        <item>0</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>300000</item>
+        <item>600000</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_entries">
+        <item>年4桁(2012)</item>
+        <item>年下2桁(12)</item>
+        <item>月(01,02,..)</item>
+        <item>月(1,2,..)</item>
+        <item>月(Jan,Feb..)</item>
+        <item>日(01,02..)</item>
+        <item>日(1,2,..)</item>
+        <item>曜日(ロケール形式)</item>
+        <item>曜日(Sun,Mon)</item>
+        <item>時(12H:00..11)</item>
+        <item>時(12H:01..12)</item>
+        <item>時(24H)</item>
+        <item>AM,PM</item>
+        <item>分(01,02..)</item>
+        <item>秒(01,02..)</item>
+        <item>%</item>
+        <item>改行</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_values">
+        <item>%y</item>
+        <item>%Y</item>
+        <item>%MM</item>
+        <item>%M</item>
+        <item>%b</item>
+        <item>%d</item>
+        <item>%D</item>
+        <item>%w</item>
+        <item>%W</item>
+        <item>%H</item>
+        <item>%I</item>
+        <item>%h</item>
+        <item>%a</item>
+        <item>%m</item>
+        <item>%s</item>
+        <item>%%</item>
+        <item>%n</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_format_values">
+        <item>yyyy</item>
+        <item>yy</item>
+        <item>MM</item>
+        <item>M</item>
+        <item>MMM,1</item>
+        <item>dd</item>
+        <item>d</item>
+        <item>EEE</item>
+        <item>EEE,1</item>
+        <item>K</item>
+        <item>hh</item>
+        <item>HH</item>
+        <item>a</item>
+        <item>mm</item>
+        <item>ss</item>
+        <item>%</item>
+        <item>\n</item>
+    </string-array>
+
+    <!-- ファイル操作ダイアログのエントリ -->
+    <string-array name="memo_file_control_dialog_entries_4_text">
+        <item>コピー</item>
+        <item>移動</item>
+        <item>削除</item>
+        <item>暗号化</item>
+    </string-array>
+    <string-array name="memo_file_control_dialog_entries_4_text_2">
+        <item>コピー</item>
+        <item>移動</item>
+        <item>削除</item>
+        <item>暗号化</item>
+        <item>暗号化(ﾊﾟｽﾜｰﾄﾞ再入力)</item>
+    </string-array>
+    <string-array name="memo_file_control_dialog_entries_4_secret">
+        <item>コピー</item>
+        <item>移動</item>
+        <item>削除</item>
+        <item>復号化</item>
+    </string-array>
+
+    <!-- フォルダ操作ダイアログのエントリ -->
+    <string-array name="memo_file_control_dialog_entries_4_folder">
+        <item>コピー</item>
+        <item>移動</item>
+        <item>削除</item>
+        <item>名前の変更</item>
+    </string-array>
+
+    <!-- 追加のエントリ -->
+    <string-array name="memo_list_control_dialog_entries">
+        <item>メモを追加</item>
+        <item>フォルダを追加</item>
+    </string-array>
+
+</resources>
