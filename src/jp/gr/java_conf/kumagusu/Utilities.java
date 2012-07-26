@@ -2,7 +2,6 @@ package jp.gr.java_conf.kumagusu;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 
 import android.content.Context;
@@ -21,40 +20,6 @@ public final class Utilities
     private Utilities()
     {
     }
-
-    // /**
-    // * Key→Format変換マップ.
-    // */
-    // private static HashMap<String, String> dateTimeFormatPatterns = null;
-    //
-    // /**
-    // * Key→Format変換マップを取得する.
-    // *
-    // * @param con コンテキスト
-    // * @return Key→Format変換マップ
-    // */
-    // private static HashMap<String, String> getDateTimeFormatPatterns(Context
-    // con)
-    // {
-    // if (dateTimeFormatPatterns == null)
-    // {
-    // String[] keyStrings =
-    // con.getResources().getStringArray(R.array.fixed_phrase_escape_item_values);
-    // String[] formatLetterStrings = con.getResources().getStringArray(
-    // R.array.fixed_phrase_escape_item_format_values);
-    //
-    // assert keyStrings.length == formatLetterStrings.length;
-    //
-    // dateTimeFormatPatterns = new HashMap<String, String>();
-    //
-    // for (int i = 0; i < keyStrings.length; i++)
-    // {
-    // dateTimeFormatPatterns.put(keyStrings[0], formatLetterStrings[i]);
-    // }
-    // }
-    //
-    // return dateTimeFormatPatterns;
-    // }
 
     /**
      * 現在の日付を埋め込んだ文字列を返す.
