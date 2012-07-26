@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.drawable.Drawable;
 import android.text.method.SingleLineTransformationMethod;
 import android.widget.EditText;
 
@@ -37,6 +38,23 @@ public final class InputDialog
     public void showDialog(Context context, String title, int inputType, OnClickListener okListener,
             OnClickListener cancelListener)
     {
+        showDialog(context, context.getResources().getDrawable(R.drawable.icon), title, inputType, okListener,
+                cancelListener);
+    }
+
+    /**
+     * テキスト入力ダイアログを表示する.
+     *
+     * @param context コンテキスト
+     * @param icon アイコン
+     * @param title タイトル
+     * @param inputType インプットタイプ
+     * @param okListener Ok処理リスナ
+     * @param cancelListener Cancel処理リスナ
+     */
+    public void showDialog(Context context, Drawable icon, String title, int inputType, OnClickListener okListener,
+            OnClickListener cancelListener)
+    {
         edtInput = new EditText(context);
         edtInput.setTransformationMethod(SingleLineTransformationMethod.getInstance());
         edtInput.setInputType(inputType);
@@ -49,7 +67,11 @@ public final class InputDialog
 
         AlertDialog.Builder db = new AlertDialog.Builder(context);
 
-        db.setIcon(R.drawable.icon);
+        if (icon != null)
+        {
+            db.setIcon(icon);
+        }
+
         db.setTitle(title).setView(edtInput);
 
         if (okListener != null)

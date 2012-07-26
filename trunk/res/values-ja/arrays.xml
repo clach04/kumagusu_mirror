@@ -30,10 +30,11 @@
         <item>年4桁(2012)</item>
         <item>年下2桁(12)</item>
         <item>月(01,02,..)</item>
+        <item>月(1,2,..)</item>
         <item>月(Jan,Feb..)</item>
         <item>日(01,02..)</item>
         <item>日(1,2,..)</item>
-        <item>曜日(日,月..)</item>
+        <item>曜日(ロケール形式)</item>
         <item>曜日(Sun,Mon)</item>
         <item>時(12H:00..11)</item>
         <item>時(12H:01..12)</item>
@@ -47,6 +48,7 @@
     <string-array name="fixed_phrase_escape_item_values">
         <item>%y</item>
         <item>%Y</item>
+        <item>%MM</item>
         <item>%M</item>
         <item>%b</item>
         <item>%d</item>
@@ -61,6 +63,25 @@
         <item>%s</item>
         <item>%%</item>
         <item>%n</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_format_values">
+        <item>yyyy</item>
+        <item>yy</item>
+        <item>MM</item>
+        <item>M</item>
+        <item>MMM,1</item>
+        <item>dd</item>
+        <item>d</item>
+        <item>EEE</item>
+        <item>EEE,1</item>
+        <item>K</item>
+        <item>hh</item>
+        <item>HH</item>
+        <item>a</item>
+        <item>mm</item>
+        <item>ss</item>
+        <item>%</item>
+        <item>\n</item>
     </string-array>
 
     <!-- ファイル操作ダイアログのエントリ -->

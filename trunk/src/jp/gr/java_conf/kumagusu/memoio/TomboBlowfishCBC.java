@@ -5,7 +5,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-import jp.gr.java_conf.kumagusu.Utilities;
 
 
 import de.mud.ssh.Cipher;
@@ -96,7 +95,7 @@ public final class TomboBlowfishCBC
         System.arraycopy("BF01".getBytes(this.charsetName), 0, enc, 0, 4);
 
         // データサイズ
-        Utilities.int2ByteArray(strDataSize, enc, 4);
+        MemoUtilities.int2ByteArray(strDataSize, enc, 4);
 
         // エンコード対象データ・テンポラリ生成
         byte[] data2enc = new byte[enc.length - 8];
@@ -121,7 +120,7 @@ public final class TomboBlowfishCBC
         // ----------------------------------------------------------
 
         // リトルエンディアンに変更
-        Utilities.changeByteOrder(data2enc, data2enc.length, 0);
+        MemoUtilities.changeByteOrder(data2enc, data2enc.length, 0);
 
         // パスワード設定
         resetBlowfishCBC(planeKey);
@@ -130,7 +129,7 @@ public final class TomboBlowfishCBC
         this.cipher.encrypt(data2enc, 0, enc, 8, data2enc.length);
 
         // ビッグエンディアンに戻す
-        Utilities.changeByteOrder(enc, data2enc.length, 8);
+        MemoUtilities.changeByteOrder(enc, data2enc.length, 8);
 
         return enc;
     }
@@ -151,13 +150,13 @@ public final class TomboBlowfishCBC
         // --------------------------------------------------------------
         // ヘッダ部取得
         // --------------------------------------------------------------
-        int dataLength = Utilities.byteArray2int(enc, 4);
+        int dataLength = MemoUtilities.byteArray2int(enc, 4);
 
         // --------------------------------------------------------------
         // 暗号化部を復号
         // --------------------------------------------------------------
         // 暗号化部のバイトオーダ変更（リトルエンディアンへ）
-        Utilities.changeByteOrder(enc, enc.length - 8, 8);
+        MemoUtilities.changeByteOrder(enc, enc.length - 8, 8);
 
         // 復号
         resetBlowfishCBC(planeKey);
@@ -167,7 +166,7 @@ public final class TomboBlowfishCBC
         this.cipher.decrypt(enc, 8, data, 0, data.length);
 
         // バイトオーダー変換。元に戻す
-        Utilities.changeByteOrder(data, data.length, 0);
+        MemoUtilities.changeByteOrder(data, data.length, 0);
 
         // ハッシュを用いデータが正しく復号出来たかチェック
         this.md5Digest.reset();
