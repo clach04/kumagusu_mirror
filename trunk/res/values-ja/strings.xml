@@ -98,6 +98,7 @@
 
     <!-- 定型文 -->
     <string name="fixed_phrase_dialog_title">定型文</string>
+    <string name="fixed_phrase_pattern_letters">パターン文字</string>
 
     <!--
     ******************************************************************

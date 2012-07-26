@@ -93,11 +93,12 @@
 
     <!-- メモ検索 -->
     <string name="search_memo_control_dialog_title">Search</string>
-    <string name="search_memo_list_post_title_start">Searching Note....</string>
+    <string name="search_memo_list_post_title_start">Searching note....</string>
     <string name="search_memo_list_post_title_end">Results</string>
 
     <!-- 定型文 -->
-    <string name="fixed_phrase_dialog_title">Fixed Phrase</string>
+    <string name="fixed_phrase_dialog_title">Fixed phrase</string>
+    <string name="fixed_phrase_pattern_letters">Pattern letters</string>
 
     <!--
     ******************************************************************

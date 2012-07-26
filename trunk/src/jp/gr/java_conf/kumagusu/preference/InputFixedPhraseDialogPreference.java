@@ -4,6 +4,7 @@ import java.util.List;
 
 import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
+import jp.gr.java_conf.kumagusu.control.ListDialog;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -112,7 +113,39 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                             {
                                 // キャンセルは無視
                             }
-                        });
+                        }, new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                String[] phraseNames = getContext().getResources().getStringArray(
+                                        R.array.fixed_phrase_escape_item_entries);
+                                final String[] patternLetters = getContext().getResources().getStringArray(
+                                        R.array.fixed_phrase_escape_item_values);
+
+                                assert patternLetters.length == phraseNames.length;
+
+                                for (int i = 0; i < patternLetters.length; i++)
+                                {
+                                    phraseNames[i] = new StringBuilder(phraseNames[i]).append(" (")
+                                            .append(patternLetters[i]).append(")").toString();
+                                }
+
+                                ListDialog.showDialog(getContext(),
+                                        getContext().getResources().getDrawable(R.drawable.fixed_phrase), getContext()
+                                                .getResources().getString(R.string.fixed_phrase_pattern_letters),
+                                        phraseNames, new DialogInterface.OnClickListener()
+                                        {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which)
+                                            {
+                                                String pasteString = patternLetters[which];
+
+                                                fixedPhraseEditor.pasteText(pasteString);
+                                            }
+                                        });
+                            }
+                        }, getContext().getResources().getString(R.string.fixed_phrase_pattern_letters));
             }
         });
 
