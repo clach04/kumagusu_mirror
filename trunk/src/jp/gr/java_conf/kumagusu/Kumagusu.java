@@ -239,6 +239,13 @@ public final class Kumagusu extends Activity
                         // 受け渡すデータを設定
                         intent.putExtra("FULL_PATH", selectedItem.getPath());
                         intent.putExtra("CURRENT_FOLDER", selectedItem.getParent());
+
+                        if (Kumagusu.this.memoListViewMode == MemoListViewMode.SEARCH_VIEW)
+                        {
+                            // 検索時はエディタでに検索文字を渡し、
+                            // エディタに検索処理を開始させる
+                            intent.putExtra("SEARCH_WORDS", Kumagusu.this.searchWords);
+                        }
                     }
                     else if ((selectedItem.getMemoType() == MemoType.Folder)
                             || (selectedItem.getMemoType() == MemoType.ParentFolder))
@@ -860,9 +867,8 @@ public final class Kumagusu extends Activity
                             case FILE_LIST_CONTROL_ID_ADD_FOLDER: // フォルダ追加
                                 final InputDialog addFolderDialog = new InputDialog();
                                 addFolderDialog.showDialog(Kumagusu.this,
-                                        Kumagusu.this.getResources().getDrawable(R.drawable.folder_add),
-                                        Kumagusu.this.getResources()
-                                                .getString(R.string.folder_add_control_dialog_title),
+                                        Kumagusu.this.getResources().getDrawable(R.drawable.folder_add), Kumagusu.this
+                                                .getResources().getString(R.string.folder_add_control_dialog_title),
                                         InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
                                         {
                                             @Override

@@ -85,6 +85,11 @@ public final class EditorActivity extends Activity
      */
     private boolean editable = false;
 
+    /**
+     * 検索ワード（nullでないとき検索文字指定で起動）.
+     */
+    private String searchWords = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -129,6 +134,8 @@ public final class EditorActivity extends Activity
         String fullPath = getIntent().getStringExtra("FULL_PATH");
         String currentFolderPath = getIntent().getStringExtra("CURRENT_FOLDER");
 
+        this.searchWords = getIntent().getStringExtra("SEARCH_WORDS");
+
         // 検索ツールクローズイベント登録
         ImageButton searchCloseButton = (ImageButton) findViewById(R.id.edit_search_close);
         searchCloseButton.setOnClickListener(new OnClickListener()
@@ -136,8 +143,7 @@ public final class EditorActivity extends Activity
             @Override
             public void onClick(View v)
             {
-                LinearLayout editSearchToolLayout = (LinearLayout) findViewById(R.id.edit_search_tool);
-                editSearchToolLayout.setVisibility(View.GONE);
+                displaySearchView(false, null);
             }
         });
 
@@ -185,37 +191,6 @@ public final class EditorActivity extends Activity
             // 無視
             Log.e("EditorActivity", "*** START onCreate()", ex);
             return;
-        }
-
-        String memoData = this.memoFile.getText();
-
-        if ((memoData == null)
-                && ((this.memoFile.getMemoType() == MemoType.Secret1) || (this.memoFile.getMemoType() == MemoType.Secret2)))
-        {
-            // パスワードを入力
-            final InputDialog dialog = new InputDialog();
-            dialog.showDialog(this, getResources().getString(R.string.ui_td_input_password), InputType.TYPE_CLASS_TEXT
-                    | InputType.TYPE_TEXT_VARIATION_PASSWORD, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface d, int which)
-                {
-                    // OK処理
-                    String tryPassword = dialog.getText();
-
-                    MainApplication.getInstance(EditorActivity.this).addPassword(tryPassword);
-
-                    setMemoData();
-                }
-            }, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface d, int which)
-                {
-                    // キャンセル処理
-                    setMemoData();
-                }
-            });
         }
     }
 
@@ -434,11 +409,7 @@ public final class EditorActivity extends Activity
         switch (item.getItemId())
         {
         case MENU_ID_SEARCH: // 検索
-            LinearLayout editSearchToolLayout = (LinearLayout) findViewById(R.id.edit_search_tool);
-            editSearchToolLayout.setVisibility(View.VISIBLE);
-
-            EditText searchWordEditText = (EditText) findViewById(R.id.edit_search_word);
-            searchWordEditText.requestFocus();
+            displaySearchView(true, null);
             break;
 
         case MENU_ID_EDIT: // 編集
@@ -473,7 +444,8 @@ public final class EditorActivity extends Activity
             break;
 
         case MENU_ID_FIXED_PHRASE: // 定型文
-            final String[] fixedPhraseStrings = MainPreferenceActivity.getFixedPhraseStrings(this).toArray(new String[0]);
+            final String[] fixedPhraseStrings = MainPreferenceActivity.getFixedPhraseStrings(this).toArray(
+                    new String[0]);
             Date nowDate = new Date();
 
             for (int i = 0; i < fixedPhraseStrings.length; i++)
@@ -532,6 +504,35 @@ public final class EditorActivity extends Activity
         }
 
         return ret;
+    }
+
+    /**
+     * 検索処理を開始する.
+     *
+     * @param visible 表示するときtrue
+     * @param srchWords 検索文字(設定しないときnull)
+     */
+    private void displaySearchView(boolean visible, String srchWords)
+    {
+        LinearLayout editSearchToolLayout = (LinearLayout) findViewById(R.id.edit_search_tool);
+
+        if (visible)
+        {
+            editSearchToolLayout.setVisibility(View.VISIBLE);
+
+            EditText searchWordEditText = (EditText) findViewById(R.id.edit_search_word);
+            searchWordEditText.requestFocus();
+
+            if (srchWords != null)
+            {
+                searchWordEditText.setText(srchWords);
+                searchWord(true);
+            }
+        }
+        else
+        {
+            editSearchToolLayout.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -646,6 +647,10 @@ public final class EditorActivity extends Activity
         {
             this.editable = true;
             memoEditText.setText(this.originalMemoString);
+
+            // カーソルを先頭に移動
+            memoEditText.setSelection(0, memoEditText.getText().length());
+            memoEditText.setSelection(0);
         }
         finally
         {
@@ -655,14 +660,64 @@ public final class EditorActivity extends Activity
         // IMEを消去
         getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        // ファイルが開けない場合リストに戻る
+        // ファイルが開けない場合、暗号化ファイルであればパスワードを再入力
+        // プレーンテキストならエディタ終了
         if (!openedFg)
         {
-            // タイマを破棄
-            this.autoCloseTimer = null;
+            if ((this.memoFile.getMemoType() == MemoType.Secret1) || (this.memoFile.getMemoType() == MemoType.Secret2))
+            {
+                // パスワードを入力
+                final InputDialog dialog = new InputDialog();
+                dialog.showDialog(this, getResources().getString(R.string.ui_td_input_password),
+                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
+                        new DialogInterface.OnClickListener()
+                        {
+                            /**
+                             * OKを処理する.
+                             */
+                            @Override
+                            public void onClick(DialogInterface d, int which)
+                            {
+                                String tryPassword = dialog.getText();
 
-            // エディタ終了
-            finish();
+                                MainApplication.getInstance(EditorActivity.this).addPassword(tryPassword);
+
+                                setMemoData();
+                            }
+                        }, new DialogInterface.OnClickListener()
+                        {
+                            /**
+                             * キャンセルを処理する.
+                             */
+                            @Override
+                            public void onClick(DialogInterface d, int which)
+                            {
+                                // タイマを破棄
+                                EditorActivity.this.autoCloseTimer = null;
+
+                                // エディタ終了
+                                finish();
+                            }
+                        });
+            }
+            else
+            {
+                // タイマを破棄
+                this.autoCloseTimer = null;
+
+                // エディタ終了
+                finish();
+            }
+        }
+        else
+        {
+            // 検索ワードが指定されていれば検索処理を開始
+            if (this.searchWords != null)
+            {
+                displaySearchView(true, this.searchWords);
+
+                this.searchWords = null; // 検索ワード指定を解除
+            }
         }
     }
 
