@@ -38,7 +38,7 @@ public final class MemoUtilities
      */
     public static String sanitizeFileNameString(String srcName)
     {
-        return srcName.replaceAll("[\"|;:<>/\\\\]", "");
+        return srcName.replaceAll("[\"|;:<>/*?\\\\\u00a5]", "");
     }
 
     /**
