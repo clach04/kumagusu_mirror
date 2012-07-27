@@ -26,6 +26,19 @@
             </intent-filter>
         </activity>
         <activity android:name=".EditorActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:mimeType="*/*" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.txt" />
+                <data android:pathPattern=".*\\.chi" />
+                <data android:pathPattern=".*\\.chs" />
+            </intent-filter>
         </activity>
         <activity android:name=".preference.MainPreferenceActivity" >
         </activity>

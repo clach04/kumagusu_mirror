@@ -442,16 +442,18 @@ public final class MemoFile extends AbstractMemo
             {
                 this.title = getFirstLineOfText(getText());
             }
-
-            if ((this.title == null) || (this.title.length() == 0))
-            {
-                this.title = this.getContext().getResources().getString(R.string.etc_memo_file_untitled_4_title);
-            }
         }
 
         this.lastModifyTime = nowLastModifyTime;
 
-        return this.title;
+        if ((this.title == null) || (this.title.length() == 0))
+        {
+            return this.getContext().getResources().getString(R.string.etc_memo_file_untitled_4_title);
+        }
+        else
+        {
+            return this.title;
+        }
     }
 
     @Override

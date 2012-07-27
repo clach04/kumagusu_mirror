@@ -1,5 +1,6 @@
 package jp.gr.java_conf.kumagusu;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
 
@@ -17,6 +18,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -130,11 +132,34 @@ public final class EditorActivity extends Activity
         // 自動クローズタイマ処理生成
         this.autoCloseTimer = new Timer(this);
 
-        // intentからパラメータを取得
-        String fullPath = getIntent().getStringExtra("FULL_PATH");
-        String currentFolderPath = getIntent().getStringExtra("CURRENT_FOLDER");
+        // パラメータ取得
+        String fullPath = null;
+        String currentFolderPath = null;
 
-        this.searchWords = getIntent().getStringExtra("SEARCH_WORDS");
+        if ((Intent.ACTION_VIEW.equals(getIntent().getAction()))
+                || (Intent.ACTION_EDIT.equals(getIntent().getAction())))
+        {
+            // 起動情報からパラメータ取得
+            Uri uri = getIntent().getData();
+
+            fullPath = uri.getPath();
+
+            File targetFile = new File(fullPath);
+            if ((!targetFile.exists()) || (!targetFile.isFile()))
+            {
+                finish();
+            }
+
+            currentFolderPath = targetFile.getParent();
+        }
+        else
+        {
+            // intentからパラメータを取得
+            fullPath = getIntent().getStringExtra("FULL_PATH");
+            currentFolderPath = getIntent().getStringExtra("CURRENT_FOLDER");
+
+            this.searchWords = getIntent().getStringExtra("SEARCH_WORDS");
+        }
 
         // 検索ツールクローズイベント登録
         ImageButton searchCloseButton = (ImageButton) findViewById(R.id.edit_search_close);
