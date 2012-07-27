@@ -156,7 +156,10 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             }
             else
             {
-                this.memoListAdapter.addAll(values[0]);
+                for (IMemo memo : values[0])
+                {
+                    this.memoListAdapter.add(memo);
+                }
             }
 
             memoListAdapter.sort(new Comparator<IMemo>()
