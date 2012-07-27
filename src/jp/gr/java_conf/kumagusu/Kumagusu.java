@@ -205,9 +205,6 @@ public final class Kumagusu extends Activity
 
         Log.d("Kumagusu", "*** START onCreate()");
 
-        // Fileユーティリティ初期化
-        MemoUtilities.setResources(getResources());
-
         // 自動クローズタイマ処理生成
         this.mAutoCloseTimer = new Timer(this);
         this.mExecutedChildActivityFg = false;
