@@ -360,7 +360,8 @@ public final class MemoFile extends AbstractMemo
 
                     if (sb.length() == 0)
                     {
-                        sb.append(this.getContext().getResources().getString(R.string.etc_memo_file_untitled_4_filename));
+                        sb.append(this.getContext().getResources()
+                                .getString(R.string.etc_memo_file_untitled_4_filename));
                     }
 
                     if (i > 0)
@@ -381,8 +382,8 @@ public final class MemoFile extends AbstractMemo
                 // 既存ファイルで元のファイル名と同じ、
                 // または生成したファイル名と同じファイルが存在しない場合、
                 // ファイル名として採用
-                if (((this.getMemoFile() != null) && (this.getMemoFile().getAbsolutePath().equals(file.getAbsolutePath())))
-                        || (!file.exists()))
+                if (((this.getMemoFile() != null) && (this.getMemoFile().getAbsolutePath().equals(file
+                        .getAbsolutePath()))) || (!file.exists()))
                 {
                     return file.getAbsolutePath();
                 }
@@ -470,7 +471,7 @@ public final class MemoFile extends AbstractMemo
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(MemoUtilities.type2Name(getMemoType()));
+        sb.append(MemoUtilities.type2Name(getContext(), getMemoType()));
         sb.append(" (");
         sb.append(getName());
         sb.append(")");

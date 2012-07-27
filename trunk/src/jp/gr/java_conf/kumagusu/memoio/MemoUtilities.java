@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 
 import jp.gr.java_conf.kumagusu.R;
-import android.content.res.Resources;
+import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
@@ -23,31 +23,6 @@ import android.util.Log;
  */
 public final class MemoUtilities
 {
-    /**
-     * プログラムのリソースを保管.
-     */
-    private static Resources resources = null;
-
-    /**
-     * プログラムのリソースを返す.
-     *
-     * @return プログラムのリソース
-     */
-    private static Resources getResources()
-    {
-        return resources;
-    }
-
-    /**
-     * プログラムのリソースを設定する.
-     *
-     * @param res プログラムのリソース
-     */
-    public static void setResources(Resources res)
-    {
-        MemoUtilities.resources = res;
-    }
-
     /**
      * インスタンス化させない.
      */
@@ -154,32 +129,33 @@ public final class MemoUtilities
     /**
      * メモ種別を名称に変換する.
      *
+     * @param con コンテキスト
      * @param type メモ種別
      * @return タイプ名称
      */
-    public static String type2Name(MemoType type)
+    public static String type2Name(Context con, MemoType type)
     {
         String name;
 
         switch (type)
         {
         case Text:
-            name = MemoUtilities.getResources().getString(R.string.etc_memo_type_text);
+            name = con.getResources().getString(R.string.etc_memo_type_text);
             break;
         case Secret1:
-            name = MemoUtilities.getResources().getString(R.string.etc_memo_type_secret1);
+            name = con.getResources().getString(R.string.etc_memo_type_secret1);
             break;
         case Secret2:
-            name = MemoUtilities.getResources().getString(R.string.etc_memo_type_secret2);
+            name = con.getResources().getString(R.string.etc_memo_type_secret2);
             break;
         case Folder:
-            name = MemoUtilities.getResources().getString(R.string.etc_memo_type_folder);
+            name = con.getResources().getString(R.string.etc_memo_type_folder);
             break;
         case ParentFolder:
-            name = MemoUtilities.getResources().getString(R.string.etc_memo_type_parent_folder);
+            name = con.getResources().getString(R.string.etc_memo_type_parent_folder);
             break;
         default:
-            name = MemoUtilities.getResources().getString(R.string.etc_memo_type_none);
+            name = con.getResources().getString(R.string.etc_memo_type_none);
         }
 
         return name;

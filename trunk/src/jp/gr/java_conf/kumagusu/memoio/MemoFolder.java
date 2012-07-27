@@ -65,7 +65,7 @@ public final class MemoFolder extends AbstractMemo
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(MemoUtilities.type2Name(getMemoType()));
+        sb.append(MemoUtilities.type2Name(getContext(), getMemoType()));
 
         return sb.toString();
     }
