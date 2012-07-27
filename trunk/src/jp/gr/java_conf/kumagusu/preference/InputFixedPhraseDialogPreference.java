@@ -97,6 +97,19 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id)
             {
+                editFixedPhraseString(fixedPhraseStrings.get(position), new FixedPhraseEditorOnTextInputListener()
+                {
+                    /**
+                     * Okを処理する.
+                     */
+                    @Override
+                    public void onTextInput(String inputText)
+                    {
+                        fixedPhraseStrings.set(position, inputText);
+                        listViewAdapter.notifyDataSetChanged();
+                    }
+                });
+
                 final InputDialog fixedPhraseEditor = new InputDialog();
                 fixedPhraseEditor.setText(fixedPhraseStrings.get(position));
 
@@ -222,11 +235,21 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
             @Override
             public void onClick(View v)
             {
-                fixedPhraseStrings.add("");
-                listViewAdapter.notifyDataSetChanged();
+                editFixedPhraseString("", new FixedPhraseEditorOnTextInputListener()
+                {
+                    /**
+                     * Okを処理する.
+                     */
+                    @Override
+                    public void onTextInput(String inputText)
+                    {
+                        fixedPhraseStrings.add(inputText);
+                        listViewAdapter.notifyDataSetChanged();
 
-                // 最終行（追加行）を表示
-                listView.setSelection(listView.getCount());
+                        // 最終行（追加行）を表示
+                        listView.setSelection(listView.getCount());
+                    }
+                });
             }
         });
 
@@ -247,6 +270,77 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
     public InputFixedPhraseDialogPreference(Context context, AttributeSet attrs)
     {
         super(context, attrs);
+    }
+
+    /**
+     * 定型文の編集ダイアログを表示する.
+     *
+     * @param fixedPhraseString 編集する定型文の初期値
+     * @param okListener OK（保存）の処理
+     */
+    private void editFixedPhraseString(String fixedPhraseString, final FixedPhraseEditorOnTextInputListener okListener)
+    {
+        final InputDialog fixedPhraseEditor = new InputDialog();
+        fixedPhraseEditor.setText(fixedPhraseString);
+
+        fixedPhraseEditor.showDialog(getContext(), null,
+                getContext().getResources().getString(R.string.fixed_phrase_dialog_title), InputType.TYPE_CLASS_TEXT,
+                new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        if (okListener != null)
+                        {
+                            okListener.onTextInput(fixedPhraseEditor.getText());
+                        }
+                    }
+                }, new DialogInterface.OnClickListener()
+                {
+                    /**
+                     * キャンセルを処理する.
+                     */
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        // キャンセルは無視
+                    }
+                }, new View.OnClickListener()
+                {
+                    /**
+                     * パターン入力ダイアログを表示する.
+                     */
+                    @Override
+                    public void onClick(View v)
+                    {
+                        String[] phraseNames = getContext().getResources().getStringArray(
+                                R.array.fixed_phrase_escape_item_entries);
+                        final String[] patternLetters = getContext().getResources().getStringArray(
+                                R.array.fixed_phrase_escape_item_values);
+
+                        assert patternLetters.length == phraseNames.length;
+
+                        for (int i = 0; i < patternLetters.length; i++)
+                        {
+                            phraseNames[i] = new StringBuilder(phraseNames[i]).append(" (").append(patternLetters[i])
+                                    .append(")").toString();
+                        }
+
+                        ListDialog.showDialog(getContext(),
+                                getContext().getResources().getDrawable(R.drawable.fixed_phrase), getContext()
+                                        .getResources().getString(R.string.fixed_phrase_pattern_letters), phraseNames,
+                                new DialogInterface.OnClickListener()
+                                {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
+                                        String pasteString = patternLetters[which];
+
+                                        fixedPhraseEditor.pasteText(pasteString);
+                                    }
+                                });
+                    }
+                }, getContext().getResources().getString(R.string.fixed_phrase_pattern_letters));
     }
 
     /**
@@ -276,5 +370,21 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
         editor.putInt("list_fixed_phrase_strings_count", fixedPhraseStrings.size());
 
         editor.commit();
+    }
+
+    /**
+     * 入力ダイアログから値を返すリスナ.
+     *
+     * @author tarshi
+     *
+     */
+    private interface FixedPhraseEditorOnTextInputListener
+    {
+        /**
+         * テキスト入力イベントリスナ.
+         *
+         * @param inputText 入力されたテキスト
+         */
+        void onTextInput(String inputText);
     }
 }
