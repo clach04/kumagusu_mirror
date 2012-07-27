@@ -84,7 +84,7 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
         View view = inflater.inflate(R.layout.pref_input_fixed_phrase_dialog, null);
 
         // 定型文リストを設定
-        ListView listView = (ListView) view.findViewById(R.id.fixed_phrase_list);
+        final ListView listView = (ListView) view.findViewById(R.id.fixed_phrase_list);
 
         listView.setAdapter(listViewAdapter);
 
@@ -224,6 +224,9 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
             {
                 fixedPhraseStrings.add("");
                 listViewAdapter.notifyDataSetChanged();
+
+                // 最終行（追加行）を表示
+                listView.setSelection(listView.getCount());
             }
         });
 
