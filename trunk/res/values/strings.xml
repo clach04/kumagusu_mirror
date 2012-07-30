@@ -22,17 +22,19 @@
     <!-- 「メモリスト」カテゴリ -->
     <string name="pref_category_view">View</string>
     <string name="pref_cb_list_detail_visibility">To View details of list</string>
+    <string name="pref_enable_editor_titlebar_title">To View the titlebar of the note</string>
 
     <!-- 「メモ」カテゴリ -->
     <string name="pref_category_memo">Note</string>
     <string name="pref_ds_memo_location_title">Notes folder</string>
     <string name="pref_cb_title_link_title">To synchronize the title and file name</string>
     <string name="pref_cb_title_link_summary">Match the first line of the note and file name when you save.</string>
-    <string name="pref_enable_auto_link">Using auto links</string>
+    <string name="pref_enable_auto_link_title">Using auto links</string>
     <string name="pref_fixed_phrase_dialog_title">Fixed phrase</string>
     <string name="pref_fixed_phrase_entries_control_dialog_title">Operation of fixed phrase</string>
     <string name="pref_fixed_phrase_entries_control_dialog_delete_title">Delete</string>
     <string name="pref_fixed_phrase_entries_control_dialog_delete_message">Is a fixed phrase deleted?</string>
+    <string name="pref_cb_encrypt_new_memo_tittle">To encrypt a new note</string>
 
     <!-- 「セキュリティ」カテゴリ -->
     <string name="pref_category_security">Security</string>

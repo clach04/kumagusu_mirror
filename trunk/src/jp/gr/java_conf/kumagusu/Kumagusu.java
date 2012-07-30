@@ -201,7 +201,7 @@ public final class Kumagusu extends Activity
         super.onCreate(savedInstanceState);
 
         // Activity初期化
-        ActivityCompat.initActivity(this, R.layout.main, R.drawable.icon, null, false);
+        ActivityCompat.initActivity(this, R.layout.main, R.drawable.icon, null, true, false);
 
         Log.d("Kumagusu", "*** START onCreate()");
 
@@ -415,15 +415,15 @@ public final class Kumagusu extends Activity
                                             break;
 
                                         case FILE_CONTROL_ID_ENCRYPT_OR_DECRYPT: // 暗号化・復号化
-                                            changeMemoType((MemoFile) Kumagusu.this.mSelectedMemoFile, change2MemoType);
+                                            changeMemoType((MemoFile) Kumagusu.this.mSelectedMemoFile, change2MemoType,
+                                                    false);
                                             break;
 
                                         case FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD: // 暗号化(ﾊﾟｽﾜｰﾄﾞ入力)
                                             if (change2MemoType == MemoType.Secret1)
                                             {
-                                                MainApplication.getInstance(Kumagusu.this).setLastCorrectPassword(null);
                                                 changeMemoType((MemoFile) Kumagusu.this.mSelectedMemoFile,
-                                                        change2MemoType);
+                                                        change2MemoType, true);
                                             }
                                             break;
 
@@ -1123,13 +1123,26 @@ public final class Kumagusu extends Activity
      *
      * @param srcMemoFile 変更するメモ
      * @param dstMemoType 変更先のメモ種別
+     * @param refreshPassword パスワードを再入力
      */
-    private void changeMemoType(MemoFile srcMemoFile, MemoType dstMemoType)
+    private void changeMemoType(MemoFile srcMemoFile, MemoType dstMemoType, final boolean refreshPassword)
     {
         // ファイル名のランダム化設定値により暗号化種別を変更
         if ((dstMemoType == MemoType.Secret1) && (MainPreferenceActivity.isRandamName(this)))
         {
             dstMemoType = MemoType.Secret2;
+        }
+
+        // パスワードを再入力
+        final String oldLastPassword;
+        if (refreshPassword)
+        {
+            oldLastPassword = MainApplication.getInstance(this).getLastCorrectPassword();
+            MainApplication.getInstance(this).setLastCorrectPassword(null);
+        }
+        else
+        {
+            oldLastPassword = null;
         }
 
         // 元ファイル読み込み
@@ -1143,65 +1156,17 @@ public final class Kumagusu extends Activity
             final MemoFile srcMemoFileTemp = srcMemoFile;
             final MemoType dstMemoTypeTemp = dstMemoType;
 
-            // パスワード入力（１回目）
-            final InputDialog dialog = new InputDialog();
-            dialog.showDialog(this, getResources().getString(R.string.ui_td_input_password), InputType.TYPE_CLASS_TEXT
-                    | InputType.TYPE_TEXT_VARIATION_PASSWORD, new DialogInterface.OnClickListener()
+            // パスワードを入力し、暗号化ファイル保存
+            Utilities.inputPassword(this, new DialogInterface.OnClickListener()
             {
+                /**
+                 * 入力パスワードが有効時を処理する.
+                 */
                 @Override
                 public void onClick(DialogInterface d, int which)
                 {
-                    // OK処理
-                    final String tryPassword1 = dialog.getText();
-
-                    if (tryPassword1.length() == 0)
-                    {
-                        // 入力されていない
-                        ConfirmDialog.showDialog(Kumagusu.this,
-                                getResources().getDrawable(android.R.drawable.ic_menu_info_details), getResources()
-                                        .getString(R.string.ui_td_input_password_empty), null,
-                                ConfirmDialog.PositiveCaptionKind.OK, null, null);
-                        return;
-                    }
-
-                    // パスワード入力（２回目）
-                    dialog.showDialog(Kumagusu.this, getResources().getString(R.string.ui_td_reinput_password),
-                            InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
-                            new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface d, int which)
-                                {
-                                    // OK処理
-                                    String tryPassword2 = dialog.getText();
-
-                                    if (tryPassword1.equals(tryPassword2))
-                                    {
-                                        MainApplication.getInstance(Kumagusu.this).addPassword(tryPassword1);
-                                        MainApplication.getInstance(Kumagusu.this).setLastCorrectPassword(tryPassword1);
-
-                                        // 再呼出
-                                        changeMemoType(srcMemoFileTemp, dstMemoTypeTemp);
-                                    }
-                                    else
-                                    {
-                                        // パスワードが一致しない
-                                        ConfirmDialog.showDialog(Kumagusu.this,
-                                                getResources().getDrawable(android.R.drawable.ic_menu_info_details),
-                                                getResources().getString(R.string.ui_td_input_password_incorrect),
-                                                null, ConfirmDialog.PositiveCaptionKind.OK, null, null);
-                                        return;
-                                    }
-                                }
-                            }, new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface d, int which)
-                                {
-                                    // キャンセル処理
-                                }
-                            });
-
+                    // 再呼出
+                    changeMemoType(srcMemoFileTemp, dstMemoTypeTemp, refreshPassword);
                 }
             }, new DialogInterface.OnClickListener()
             {
@@ -1209,6 +1174,7 @@ public final class Kumagusu extends Activity
                 public void onClick(DialogInterface d, int which)
                 {
                     // キャンセル処理
+                    MainApplication.getInstance(Kumagusu.this).setLastCorrectPassword(oldLastPassword);
                 }
             });
         }
