@@ -92,6 +92,30 @@ public final class EditorActivity extends Activity
      */
     private String searchWords = null;
 
+    /**
+     * 編集モード.
+     */
+    private EditMode editMode;
+
+    /**
+     * 編集モード.
+     *
+     * @author tarshi
+     *
+     */
+    private enum EditMode
+    {
+        /**
+         * 新規.
+         */
+        Create,
+
+        /**
+         * 既存ファイル編集
+         */
+        Edit,
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -99,7 +123,8 @@ public final class EditorActivity extends Activity
 
         // Activity初期設定
         // ※タイトル文字を空白
-        ActivityCompat.initActivity(this, R.layout.editor, R.drawable.icon, "", true);
+        ActivityCompat.initActivity(this, R.layout.editor, R.drawable.icon, "",
+                MainPreferenceActivity.isEnableEditorTitle(this), true);
 
         Log.d("EditorActivity", "*** START onCreate()");
 
@@ -202,12 +227,34 @@ public final class EditorActivity extends Activity
             if (fullPath != null)
             {
                 // 編集
+                this.editMode = EditMode.Edit;
+
                 this.memoFile = (MemoFile) builder.buildFromFile(fullPath);
             }
             else
             {
                 // 新規
-                this.memoFile = (MemoFile) builder.build(currentFolderPath, MemoType.Text);
+                this.editMode = EditMode.Create;
+
+                MemoType createMemoType;
+
+                if (MainPreferenceActivity.isEnctyptNewMemo(this))
+                {
+                    if (MainPreferenceActivity.isRandamName(this))
+                    {
+                        createMemoType = MemoType.Secret2;
+                    }
+                    else
+                    {
+                        createMemoType = MemoType.Secret1;
+                    }
+                }
+                else
+                {
+                    createMemoType = MemoType.Text;
+                }
+
+                this.memoFile = (MemoFile) builder.build(currentFolderPath, createMemoType);
                 setEditable(true);
             }
         }
@@ -453,8 +500,16 @@ public final class EditorActivity extends Activity
                     // 保存OKの場合編集終了
                     setEditable(false);
 
-                    // メニュー項目を再表示
-                    ActivityCompat.refreshMenu4ActionBar(EditorActivity.this);
+                    if (EditorActivity.this.editMode == EditMode.Edit)
+                    {
+                        // 編集モードならメニュー項目を再表示
+                        ActivityCompat.refreshMenu4ActionBar(EditorActivity.this);
+                    }
+                    else
+                    {
+                        // 新規モードなら終了
+                        finish();
+                    }
                 }
             }, true);
 
@@ -567,7 +622,7 @@ public final class EditorActivity extends Activity
      * @param dispCancel キャンセルを表示するときtrue
      * @return メモデータに変更があるときtrue
      */
-    private boolean saveMemoData(final DialogInterface.OnClickListener postOkNoListener, boolean dispCancel)
+    private boolean saveMemoData(final DialogInterface.OnClickListener postOkNoListener, final boolean dispCancel)
     {
         // 保存するか確認し、OKであればファイルに保存
         if (isModifiedMemo())
@@ -598,23 +653,68 @@ public final class EditorActivity extends Activity
                         public void onClick(DialogInterface d, int which)
                         {
                             EditText memoEditText = (EditText) findViewById(R.id.editor);
-                            String memoData = memoEditText.getText().toString();
-
-                            // 編集元テキストを更新
-                            EditorActivity.this.originalMemoString = memoData;
+                            final String memoData = memoEditText.getText().toString();
 
                             // 改行コードをDOS形式に
-                            memoData = memoData.replaceAll("\n", "\r\n");
+                            final String saveMemoData = memoData.replaceAll("\n", "\r\n");
 
-                            // メモを保存
-                            EditorActivity.this.memoFile.setText(memoData);
-
-                            // タイトルを設定
-                            setTitle(EditorActivity.this.memoFile.getTitle());
-
-                            if (postOkNoListener != null)
+                            if ((EditorActivity.this.memoFile.getMemoType() != MemoType.Text)
+                                    && (MainApplication.getInstance(EditorActivity.this).getLastCorrectPassword() == null))
                             {
-                                postOkNoListener.onClick(d, which);
+                                // パスワードを入力し、暗号化ファイル保存
+                                Utilities.inputPassword(EditorActivity.this, new DialogInterface.OnClickListener()
+                                {
+                                    /**
+                                     * 入力パスワードが有効時を処理する.
+                                     */
+                                    @Override
+                                    public void onClick(DialogInterface d, int which)
+                                    {
+                                        // 編集元テキストを更新
+                                        EditorActivity.this.originalMemoString = memoData;
+
+                                        // メモを保存
+                                        EditorActivity.this.memoFile.setText(
+                                                MainApplication.getInstance(EditorActivity.this)
+                                                        .getLastCorrectPassword(), saveMemoData);
+
+                                        // タイトルを設定
+                                        setTitle(EditorActivity.this.memoFile.getTitle());
+
+                                        if (postOkNoListener != null)
+                                        {
+                                            postOkNoListener.onClick(d, which);
+                                        }
+                                    }
+                                }, new DialogInterface.OnClickListener()
+                                {
+                                    /**
+                                     * パスワード入力キャンセル時を処理する.
+                                     */
+                                    @Override
+                                    public void onClick(DialogInterface d, int which)
+                                    {
+                                        // キャンセル時、再度保存処理（Yes/Noを再度聞くため）
+                                        saveMemoData(postOkNoListener, dispCancel);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                // 編集元テキストを更新
+                                EditorActivity.this.originalMemoString = memoData;
+
+                                // メモを保存
+                                EditorActivity.this.memoFile.setText(MainApplication.getInstance(EditorActivity.this)
+                                        .getLastCorrectPassword(), saveMemoData);
+
+                                // タイトルを設定
+                                setTitle(EditorActivity.this.memoFile.getTitle());
+
+                                if (postOkNoListener != null)
+                                {
+                                    postOkNoListener.onClick(d, which);
+                                }
                             }
                         }
                     }, new DialogInterface.OnClickListener()

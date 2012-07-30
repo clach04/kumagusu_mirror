@@ -60,11 +60,10 @@ public final class MainPreferenceActivity extends PreferenceActivity
      * @param con コンテキスト
      * @return エディタのタイトルを表示するときtrue
      */
-    /*
-     * public static boolean getEnableEditorTitle(Context con) { return
-     * PreferenceManager.getDefaultSharedPreferences(con).getBoolean(
-     * "cb_enable_editor_title", false); }
-     */
+    public static boolean isEnableEditorTitle(Context con)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(con).getBoolean("cb_enable_editor_title", true);
+    }
 
     /**
      * 「自動リンクを使用する」を取得する.
@@ -180,5 +179,16 @@ public final class MainPreferenceActivity extends PreferenceActivity
         }
 
         return resultList;
+    }
+
+    /**
+     * 「新規メモを暗号化メモにする」を取得する.
+     *
+     * @param con コンテキスト
+     * @return 連動するときtrue
+     */
+    public static boolean isEnctyptNewMemo(Context con)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(con).getBoolean("cb_encrypt_new_memo", true);
     }
 }

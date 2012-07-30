@@ -3,6 +3,7 @@ package jp.gr.java_conf.kumagusu.compat;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
+import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -34,25 +35,38 @@ public final class ActivityCompat
      * @param layoutId レイアウトID
      * @param iconId アイコンID
      * @param titleString タイトル文字
+     * @param vilibleTitleBar タイトルバーを表示するときtrue
      * @param enableUpIcon UPアイコンを表示するときtrue
      */
-    public static void initActivity(Activity act, int layoutId, int iconId, String titleString, boolean enableUpIcon)
+    public static void initActivity(Activity act, int layoutId, int iconId, String titleString,
+            boolean vilibleTitleBar, boolean enableUpIcon)
     {
-        // 3.0以上
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+        if (!vilibleTitleBar) // タイトル非表示
         {
-            // ActionBarを使用可能に
-            act.getWindow().requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY);
+            act.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        }
 
-            // UPアイコン(<)表示
-            if (enableUpIcon)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) // 3.0以上
+        {
+            if (vilibleTitleBar)
             {
-                act.getActionBar().setDisplayHomeAsUpEnabled(true);
+                // ActionBarを使用可能に
+                act.getWindow().requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY);
+
+                // UPアイコン(<)表示
+                if (enableUpIcon)
+                {
+                    act.getActionBar().setDisplayHomeAsUpEnabled(true);
+                }
             }
         }
         else
         {
-            act.getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
+            if (vilibleTitleBar)
+            {
+                // 3.0未満
+                act.getWindow().requestFeature(Window.FEATURE_LEFT_ICON);
+            }
         }
 
         // タイトル文字を空白
@@ -67,7 +81,10 @@ public final class ActivityCompat
         // 3.0以下
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
         {
-            act.getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, iconId);
+            if (vilibleTitleBar)
+            {
+                act.getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, iconId);
+            }
         }
     }
 
@@ -108,8 +125,9 @@ public final class ActivityCompat
      */
     public static void setUpFolderFunction(Activity act, List<IMemo> memoList, IMemo parentItem)
     {
-        // 3.0以上か？
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+        // 3.0以上かつタイトル表示か？
+        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                && (MainPreferenceActivity.isEnableEditorTitle(act)))
         {
             // UPアイコンを表示
             act.getActionBar().setDisplayHomeAsUpEnabled(true);

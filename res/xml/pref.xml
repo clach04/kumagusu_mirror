@@ -11,6 +11,13 @@
             android:enabled="true"
             android:key="cb_list_detail_visibility"
             android:title="@string/pref_cb_list_detail_visibility" />
+
+        <!-- エディタのタイトルを表示する -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_enable_editor_title"
+            android:title="@string/pref_enable_editor_titlebar_title" />
     </PreferenceCategory>
 
     <!-- 「メモ」カテゴリ -->
@@ -34,22 +41,18 @@
             android:defaultValue="true"
             android:enabled="true"
             android:key="cb_enable_auto_link"
-            android:title="@string/pref_enable_auto_link" />
-
-        <!-- エディタのタイトルを表示する -->
-        <!--
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:enabled="true"
-            android:key="cb_enable_editor_title"
-            android:title="@string/pref_enable_editor_title" />
-        -->
+            android:title="@string/pref_enable_auto_link_title" />
 
         <!-- 定型文 -->
-        <jp.gr.java_conf.kumagusu.preference.InputFixedPhraseDialogPreference
-            android:title="@string/pref_fixed_phrase_dialog_title" />
+        <jp.gr.java_conf.kumagusu.preference.InputFixedPhraseDialogPreference android:title="@string/pref_fixed_phrase_dialog_title" />
 
-        </PreferenceCategory>
+        <!-- 新規メモを暗号化メモにする -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_encrypt_new_memo"
+            android:title="@string/pref_cb_encrypt_new_memo_tittle" />
+    </PreferenceCategory>
     <!-- 「セキュリティ」カテゴリ -->
     <PreferenceCategory android:title="@string/pref_category_security" >
 
