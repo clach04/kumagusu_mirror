@@ -28,8 +28,17 @@
             android:key="ds_memo_location"
             android:title="@string/pref_ds_memo_location_title" />
 
+        <!-- エンコーディング -->
+        <ListPreference
+            android:defaultValue="MS932"
+            android:dialogTitle="@string/pref_ls_encoding_title"
+            android:enabled="true"
+            android:entries="@array/encoding_entries"
+            android:entryValues="@array/encoding_values"
+            android:key="ls_encoding_name"
+            android:title="@string/pref_ls_encoding_title" />
+
         <!-- メモファイル名とタイトルを連動する -->
-        <!-- ※仮リリースのビューワでは使用しない -->
         <CheckBoxPreference
             android:defaultValue="true"
             android:enabled="true"
@@ -45,13 +54,6 @@
 
         <!-- 定型文 -->
         <jp.gr.java_conf.kumagusu.preference.InputFixedPhraseDialogPreference android:title="@string/pref_fixed_phrase_dialog_title" />
-
-        <!-- 新規メモを暗号化メモにする -->
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:enabled="true"
-            android:key="cb_encrypt_new_memo"
-            android:title="@string/pref_cb_encrypt_new_memo_tittle" />
     </PreferenceCategory>
     <!-- 「セキュリティ」カテゴリ -->
     <PreferenceCategory android:title="@string/pref_category_security" >
@@ -66,26 +68,19 @@
             android:key="ls_autoclose_delaytime"
             android:title="@string/pref_ls_autoclose_delaytime_title" />
 
+        <!-- 新規メモを暗号化メモにする -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_encrypt_new_memo"
+            android:title="@string/pref_cb_encrypt_new_memo_tittle" />
+
         <!-- 暗号化時にファイル名をランダムにする -->
-        <!-- ※仮リリースのビューワでは使用しない -->
         <CheckBoxPreference
             android:defaultValue="false"
             android:enabled="true"
             android:key="cb_randam_name"
             android:title="@string/pref_cb_randam_name_title" />
-    </PreferenceCategory>
-    <!-- 「エンコーディング」カテゴリ -->
-    <PreferenceCategory android:title="@string/pref_category_encoding" >
-
-        <!-- エンコーディング -->
-        <ListPreference
-            android:defaultValue="MS932"
-            android:dialogTitle="@string/pref_ls_encoding_title"
-            android:enabled="true"
-            android:entries="@array/encoding_entries"
-            android:entryValues="@array/encoding_values"
-            android:key="ls_encoding_name"
-            android:title="@string/pref_ls_encoding_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>
