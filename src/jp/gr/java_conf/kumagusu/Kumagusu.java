@@ -1166,7 +1166,7 @@ public final class Kumagusu extends Activity
                 public void onClick(DialogInterface d, int which)
                 {
                     // 再呼出
-                    changeMemoType(srcMemoFileTemp, dstMemoTypeTemp, refreshPassword);
+                    changeMemoType(srcMemoFileTemp, dstMemoTypeTemp, false);
                 }
             }, new DialogInterface.OnClickListener()
             {
