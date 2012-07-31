@@ -64,7 +64,7 @@
     <string name="ui_td_input_password_empty">パスワードが入力されていません.</string>
     <string name="ui_td_input_password_incorrect">パスワードが一致しません.</string>
     <string name="ui_search">検索</string>
-    <string name="ui_edit">編集</string>
+    <string name="ui_edit_start">編集開始</string>
     <string name="ui_edit_end">編集終了</string>
     <string name="ui_confirm">確認</string>
     <string name="ui_close">閉じる</string>
