@@ -212,6 +212,10 @@ public final class Kumagusu extends Activity
         // リストのインスタンスを取得
         this.mListView = (ListView) findViewById(R.id.list);
 
+        // リストにアイテムがない場合のメッセージを設定
+        View listEmptyView = findViewById(R.id.list_empty_text);
+        this.mListView.setEmptyView(listEmptyView);
+
         // リストのクリックイベントを登録
         this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {

@@ -11,12 +11,22 @@
         android:layout_weight="1"
         android:fastScrollEnabled="true" />
 
+    <TextView
+        android:id="@+id/list_empty_text"
+        style="@android:style/TextAppearance.Large"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:gravity="center|center_vertical"
+        android:text="@string/memo_list_emply_message"
+        android:visibility="gone" />
+
     <Button
         android:id="@+id/close_button"
-        android:text="@string/ui_close"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:drawablePadding="10dp"
+        android:text="@string/ui_close"
         android:visibility="gone" />
 
 </LinearLayout>
