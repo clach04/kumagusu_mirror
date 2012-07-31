@@ -64,8 +64,8 @@
     <string name="ui_td_input_password_empty">Password has not been entered.</string>
     <string name="ui_td_input_password_incorrect">Password do not match.</string>
     <string name="ui_search">Search</string>
-    <string name="ui_edit">Edit</string>
-    <string name="ui_edit_end">Finished editing</string>
+    <string name="ui_edit_start">Begin edit</string>
+    <string name="ui_edit_end">End edit</string>
     <string name="ui_confirm">Confirmation</string>
     <string name="ui_close">Close</string>
     <string name="ui_add">Add</string>

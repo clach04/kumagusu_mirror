@@ -73,9 +73,14 @@ public final class EditorActivity extends Activity
     private static final int MENU_ID_EDIT_END = (Menu.FIRST + 2);
 
     /**
+     * メニュー項目「閉じる」.
+     */
+    private static final int MENU_ID_CLOSE = (Menu.FIRST + 3);
+
+    /**
      * メニュー項目「定型文」.
      */
-    private static final int MENU_ID_FIXED_PHRASE = (Menu.FIRST + 3);
+    private static final int MENU_ID_FIXED_PHRASE = (Menu.FIRST + 4);
 
     /**
      * 開いた時点でのメモ内容.
@@ -400,28 +405,8 @@ public final class EditorActivity extends Activity
     {
         if ((event.getKeyCode() == KeyEvent.KEYCODE_BACK) && (event.getAction() == KeyEvent.ACTION_DOWN))
         {
-            boolean modify = false;
-
-            if (isEditable())
-            {
-                modify = saveMemoData(new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        // エディタ終了
-                        setEditable(false);
-                        finish();
-                    }
-                }, false);
-            }
-
-            if (!modify)
-            {
-                // エディタ終了
-                setEditable(false);
-                finish();
-            }
+            // エディタ終了
+            close(false);
 
             return true;
         }
@@ -442,11 +427,11 @@ public final class EditorActivity extends Activity
         ActivityCompat.setShowAsAction4ActionBar(actionItemSeaerch);
 
         // メニュー項目「編集」
-        MenuItem actionItemEdit = menu.add(Menu.NONE, MENU_ID_EDIT, Menu.NONE, R.string.ui_edit);
+        MenuItem actionItemEdit = menu.add(Menu.NONE, MENU_ID_EDIT, Menu.NONE, R.string.ui_edit_start);
         actionItemEdit.setIcon(R.drawable.memo_compose);
         ActivityCompat.setShowAsAction4ActionBar(actionItemEdit);
 
-        // メニュー項目「編集終了」
+        // メニュー項目「編集終了」（「編集」と編集フラグにより切り替え）
         MenuItem actionItemEditEnd = menu.add(Menu.NONE, MENU_ID_EDIT_END, Menu.NONE, R.string.ui_edit_end);
         actionItemEditEnd.setIcon(R.drawable.save);
         ActivityCompat.setShowAsAction4ActionBar(actionItemEditEnd);
@@ -457,6 +442,11 @@ public final class EditorActivity extends Activity
         actionItemFixedPhrese.setIcon(R.drawable.fixed_phrase);
         ActivityCompat.setShowAsAction4ActionBar(actionItemFixedPhrese);
 
+        // メニュー項目「閉じる」
+        MenuItem actionItemClose = menu.add(Menu.NONE, MENU_ID_CLOSE, Menu.NONE, R.string.ui_close);
+        actionItemClose.setIcon(R.drawable.close);
+        ActivityCompat.setShowAsAction4ActionBar(actionItemClose);
+
         return ret;
     }
 
@@ -466,7 +456,7 @@ public final class EditorActivity extends Activity
         // 編集中フラグによりメニューの項目を切り替え
         menu.findItem(MENU_ID_EDIT).setVisible(!editable);
         menu.findItem(MENU_ID_EDIT_END).setVisible(editable);
-        menu.findItem(MENU_ID_FIXED_PHRASE).setVisible(editable);
+        menu.findItem(MENU_ID_FIXED_PHRASE).setEnabled(editable);
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -523,6 +513,11 @@ public final class EditorActivity extends Activity
             }
             break;
 
+        case MENU_ID_CLOSE: // 閉じる
+            // エディタ終了
+            close(true);
+            break;
+
         case MENU_ID_FIXED_PHRASE: // 定型文
             final String[] fixedPhraseStrings = MainPreferenceActivity.getFixedPhraseStrings(this).toArray(
                     new String[0]);
@@ -553,30 +548,8 @@ public final class EditorActivity extends Activity
             break;
 
         case android.R.id.home: // UPアイコン
-
-            boolean modify = false;
-
-            if (isEditable())
-            {
-                modify = saveMemoData(new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        // YesおよびNoのときエディタ終了
-                        setEditable(false);
-
-                        // エディタ終了
-                        finish();
-                    }
-                }, true);
-            }
-
-            if (!modify)
-            {
-                // Kumagusuを表示
-                finish();
-            }
+            // エディタ終了
+            close(true);
             break;
 
         default:
@@ -584,6 +557,39 @@ public final class EditorActivity extends Activity
         }
 
         return ret;
+    }
+
+    /**
+     * エディタを閉じる.
+     *
+     * @param dispCancel キャンセルボタン表示（キャンセルクリック時、変更なし扱い）
+     */
+    private void close(boolean dispCancel)
+    {
+        boolean modify = false;
+
+        if (isEditable())
+        {
+            modify = saveMemoData(new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    // YesおよびNoのときエディタ終了
+                    setEditable(false);
+
+                    // エディタ終了
+                    finish();
+                }
+            }, dispCancel);
+        }
+
+        if (!modify)
+        {
+            // Kumagusuを表示
+            setEditable(false);
+            finish();
+        }
     }
 
     /**
