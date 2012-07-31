@@ -164,7 +164,16 @@ public final class Utilities
                                     ConfirmDialog.showDialog(act,
                                             act.getResources().getDrawable(android.R.drawable.ic_menu_info_details),
                                             act.getResources().getString(R.string.ui_td_input_password_incorrect),
-                                            null, ConfirmDialog.PositiveCaptionKind.OK, null, null);
+                                            null, ConfirmDialog.PositiveCaptionKind.OK,
+                                            new DialogInterface.OnClickListener()
+                                            {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which)
+                                                {
+                                                    // リトライ
+                                                    inputPassword(act, okListener, cancelListener);
+                                                }
+                                            }, null);
                                 }
                             }
                         }, new DialogInterface.OnClickListener()
