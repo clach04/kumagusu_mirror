@@ -13,13 +13,14 @@
 
     <TextView
         android:id="@+id/list_empty_text"
-        style="@android:style/TextAppearance.Large"
+        style="@android:style/TextAppearance.Medium"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
         android:gravity="center|center_vertical"
         android:text="@string/memo_list_emply_message"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:textColor="#777777" />
 
     <Button
         android:id="@+id/close_button"

@@ -115,4 +115,10 @@ public final class MemoSearchTask extends AbstractMemoCreateTask
     {
         setMainTitleText(null, getActivity().getResources().getString(R.string.search_memo_list_post_title_end));
     }
+
+    @Override
+    protected void onCancelled()
+    {
+        setMainTitleText(null, getActivity().getResources().getString(R.string.search_memo_list_post_title_end));
+    }
 }

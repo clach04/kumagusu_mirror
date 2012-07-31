@@ -96,4 +96,10 @@ public final class MemoCreateTask extends AbstractMemoCreateTask
     {
         setMainTitleText(null, getActivity().getResources().getString(R.string.memo_list_post_title_end));
     }
+
+    @Override
+    protected void onCancelled()
+    {
+        setMainTitleText(null, getActivity().getResources().getString(R.string.memo_list_post_title_end));
+    }
 }
