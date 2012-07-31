@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/ui_setting" >
+
+    <!-- 「表示」カテゴリ -->
+    <PreferenceCategory android:title="@string/pref_category_view" >
+
+        <!-- リストの詳細を表示 -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_list_detail_visibility"
+            android:title="@string/pref_cb_list_detail_visibility" />
+
+        <!-- エディタのタイトルを表示する -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_enable_editor_title"
+            android:title="@string/pref_enable_editor_titlebar_title" />
+    </PreferenceCategory>
+
+    <!-- 「メモ」カテゴリ -->
+    <PreferenceCategory android:title="@string/pref_category_memo" >
+
+        <!-- メモフォルダ -->
+        <jp.gr.java_conf.kumagusu.preference.DirectorySelectDialogPreference
+            android:key="ds_memo_location"
+            android:title="@string/pref_ds_memo_location_title" />
+
+        <!-- エンコーディング -->
+        <ListPreference
+            android:defaultValue="MS932"
+            android:dialogTitle="@string/pref_ls_encoding_title"
+            android:enabled="true"
+            android:entries="@array/encoding_entries"
+            android:entryValues="@array/encoding_values"
+            android:key="ls_encoding_name"
+            android:title="@string/pref_ls_encoding_title" />
+
+        <!-- メモファイル名とタイトルを連動する -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_title_link"
+            android:title="@string/pref_cb_title_link_title" />
+
+        <!-- 自動リンクを使用する -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_enable_auto_link"
+            android:title="@string/pref_enable_auto_link_title" />
+
+        <!-- 定型文 -->
+        <jp.gr.java_conf.kumagusu.preference.InputFixedPhraseDialogPreference android:title="@string/pref_fixed_phrase_dialog_title" />
+    </PreferenceCategory>
+    <!-- 「セキュリティ」カテゴリ -->
+    <PreferenceCategory android:title="@string/pref_category_security" >
+
+        <!-- バックグラウンド時にメモを閉じる -->
+        <ListPreference
+            android:defaultValue="60000"
+            android:dialogTitle="@string/pref_ls_autoclose_delaytime_title"
+            android:enabled="true"
+            android:entries="@array/autoclose_delaytime_entries"
+            android:entryValues="@array/autoclose_delaytime_values"
+            android:key="ls_autoclose_delaytime"
+            android:title="@string/pref_ls_autoclose_delaytime_title" />
+
+        <!-- 新規メモを暗号化メモにする -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_encrypt_new_memo"
+            android:title="@string/pref_cb_encrypt_new_memo_tittle" />
+
+        <!-- 暗号化時にファイル名をランダムにする -->
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="cb_randam_name"
+            android:title="@string/pref_cb_randam_name_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
