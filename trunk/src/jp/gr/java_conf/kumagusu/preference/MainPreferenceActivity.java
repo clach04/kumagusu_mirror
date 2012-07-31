@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
@@ -18,7 +21,7 @@ import android.preference.PreferenceManager;
  * @author tarshi
  *
  */
-public final class MainPreferenceActivity extends PreferenceActivity
+public final class MainPreferenceActivity extends PreferenceActivity implements OnPreferenceChangeListener
 {
     /**
      * メモの自動クローズ時間（ミリ秒）.
@@ -30,6 +33,17 @@ public final class MainPreferenceActivity extends PreferenceActivity
     {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref);
+
+        // 「バックグラウンド時にメモを閉じる」の設定値をSummaryに表示
+        ListPreference autoCloseDelayTimePreference = (ListPreference) getPreferenceScreen().findPreference(
+                "ls_autoclose_delaytime");
+        autoCloseDelayTimePreference.setSummary(autoCloseDelayTimePreference.getEntry());
+        autoCloseDelayTimePreference.setOnPreferenceChangeListener(this);
+
+        ListPreference encodingNaemPreference = (ListPreference) getPreferenceScreen().findPreference(
+                "ls_encoding_name");
+        encodingNaemPreference.setSummary(encodingNaemPreference.getEntry());
+        encodingNaemPreference.setOnPreferenceChangeListener(this);
     }
 
     /**
@@ -190,5 +204,51 @@ public final class MainPreferenceActivity extends PreferenceActivity
     public static boolean isEnctyptNewMemo(Context con)
     {
         return PreferenceManager.getDefaultSharedPreferences(con).getBoolean("cb_encrypt_new_memo", true);
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue)
+    {
+        // 「バックグラウンド時にメモを閉じる」の設定値をSummaryに表示
+        if (preference.getKey().equals("ls_autoclose_delaytime"))
+        {
+            String[] values = getResources().getStringArray(R.array.autoclose_delaytime_values);
+            String[] names = getResources().getStringArray(R.array.autoclose_delaytime_entries);
+
+            preference.setSummary("");
+
+            for (int i = 0; i < values.length; i++)
+            {
+                if (values[i].equals((String) newValue))
+                {
+                    preference.setSummary(names[i]);
+                    break;
+                }
+            }
+
+            return true;
+        }
+
+        // 「エンコーディング」の設定値をSummaryに表示
+        if (preference.getKey().equals("ls_encoding_name"))
+        {
+            String[] values = getResources().getStringArray(R.array.encoding_values);
+            String[] names = getResources().getStringArray(R.array.encoding_entries);
+
+            preference.setSummary("");
+
+            for (int i = 0; i < values.length; i++)
+            {
+                if (values[i].equals((String) newValue))
+                {
+                    preference.setSummary(names[i]);
+                    break;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }
