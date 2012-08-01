@@ -475,22 +475,19 @@ public final class MemoFile extends AbstractMemo
     {
         StringBuilder sb = new StringBuilder();
 
-        Configuration conf = getContext().getResources().getConfiguration();
+        long modifyTime = (this.getMemoFile() != null) ? this.getMemoFile().lastModified() : 0;
 
-        if (conf != null)
+        if (modifyTime != 0)
         {
-            long modifyTime = (this.getMemoFile() != null) ? this.getMemoFile().lastModified() : 0;
+            Date lastModifyDate = new Date(modifyTime);
 
-            if (modifyTime != 0)
-            {
-                Date lastModifyDate = new Date(modifyTime);
-
-                sb.append(MemoUtilities.formatDateTime(getContext(), lastModifyDate, true));
-                sb.append(", ");
-            }
+            sb.append(MemoUtilities.formatDateTime(getContext(), lastModifyDate, true));
+            sb.append(", ");
         }
 
         sb.append(getName());
+
+        Configuration conf = getContext().getResources().getConfiguration();
 
         if (conf != null)
         {
