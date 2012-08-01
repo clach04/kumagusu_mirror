@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.Random;
 
 import jp.gr.java_conf.kumagusu.MainApplication;
@@ -16,6 +17,7 @@ import jp.gr.java_conf.kumagusu.R;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.util.Log;
 
 /**
@@ -473,10 +475,39 @@ public final class MemoFile extends AbstractMemo
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(MemoUtilities.type2Name(getContext(), getMemoType()));
-        sb.append(" (");
+        Configuration conf = getContext().getResources().getConfiguration();
+
+        if (conf != null)
+        {
+            long modifyTime = (this.getMemoFile() != null) ? this.getMemoFile().lastModified() : 0;
+
+            if (modifyTime != 0)
+            {
+                Date lastModifyDate = new Date(modifyTime);
+
+                sb.append(MemoUtilities.formatDateTime(getContext(), lastModifyDate, true));
+                sb.append(", ");
+            }
+        }
+
         sb.append(getName());
-        sb.append(")");
+
+        if (conf != null)
+        {
+            if (conf.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            {
+                long fileSize = (this.getMemoFile() != null) ? this.getMemoFile().length() : -1;
+
+                if (fileSize >= 0)
+                {
+                    sb.append(", ");
+                    sb.append(MemoUtilities.formatNumber(fileSize));
+                }
+
+                sb.append(", ");
+                sb.append(MemoUtilities.type2Name(getContext(), getMemoType()));
+            }
+        }
 
         return sb.toString();
     }
