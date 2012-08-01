@@ -406,30 +406,6 @@ public final class MemoUtilities
     }
 
     /**
-     * コピー先フォルダがコピー元フォルダに含まれているか?
-     *
-     * @param src コピー元フォルダ
-     * @param dest コピー先フォルダ
-     * @return 含まれる場合true
-     */
-    public static boolean isIncludedFolder(File src, File dest)
-    {
-        if (src.getAbsolutePath().equals(dest.getAbsolutePath()))
-        {
-            return true;
-        }
-
-        File parentFile = dest.getParentFile();
-
-        if (parentFile == null)
-        {
-            return false;
-        }
-
-        return isIncludedFolder(src, parentFile);
-    }
-
-    /**
      * フォルダをコピー（移動）する.
      *
      * @param src コピー元フォルダ
@@ -447,12 +423,6 @@ public final class MemoUtilities
                 dest = createNewFileName(dest.getParent(), dest.getName());
             }
 
-            // コピー先フォルダがコピー元フォルダに含まれている場合コピー中止
-            if (isIncludedFolder(src, dest))
-            {
-                return false;
-            }
-
             // コピー先フォルダがなければ作成
             if (!dest.exists())
             {
@@ -464,6 +434,12 @@ public final class MemoUtilities
 
             for (File srcFile : srcFiles)
             {
+                // コピー先フォルダがコピー元フォルダに含まれている場合コピー中止
+                if (dest.getAbsolutePath().equals(srcFile.getAbsolutePath()))
+                {
+                    continue;
+                }
+
                 // コピー先ファイルのFileインスタンス生成
                 File destFile = createNewFileName(dest.getAbsolutePath(), srcFile.getName());
 

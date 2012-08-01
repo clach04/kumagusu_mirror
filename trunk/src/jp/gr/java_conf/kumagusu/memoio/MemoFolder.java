@@ -1,10 +1,12 @@
 package jp.gr.java_conf.kumagusu.memoio;
 
 import java.io.File;
+import java.util.Date;
 
 import jp.gr.java_conf.kumagusu.R;
 
 import android.content.Context;
+import android.content.res.Configuration;
 
 /**
  * メモフォルダ.
@@ -65,7 +67,29 @@ public final class MemoFolder extends AbstractMemo
     {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(MemoUtilities.type2Name(getContext(), getMemoType()));
+        long modifyTime = (this.getFolderFile() != null) ? this.getFolderFile().lastModified() : 0;
+
+        if (modifyTime != 0)
+        {
+            Date lastModifyDate = new Date(modifyTime);
+
+            sb.append(MemoUtilities.formatDateTime(getContext(), lastModifyDate, true));
+        }
+
+        Configuration conf = getContext().getResources().getConfiguration();
+
+        if (conf != null)
+        {
+            if (conf.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            {
+                if (sb.length() > 0)
+                {
+                    sb.append(", ");
+                }
+
+                sb.append(MemoUtilities.type2Name(getContext(), getMemoType()));
+            }
+        }
 
         return sb.toString();
     }
