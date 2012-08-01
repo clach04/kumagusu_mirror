@@ -9,6 +9,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import jp.gr.java_conf.kumagusu.R;
 import android.content.Context;
@@ -239,6 +243,9 @@ public final class MemoUtilities
                 {
                     Log.w("MemoUtilities", "destination file close error.", e);
                 }
+
+                // コピー元とコピー先の更新日時をあわせる
+                out.setLastModified(in.lastModified());
             }
         }
     }
@@ -399,6 +406,30 @@ public final class MemoUtilities
     }
 
     /**
+     * コピー先フォルダがコピー元フォルダに含まれているか?
+     *
+     * @param src コピー元フォルダ
+     * @param dest コピー先フォルダ
+     * @return 含まれる場合true
+     */
+    public static boolean isIncludedFolder(File src, File dest)
+    {
+        if (src.getAbsolutePath().equals(dest.getAbsolutePath()))
+        {
+            return true;
+        }
+
+        File parentFile = dest.getParentFile();
+
+        if (parentFile == null)
+        {
+            return false;
+        }
+
+        return isIncludedFolder(src, parentFile);
+    }
+
+    /**
      * フォルダをコピー（移動）する.
      *
      * @param src コピー元フォルダ
@@ -414,6 +445,12 @@ public final class MemoUtilities
             if ((dest.exists()) && (dest.isFile()))
             {
                 dest = createNewFileName(dest.getParent(), dest.getName());
+            }
+
+            // コピー先フォルダがコピー元フォルダに含まれている場合コピー中止
+            if (isIncludedFolder(src, dest))
+            {
+                return false;
             }
 
             // コピー先フォルダがなければ作成
@@ -560,5 +597,78 @@ public final class MemoUtilities
             byteArray[i - 0] = tmp[0];
         }
         return true;
+    }
+
+    /**
+     * 端末設定に従った「日付」または「日付＋時刻」文字列を返す.
+     *
+     * @param con コンテキスト
+     * @param date 時間情報
+     * @param appendTime 時刻を付加する場合true
+     * @return 「日付」または「日付＋時刻」文字列
+     */
+    public static String formatDateTime(Context con, Date date, boolean appendTime)
+    {
+        DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(con);
+
+        StringBuilder sb = new StringBuilder(dateFormat.format(date));
+
+        if (appendTime)
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            sb.append(" ").append(sdf.format(date));
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * 数値を省略表記に変更する.
+     *
+     * @param baseNum 元の値
+     * @return 省略表記
+     */
+    public static String formatNumber(long baseNum)
+    {
+
+        long absNum = Math.abs(baseNum);
+        String unit;
+
+        if (absNum < 1024L)
+        {
+            // バイト表示
+            unit = " B";
+        }
+        else if (absNum < 1048576L)
+        {
+            // Kバイト表示
+            unit = " KB";
+            baseNum /= 1024L;
+        }
+        else if (absNum < 1073741824L)
+        {
+            // Mバイト表示
+            unit = " MB";
+            baseNum /= 1048576L;
+        }
+        else if (absNum < 1099511627776L)
+        {
+            // Gバイト表示
+            unit = " GB";
+            baseNum /= 1073741824L;
+        }
+        else
+        {
+            // Tバイト表示
+            unit = " TB";
+            baseNum /= 1099511627776L;
+        }
+
+        DecimalFormat df = new DecimalFormat("###,###,###;-###,###,###");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(df.format(baseNum)).append(unit);
+
+        return sb.toString();
     }
 }
