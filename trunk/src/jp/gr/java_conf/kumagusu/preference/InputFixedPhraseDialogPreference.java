@@ -107,10 +107,10 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                     }
                 });
 
-                final InputDialog fixedPhraseEditor = new InputDialog();
+                final InputDialog fixedPhraseEditor = new InputDialog(getContext());
                 fixedPhraseEditor.setText(fixedPhraseStrings.get(position));
 
-                fixedPhraseEditor.showDialog(getContext(), null,
+                fixedPhraseEditor.showDialog(null,
                         getContext().getResources().getString(R.string.fixed_phrase_dialog_title),
                         InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
                         {
@@ -151,7 +151,8 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                                             .append(patternLetters[i]).append(")").toString();
                                 }
 
-                                ListDialog.showDialog(getContext(),
+                                ListDialog fixedPhrasePatternDialog = new ListDialog(getContext());
+                                fixedPhrasePatternDialog.showDialog(
                                         getContext().getResources().getDrawable(R.drawable.fixed_phrase), getContext()
                                                 .getResources().getString(R.string.fixed_phrase_pattern_letters),
                                         phraseNames, new DialogInterface.OnClickListener()
@@ -175,10 +176,12 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id)
             {
-                ListDialog.showDialog(getContext(), null,
+                ListDialog fixedPhraseEntryesControlDialog = new ListDialog(getContext());
+                fixedPhraseEntryesControlDialog.showDialog(
+                        null,
                         getContext().getResources().getString(R.string.pref_fixed_phrase_entries_control_dialog_title),
-                        getContext().getResources().getStringArray(R.array.fixed_phrase_escape_item_entries_operation),
-                        new OnClickListener()
+                        getContext().getResources().getStringArray(
+                                R.array.pref_fixed_phrase_entries_control_dialog_entries), new OnClickListener()
                         {
                             @Override
                             public void onClick(DialogInterface dialog, int which)
@@ -277,12 +280,11 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
      */
     private void editFixedPhraseString(String fixedPhraseString, final FixedPhraseEditorOnTextInputListener okListener)
     {
-        final InputDialog fixedPhraseEditor = new InputDialog();
+        final InputDialog fixedPhraseEditor = new InputDialog(getContext());
         fixedPhraseEditor.setText(fixedPhraseString);
 
-        fixedPhraseEditor.showDialog(getContext(), null,
-                getContext().getResources().getString(R.string.fixed_phrase_dialog_title), InputType.TYPE_CLASS_TEXT,
-                new DialogInterface.OnClickListener()
+        fixedPhraseEditor.showDialog(null, getContext().getResources().getString(R.string.fixed_phrase_dialog_title),
+                InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
@@ -323,7 +325,8 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                                     .append(")").toString();
                         }
 
-                        ListDialog.showDialog(getContext(),
+                        ListDialog fixedPhrasePatternLettersDialog = new ListDialog(getContext());
+                        fixedPhrasePatternLettersDialog.showDialog(
                                 getContext().getResources().getDrawable(R.drawable.fixed_phrase), getContext()
                                         .getResources().getString(R.string.fixed_phrase_pattern_letters), phraseNames,
                                 new DialogInterface.OnClickListener()

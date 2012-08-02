@@ -4,6 +4,7 @@ import java.util.Comparator;
 
 import android.content.Context;
 
+import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
@@ -22,13 +23,20 @@ public final class MemoListComparator implements Comparator<IMemo>
     private Context context;
 
     /**
+     * メモ表示モード.
+     */
+    private MemoListViewMode memoListViewMode;
+
+    /**
      * コンストラクタ.
      *
      * @param con コンテキスト
+     * @param mode モード
      */
-    public MemoListComparator(Context con)
+    public MemoListComparator(Context con, MemoListViewMode mode)
     {
         this.context = con;
+        this.memoListViewMode = mode;
     }
 
     /**
@@ -60,7 +68,8 @@ public final class MemoListComparator implements Comparator<IMemo>
         }
         else
         {
-            int method = MainPreferenceActivity.getMemoSortMethod(this.context);
+            int method = MainPreferenceActivity.getMemoSortMethod(this.context,
+                    ((this.memoListViewMode == MemoListViewMode.FOLDER_VIEW) ? 0 : 1));
 
             switch (method)
             {

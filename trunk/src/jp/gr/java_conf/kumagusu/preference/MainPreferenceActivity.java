@@ -311,12 +311,13 @@ public final class MainPreferenceActivity extends PreferenceActivity implements 
      * 「並び替え方法」を取得する.
      *
      * @param con コンテキスト
+     * @param saveNum 保存番号
      * @return 並び替え方法
      */
-    public static int getMemoSortMethod(Context con)
+    public static int getMemoSortMethod(Context con, int saveNum)
     {
-        int method = PreferenceManager.getDefaultSharedPreferences(con).getInt("memo_sort_method",
-                MEMO_SORT_METHOD_TITLE_ASC);
+        int method = PreferenceManager.getDefaultSharedPreferences(con).getInt(
+                "memo_sort_method_" + String.valueOf(saveNum), MEMO_SORT_METHOD_TITLE_ASC);
 
         return method;
     }
@@ -326,13 +327,14 @@ public final class MainPreferenceActivity extends PreferenceActivity implements 
      *
      * @param con コンテキスト
      * @param method 並び替え方法
+     * @param saveNum 保存番号
      */
-    public static void setMemoSortMethod(Context con, int method)
+    public static void setMemoSortMethod(Context con, int method, int saveNum)
     {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(con);
         Editor editor = sp.edit();
 
-        editor.putInt("memo_sort_method", method);
+        editor.putInt("memo_sort_method_" + String.valueOf(saveNum), method);
 
         editor.commit();
     }

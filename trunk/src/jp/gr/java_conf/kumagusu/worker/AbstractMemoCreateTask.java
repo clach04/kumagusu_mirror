@@ -118,38 +118,39 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
 
         if (values == null)
         {
-            final InputDialog dialog = new InputDialog();
-            dialog.showDialog(AbstractMemoCreateTask.this.activity, AbstractMemoCreateTask.this.activity.getResources()
-                    .getString(R.string.ui_td_input_password), InputType.TYPE_CLASS_TEXT
-                    | InputType.TYPE_TEXT_VARIATION_PASSWORD, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface d, int which)
-                {
-                    // OK処理
-                    String tryPassword = dialog.getText();
-                    if (!MainApplication.getInstance(AbstractMemoCreateTask.this.activity).getPasswordList()
-                            .contains(tryPassword))
+            final InputDialog dialog = new InputDialog(AbstractMemoCreateTask.this.activity);
+            dialog.showDialog(
+                    AbstractMemoCreateTask.this.activity.getResources().getString(R.string.ui_td_input_password),
+                    InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
+                    new DialogInterface.OnClickListener()
                     {
-                        MainApplication.getInstance(AbstractMemoCreateTask.this.activity).getPasswordList()
-                                .add(tryPassword);
-                    }
+                        @Override
+                        public void onClick(DialogInterface d, int which)
+                        {
+                            // OK処理
+                            String tryPassword = dialog.getText();
+                            if (!MainApplication.getInstance(AbstractMemoCreateTask.this.activity).getPasswordList()
+                                    .contains(tryPassword))
+                            {
+                                MainApplication.getInstance(AbstractMemoCreateTask.this.activity).getPasswordList()
+                                        .add(tryPassword);
+                            }
 
-                    // ワーカスレッド再開
-                    synchronized (AbstractMemoCreateTask.this.syncObject)
+                            // ワーカスレッド再開
+                            synchronized (AbstractMemoCreateTask.this.syncObject)
+                            {
+                                AbstractMemoCreateTask.this.syncObject.notifyAll();
+                            }
+                        }
+                    }, new DialogInterface.OnClickListener()
                     {
-                        AbstractMemoCreateTask.this.syncObject.notifyAll();
-                    }
-                }
-            }, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface d, int which)
-                {
-                    // キャンセル処理
-                    cancel(true);
-                }
-            });
+                        @Override
+                        public void onClick(DialogInterface d, int which)
+                        {
+                            // キャンセル処理
+                            cancel(true);
+                        }
+                    });
             return;
         }
         else
