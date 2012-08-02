@@ -67,7 +67,7 @@ public final class MemoFolder extends AbstractMemo
     {
         StringBuilder sb = new StringBuilder();
 
-        long modifyTime = (this.getFolderFile() != null) ? this.getFolderFile().lastModified() : 0;
+        long modifyTime = lastModified();
 
         if (modifyTime != 0)
         {
@@ -111,5 +111,17 @@ public final class MemoFolder extends AbstractMemo
         {
             return null;
         }
+    }
+
+    @Override
+    public long lastModified()
+    {
+        return (this.getFolderFile() != null) ? this.getFolderFile().lastModified() : 0;
+    }
+
+    @Override
+    public long length()
+    {
+        return 0;
     }
 }

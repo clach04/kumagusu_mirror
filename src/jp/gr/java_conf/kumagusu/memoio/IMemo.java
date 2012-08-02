@@ -1,6 +1,5 @@
 package jp.gr.java_conf.kumagusu.memoio;
 
-
 /**
  * メモのインタフェース.
  *
@@ -50,4 +49,18 @@ public interface IMemo
      * @return 親フォルダ
      */
     String getParent();
+
+    /**
+     * 更新日時を取得する.
+     *
+     * @return 更新日時
+     */
+    long lastModified();
+
+    /**
+     * サイズを返す.
+     *
+     * @return サイズ
+     */
+    long length();
 }

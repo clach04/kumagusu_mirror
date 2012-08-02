@@ -2,6 +2,7 @@ package jp.gr.java_conf.kumagusu.worker;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
@@ -38,12 +39,13 @@ public final class MemoSearchTask extends AbstractMemoCreateTask
      * @param mBuilder Memoビルダ
      * @param lView ListView
      * @param mList メモリスト
+     * @param comparator メモリストのソート処理
      * @param sWords 検索ワード
      */
     public MemoSearchTask(Activity act, MemoListViewMode viewMode, String bFolder, MemoBuilder mBuilder,
-            ListView lView, List<IMemo> mList, String sWords)
+            ListView lView, List<IMemo> mList, Comparator<IMemo> comparator, String sWords)
     {
-        super(act, viewMode, mBuilder, lView, mList);
+        super(act, viewMode, mBuilder, lView, mList, comparator);
 
         this.baseFolder = bFolder;
         this.searchLowerCaseWords = sWords.toLowerCase();

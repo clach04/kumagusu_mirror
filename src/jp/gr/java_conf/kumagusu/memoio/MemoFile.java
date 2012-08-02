@@ -435,7 +435,7 @@ public final class MemoFile extends AbstractMemo
     @Override
     public String getTitle()
     {
-        long nowLastModifyTime = (this.getMemoFile() != null) ? this.getMemoFile().lastModified() : 0;
+        long nowLastModifyTime = lastModified();
 
         if ((this.title == null) || (this.lastModifyTime != nowLastModifyTime))
         {
@@ -475,7 +475,7 @@ public final class MemoFile extends AbstractMemo
     {
         StringBuilder sb = new StringBuilder();
 
-        long modifyTime = (this.getMemoFile() != null) ? this.getMemoFile().lastModified() : 0;
+        long modifyTime = lastModified();
 
         if (modifyTime != 0)
         {
@@ -513,6 +513,18 @@ public final class MemoFile extends AbstractMemo
     public String getParent()
     {
         return (this.getMemoFile() != null) ? this.getMemoFile().getParent() : null;
+    }
+
+    @Override
+    public long lastModified()
+    {
+        return (this.getMemoFile() != null) ? this.getMemoFile().lastModified() : 0;
+    }
+
+    @Override
+    public long length()
+    {
+        return (this.getMemoFile() != null) ? this.getMemoFile().length() : 0;
     }
 
     /**

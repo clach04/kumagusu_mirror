@@ -97,6 +97,25 @@
         <item>Delete</item>
     </string-array>
 
+    <!-- メモのソート方法 -->
+    <string-array name="memo_sort_method_kind_entries">
+        <item>Title(Ascending)</item>
+        <item>Title(Descending)</item>
+        <item>Last modified(oldest-)</item>
+        <item>Last modified(newest-)</item>
+        <item>Size(minimum-)</item>
+        <item>Size(maxmum-)</item>
+    </string-array>
+
+    <integer-array name="memo_sort_method_kind_values">
+        <item>00</item>
+        <item>01</item>
+        <item>10</item>
+        <item>11</item>
+        <item>20</item>
+        <item>21</item>
+    </integer-array>
+
     <!-- ファイル操作ダイアログのエントリ -->
     <string-array name="memo_file_control_dialog_entries_4_text">
         <item>Copy</item>

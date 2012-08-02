@@ -110,12 +110,14 @@
     <string name="fixed_phrase_dialog_title">定型文</string>
     <string name="fixed_phrase_pattern_letters">パターン文字</string>
 
+    <!-- メモのソート方法 -->
+    <string name="memo_sort_method_dialog_title">並び替え方法</string>
+
     <!--
     ******************************************************************
      その他
     ******************************************************************
     -->
-
 
     <!-- メモファイル種別 -->
     <string name="etc_memo_type_text">通常メモ</string>

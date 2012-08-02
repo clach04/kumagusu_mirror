@@ -83,21 +83,28 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     }
 
     /**
+     * メモリストのソート処理.
+     */
+    private Comparator<IMemo> memoListComparator;
+
+    /**
      *
      * @param act アクティビティ
      * @param viewMode メモリスト表示モード
      * @param mBuilder Memoビルダ
      * @param lView ListView
      * @param mList メモリスト
+     * @param comparator メモリストのソート処理
      */
     public AbstractMemoCreateTask(Activity act, MemoListViewMode viewMode, MemoBuilder mBuilder, ListView lView,
-            List<IMemo> mList)
+            List<IMemo> mList, Comparator<IMemo> comparator)
     {
         this.activity = act;
         this.memoListViewMode = viewMode;
         this.memoBuilder = mBuilder;
         this.targetListView = lView;
         this.memoList = mList;
+        this.memoListComparator = comparator;
     }
 
     @Override
@@ -162,45 +169,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
                 }
             }
 
-            memoListAdapter.sort(new Comparator<IMemo>()
-            {
-                /**
-                 * ソート項目を比較する.
-                 *
-                 * @param src 比較ベース
-                 * @param target 比較対象
-                 * @return 比較結果
-                 */
-                public int compare(IMemo src, IMemo target)
-                {
-                    int diff;
-
-                    if (src.getMemoType() == MemoType.ParentFolder)
-                    {
-                        diff = -1;
-                    }
-                    else if (target.getMemoType() == MemoType.ParentFolder)
-                    {
-                        diff = 1;
-                    }
-                    else
-
-                    if ((src.getMemoType() == MemoType.Folder) && (target.getMemoType() != MemoType.Folder))
-                    {
-                        diff = -1;
-                    }
-                    else if ((src.getMemoType() != MemoType.Folder) && (target.getMemoType() == MemoType.Folder))
-                    {
-                        diff = 1;
-                    }
-                    else
-                    {
-                        diff = src.getTitle().compareToIgnoreCase(target.getTitle());
-                    }
-
-                    return diff;
-                }
-            });
+            // ソート
+            sort();
 
             // 表示位置を復元
             loadListViewStatus();
@@ -213,7 +183,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
      * @param f メモファイル
      * @param iMemoList メモリスト
      * @param searchLowerCaseWords 検索ワード(常に小文字で入力すること）
-     * @return itemがメモの時true
+     * @return ファイルを処理したときtrue、パスワード入力などで処理していないときfalse
      */
     protected final boolean decryptMemoFile(File f, List<IMemo> iMemoList, String searchLowerCaseWords)
     {
@@ -278,6 +248,17 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
         }
 
         return true;
+    }
+
+    /**
+     * メモリストをソートする.
+     */
+    public final void sort()
+    {
+        if (this.memoListComparator != null)
+        {
+            this.memoListAdapter.sort(this.memoListComparator);
+        }
     }
 
     /**

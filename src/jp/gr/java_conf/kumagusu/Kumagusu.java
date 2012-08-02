@@ -3,6 +3,7 @@ package jp.gr.java_conf.kumagusu;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -62,9 +63,14 @@ public final class Kumagusu extends Activity
     private static final int MENU_ID_SEARCH = (Menu.FIRST + 2);
 
     /**
+     * メニュー項目「並び替え方法」.
+     */
+    private static final int MENU_ID_SORT_METHOD = (Menu.FIRST + 32);
+
+    /**
      * メニュー項目「設定」.
      */
-    private static final int MENU_ID_SETTING = (Menu.FIRST + 3);
+    private static final int MENU_ID_SETTING = (Menu.FIRST + 4);
 
     /**
      * メモを追加.
@@ -191,6 +197,11 @@ public final class Kumagusu extends Activity
     private String searchWords = null;
 
     /**
+     * メモリストのソート処理.
+     */
+    private Comparator<IMemo> memoListComparator = null;
+
+    /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
      *
      * @param savedInstanceState Activityの状態
@@ -215,6 +226,9 @@ public final class Kumagusu extends Activity
         // リストにアイテムがない場合のメッセージを設定
         View listEmptyView = findViewById(R.id.list_empty_text);
         this.mListView.setEmptyView(listEmptyView);
+
+        // メモリストのソート処理を生成
+        this.memoListComparator = new MemoListComparator(this);
 
         // リストのクリックイベントを登録
         this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -778,6 +792,12 @@ public final class Kumagusu extends Activity
             ActivityCompat.setShowAsAction4ActionBar(actionItemSearch);
         }
 
+        // メニュー項目「並び替え方法」
+        MenuItem actionMemoSortMedhod = menu.add(Menu.NONE, MENU_ID_SORT_METHOD, Menu.NONE,
+                R.string.memo_sort_method_dialog_title);
+        actionMemoSortMedhod.setIcon(R.drawable.memo_sort);
+        ActivityCompat.setShowAsAction4ActionBar(actionMemoSortMedhod);
+
         // メニュー項目「設定」
         MenuItem actionItemSetting = menu.add(Menu.NONE, MENU_ID_SETTING, Menu.NONE, R.string.ui_setting);
         actionItemSetting.setIcon(R.drawable.setting);
@@ -803,6 +823,9 @@ public final class Kumagusu extends Activity
             mExecutedChildActivityFg = true;
 
             startActivity(prefIntent);
+            break;
+
+        case MENU_ID_SORT_METHOD: // 並び替え方法
             break;
 
         case MENU_ID_SEARCH: // 検索（メモ検索）
@@ -840,7 +863,6 @@ public final class Kumagusu extends Activity
             break;
 
         case MENU_ID_CREATE_MEMO: // 新規
-
             ListDialog.showDialog(Kumagusu.this, getResources().getDrawable(R.drawable.memo_folder_add), getResources()
                     .getString(R.string.memo_list_control_dialog_title),
                     getResources().getStringArray(R.array.memo_list_control_dialog_entries), new OnClickListener()
@@ -1021,7 +1043,7 @@ public final class Kumagusu extends Activity
         }
 
         this.memoCreator = new MemoCreateTask(this, this.memoListViewMode, this.mCurrentFolderFileQueue,
-                this.memoBuilder, this.mListView, this.mCurrentFolderMemoFileList);
+                this.memoBuilder, this.mListView, this.mCurrentFolderMemoFileList, this.memoListComparator);
         this.memoCreator.execute();
     }
 
@@ -1051,7 +1073,7 @@ public final class Kumagusu extends Activity
         {
             this.memoCreator = new MemoSearchTask(this, this.memoListViewMode, MainApplication.getInstance(this)
                     .getCurrentMemoFolder(), this.memoBuilder, this.mListView, this.mCurrentFolderMemoFileList,
-                    this.searchWords);
+                    this.memoListComparator, this.searchWords);
             this.memoCreator.execute();
         }
     }
@@ -1197,6 +1219,25 @@ public final class Kumagusu extends Activity
                     refreshMemoList();
                 }
             }
+        }
+    }
+
+    /**
+     * 並び替え方法を変更する.
+     *
+     * @param method 並び替え方法
+     */
+    private void setSortMethod(int method)
+    {
+        // ソート方法を保存
+        MainPreferenceActivity.setMemoSortMethod(this, method);
+
+        // 再ソート
+        MemoListAdapter adapter = (MemoListAdapter) this.mListView.getAdapter();
+
+        if (adapter != null)
+        {
+            this.memoCreator.sort();
         }
     }
 }
