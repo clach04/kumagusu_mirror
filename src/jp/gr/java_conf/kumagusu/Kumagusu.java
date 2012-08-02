@@ -65,7 +65,7 @@ public final class Kumagusu extends Activity
     /**
      * メニュー項目「並び替え方法」.
      */
-    private static final int MENU_ID_SORT_METHOD = (Menu.FIRST + 32);
+    private static final int MENU_ID_SORT_METHOD = (Menu.FIRST + 3);
 
     /**
      * メニュー項目「設定」.
@@ -227,9 +227,6 @@ public final class Kumagusu extends Activity
         View listEmptyView = findViewById(R.id.list_empty_text);
         this.mListView.setEmptyView(listEmptyView);
 
-        // メモリストのソート処理を生成
-        this.memoListComparator = new MemoListComparator(this);
-
         // リストのクリックイベントを登録
         this.mListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -329,7 +326,8 @@ public final class Kumagusu extends Activity
                             change2MemoType = MemoType.Text;
                         }
 
-                        ListDialog.showDialog(Kumagusu.this, getResources().getDrawable(R.drawable.memo_operation),
+                        ListDialog memoControlDialog = new ListDialog(Kumagusu.this);
+                        memoControlDialog.showDialog(getResources().getDrawable(R.drawable.memo_operation),
                                 getResources().getString(R.string.memo_file_control_dialog_title), dialogEntries,
                                 new OnClickListener()
                                 {
@@ -453,7 +451,8 @@ public final class Kumagusu extends Activity
                         break;
 
                     case Folder:
-                        ListDialog.showDialog(Kumagusu.this, getResources().getDrawable(R.drawable.folder_operation),
+                        ListDialog folderControlDialog = new ListDialog(Kumagusu.this);
+                        folderControlDialog.showDialog(getResources().getDrawable(R.drawable.folder_operation),
                                 getResources().getString(R.string.folder_control_dialog_title), getResources()
                                         .getStringArray(R.array.memo_file_control_dialog_entries_4_folder),
                                 new OnClickListener()
@@ -574,15 +573,13 @@ public final class Kumagusu extends Activity
                                             break;
 
                                         case FOLDER_CONTROL_ID_RENAME: // 名称変更
-                                            final InputDialog renameFolderDialog = new InputDialog();
+                                            final InputDialog renameFolderDialog = new InputDialog(Kumagusu.this);
                                             renameFolderDialog.setText(Kumagusu.this.mSelectedMemoFile.getName());
 
                                             renameFolderDialog.showDialog(
-                                                    Kumagusu.this,
                                                     Kumagusu.this.getResources().getDrawable(
-                                                            R.drawable.folder_operation),
-                                                    Kumagusu.this.getResources().getString(
-                                                            R.string.folder_rename_control_dialog_title),
+                                                            R.drawable.folder_operation), Kumagusu.this.getResources()
+                                                            .getString(R.string.folder_rename_control_dialog_title),
                                                     InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
                                                     {
                                                         @Override
@@ -751,6 +748,10 @@ public final class Kumagusu extends Activity
             }
         }
 
+        // メモリストのソート処理を生成
+        this.memoListComparator = new MemoListComparator(this, this.memoListViewMode);
+
+        // メモフォルダ設定
         if (MainApplication.getInstance(this).getCurrentMemoFolder() == null)
         {
             MainApplication.getInstance(this).setCurrentMemoFolder(MainPreferenceActivity.getMemoLocation(this));
@@ -826,12 +827,38 @@ public final class Kumagusu extends Activity
             break;
 
         case MENU_ID_SORT_METHOD: // 並び替え方法
+            int memoSortMethod = MainPreferenceActivity.getMemoSortMethod(this,
+                    ((this.memoListViewMode == MemoListViewMode.FOLDER_VIEW) ? 0 : 1));
+            int memoSortMothodIndex = 0;
+            final int[] memoSortMethodValues = getResources().getIntArray(R.array.memo_sort_method_kind_values);
+
+            for (int i = 0; i < memoSortMethodValues.length; i++)
+            {
+                if (memoSortMethod == memoSortMethodValues[i])
+                {
+                    memoSortMothodIndex = i;
+                    break;
+                }
+            }
+
+            ListDialog memoSortMethodChoiseDialog = new ListDialog(this);
+            memoSortMethodChoiseDialog.showSingleChoiceDialog(getResources().getDrawable(R.drawable.memo_sort),
+                    getResources().getString(R.string.memo_sort_method_dialog_title),
+                    getResources().getStringArray(R.array.memo_sort_method_kind_entries), memoSortMothodIndex,
+                    new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            setMemoSortMethod(memoSortMethodValues[which]);
+                        }
+                    });
             break;
 
         case MENU_ID_SEARCH: // 検索（メモ検索）
-            final InputDialog searchMemoDialog = new InputDialog();
-            searchMemoDialog.showDialog(Kumagusu.this, this.getResources().getDrawable(R.drawable.search), this
-                    .getResources().getString(R.string.search_memo_control_dialog_title), InputType.TYPE_CLASS_TEXT,
+            final InputDialog searchMemoDialog = new InputDialog(Kumagusu.this);
+            searchMemoDialog.showDialog(this.getResources().getDrawable(R.drawable.search), this.getResources()
+                    .getString(R.string.search_memo_control_dialog_title), InputType.TYPE_CLASS_TEXT,
                     new DialogInterface.OnClickListener()
                     {
                         @Override
@@ -863,7 +890,8 @@ public final class Kumagusu extends Activity
             break;
 
         case MENU_ID_CREATE_MEMO: // 新規
-            ListDialog.showDialog(Kumagusu.this, getResources().getDrawable(R.drawable.memo_folder_add), getResources()
+            ListDialog memoCreateDialog = new ListDialog(Kumagusu.this);
+            memoCreateDialog.showDialog(getResources().getDrawable(R.drawable.memo_folder_add), getResources()
                     .getString(R.string.memo_list_control_dialog_title),
                     getResources().getStringArray(R.array.memo_list_control_dialog_entries), new OnClickListener()
                     {
@@ -888,8 +916,8 @@ public final class Kumagusu extends Activity
                                 break;
 
                             case FILE_LIST_CONTROL_ID_ADD_FOLDER: // フォルダ追加
-                                final InputDialog addFolderDialog = new InputDialog();
-                                addFolderDialog.showDialog(Kumagusu.this,
+                                final InputDialog addFolderDialog = new InputDialog(Kumagusu.this);
+                                addFolderDialog.showDialog(
                                         Kumagusu.this.getResources().getDrawable(R.drawable.folder_add), Kumagusu.this
                                                 .getResources().getString(R.string.folder_add_control_dialog_title),
                                         InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
@@ -1227,10 +1255,11 @@ public final class Kumagusu extends Activity
      *
      * @param method 並び替え方法
      */
-    private void setSortMethod(int method)
+    private void setMemoSortMethod(int method)
     {
         // ソート方法を保存
-        MainPreferenceActivity.setMemoSortMethod(this, method);
+        MainPreferenceActivity.setMemoSortMethod(this, method,
+                ((this.memoListViewMode == MemoListViewMode.FOLDER_VIEW) ? 0 : 1));
 
         // 再ソート
         MemoListAdapter adapter = (MemoListAdapter) this.mListView.getAdapter();

@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -442,10 +443,14 @@ public final class EditorActivity extends Activity
         actionItemFixedPhrese.setIcon(R.drawable.fixed_phrase);
         ActivityCompat.setShowAsAction4ActionBar(actionItemFixedPhrese);
 
-        // メニュー項目「閉じる」
-        MenuItem actionItemClose = menu.add(Menu.NONE, MENU_ID_CLOSE, Menu.NONE, R.string.ui_close);
-        actionItemClose.setIcon(R.drawable.close);
-        ActivityCompat.setShowAsAction4ActionBar(actionItemClose);
+        // 3.0以下
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+        {
+            // メニュー項目「閉じる」
+            MenuItem actionItemClose = menu.add(Menu.NONE, MENU_ID_CLOSE, Menu.NONE, R.string.ui_close);
+            actionItemClose.setIcon(R.drawable.close);
+            ActivityCompat.setShowAsAction4ActionBar(actionItemClose);
+        }
 
         return ret;
     }
@@ -528,8 +533,9 @@ public final class EditorActivity extends Activity
                 fixedPhraseStrings[i] = Utilities.getDateTimeFormattedString(this, fixedPhraseStrings[i], nowDate);
             }
 
-            ListDialog.showDialog(this, getResources().getDrawable(R.drawable.fixed_phrase),
-                    getResources().getString(R.string.fixed_phrase_dialog_title), fixedPhraseStrings,
+            ListDialog fixedPhraseSelectDialog = new ListDialog(this);
+            fixedPhraseSelectDialog.showDialog(getResources().getDrawable(R.drawable.fixed_phrase), getResources()
+                    .getString(R.string.fixed_phrase_dialog_title), fixedPhraseStrings,
                     new DialogInterface.OnClickListener()
                     {
                         @Override
@@ -798,38 +804,37 @@ public final class EditorActivity extends Activity
             if ((this.memoFile.getMemoType() == MemoType.Secret1) || (this.memoFile.getMemoType() == MemoType.Secret2))
             {
                 // パスワードを入力
-                final InputDialog dialog = new InputDialog();
-                dialog.showDialog(this, getResources().getString(R.string.ui_td_input_password),
-                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
-                        new DialogInterface.OnClickListener()
-                        {
-                            /**
-                             * OKを処理する.
-                             */
-                            @Override
-                            public void onClick(DialogInterface d, int which)
-                            {
-                                String tryPassword = dialog.getText();
+                final InputDialog dialog = new InputDialog(this);
+                dialog.showDialog(getResources().getString(R.string.ui_td_input_password), InputType.TYPE_CLASS_TEXT
+                        | InputType.TYPE_TEXT_VARIATION_PASSWORD, new DialogInterface.OnClickListener()
+                {
+                    /**
+                     * OKを処理する.
+                     */
+                    @Override
+                    public void onClick(DialogInterface d, int which)
+                    {
+                        String tryPassword = dialog.getText();
 
-                                MainApplication.getInstance(EditorActivity.this).addPassword(tryPassword);
+                        MainApplication.getInstance(EditorActivity.this).addPassword(tryPassword);
 
-                                setMemoData();
-                            }
-                        }, new DialogInterface.OnClickListener()
-                        {
-                            /**
-                             * キャンセルを処理する.
-                             */
-                            @Override
-                            public void onClick(DialogInterface d, int which)
-                            {
-                                // タイマを破棄
-                                EditorActivity.this.autoCloseTimer = null;
+                        setMemoData();
+                    }
+                }, new DialogInterface.OnClickListener()
+                {
+                    /**
+                     * キャンセルを処理する.
+                     */
+                    @Override
+                    public void onClick(DialogInterface d, int which)
+                    {
+                        // タイマを破棄
+                        EditorActivity.this.autoCloseTimer = null;
 
-                                // エディタ終了
-                                finish();
-                            }
-                        });
+                        // エディタ終了
+                        finish();
+                    }
+                });
             }
             else
             {

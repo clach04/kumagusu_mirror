@@ -93,7 +93,7 @@
         <item>%y/%M/%d</item>
         <item>%h:%m:%s</item>
     </string-array>
-    <string-array name="fixed_phrase_escape_item_entries_operation">
+    <string-array name="pref_fixed_phrase_entries_control_dialog_entries">
         <item>削除</item>
     </string-array>
 

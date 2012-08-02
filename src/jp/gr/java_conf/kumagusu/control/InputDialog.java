@@ -21,6 +21,11 @@ import android.widget.EditText;
 public final class InputDialog
 {
     /**
+     * コンテキスト.
+     */
+    private Context context;
+
+    /**
      * テキスト入力ボックス.
      */
     private EditText edtInput;
@@ -31,52 +36,58 @@ public final class InputDialog
     private String initText = null;
 
     /**
+     * コンストラクタ.
+     *
+     * @param con コンテキスト
+     */
+    public InputDialog(Context con)
+    {
+        this.context = con;
+    }
+
+    /**
      * テキスト入力ダイアログを表示する.
      *
-     * @param context コンテキスト
      * @param title タイトル
      * @param inputType インプットタイプ
      * @param okListener Ok処理リスナ
      * @param cancelListener Cancel処理リスナ
      */
-    public void showDialog(Context context, String title, int inputType, OnClickListener okListener,
-            OnClickListener cancelListener)
+    public void showDialog(String title, int inputType, OnClickListener okListener, OnClickListener cancelListener)
     {
-        showDialog(context, context.getResources().getDrawable(R.drawable.icon), title, inputType, okListener,
+        showDialog(this.context.getResources().getDrawable(R.drawable.icon), title, inputType, okListener,
                 cancelListener);
     }
 
     /**
      * テキスト入力ダイアログを表示する.
      *
-     * @param context コンテキスト
      * @param icon アイコン
      * @param title タイトル
      * @param inputType インプットタイプ
      * @param okListener Ok処理リスナ
      * @param cancelListener Cancel処理リスナ
      */
-    public void showDialog(Context context, Drawable icon, String title, int inputType, OnClickListener okListener,
+    public void showDialog(Drawable icon, String title, int inputType, OnClickListener okListener,
             OnClickListener cancelListener)
     {
-        showDialog(context, icon, title, inputType, okListener, cancelListener, null, null);
+        showDialog(icon, title, inputType, okListener, cancelListener, null, null);
     }
 
     /**
      * テキスト入力ダイアログを表示する.
      *
-     * @param context コンテキスト
      * @param icon アイコン
      * @param title タイトル
      * @param inputType インプットタイプ
      * @param okListener Ok処理リスナ
      * @param cancelListener Cancel処理リスナ
      */
-    public void showDialog(Context context, Drawable icon, String title, int inputType, OnClickListener okListener,
+    public void showDialog(Drawable icon, String title, int inputType, OnClickListener okListener,
             OnClickListener cancelListener, View.OnClickListener userButtonClickListener, String userButtonText)
     {
         // カスタムViewを取得
-        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater inflater = LayoutInflater.from(this.context);
         View view = inflater.inflate(R.layout.input_dialog, null);
 
         // EditTextを設定
@@ -110,7 +121,7 @@ public final class InputDialog
         }
 
         // ダイアログ生成
-        AlertDialog.Builder db = new AlertDialog.Builder(context);
+        AlertDialog.Builder db = new AlertDialog.Builder(this.context);
 
         if (icon != null)
         {
