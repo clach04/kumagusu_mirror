@@ -5,10 +5,12 @@
     <string-array name="encoding_entries">
         <item>SJIS</item>
         <item>UTF-8</item>
+        <item>UTF-16LE</item>
     </string-array>
     <string-array name="encoding_values">
         <item>MS932</item>
         <item>UTF8</item>
+        <item>UnicodeLittleUnmarked</item>
     </string-array>
     <string-array name="autoclose_delaytime_entries">
         <item>無効</item>

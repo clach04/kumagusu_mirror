@@ -46,6 +46,10 @@
     <string name="pref_ls_encoding_title">エンコーディング</string>
     <string name="pref_ls_encoding_summary">ファイルの文字コードを設定します.</string>
 
+    <!-- 「その他」カテゴリ -->
+    <string name="pref_category_about">このアプリについて</string>
+    <string name="pref_tv_version_title">バージョン</string>
+
     <!--
     ******************************************************************
      UI
