@@ -48,7 +48,7 @@
 
     <!-- 「その他」カテゴリ -->
     <string name="pref_category_about">このアプリについて</string>
-    <string name="pref_tv_version_title">バージョン</string>
+    <string name="pref_version_title">バージョン</string>
 
     <!--
     ******************************************************************
