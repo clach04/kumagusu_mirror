@@ -25,6 +25,7 @@
 
         <!-- メモフォルダ -->
         <jp.gr.java_conf.kumagusu.preference.DirectorySelectDialogPreference
+            android:enabled="true"
             android:key="ds_memo_location"
             android:title="@string/pref_ds_memo_location_title" />
 
@@ -53,7 +54,9 @@
             android:title="@string/pref_enable_auto_link_title" />
 
         <!-- 定型文 -->
-        <jp.gr.java_conf.kumagusu.preference.InputFixedPhraseDialogPreference android:title="@string/pref_fixed_phrase_dialog_title" />
+        <jp.gr.java_conf.kumagusu.preference.InputFixedPhraseDialogPreference
+            android:enabled="true"
+            android:title="@string/pref_fixed_phrase_dialog_title" />
     </PreferenceCategory>
     <!-- 「セキュリティ」カテゴリ -->
     <PreferenceCategory android:title="@string/pref_category_security" >
@@ -81,6 +84,13 @@
             android:enabled="true"
             android:key="cb_randam_name"
             android:title="@string/pref_cb_randam_name_title" />
+    </PreferenceCategory>
+
+    <!-- このソフトについて -->
+    <PreferenceCategory android:title="@string/pref_category_about" >
+        <jp.gr.java_conf.kumagusu.preference.VersionPreference
+            android:enabled="true"
+            android:title="@string/pref_version_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>
