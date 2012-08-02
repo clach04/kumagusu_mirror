@@ -10,10 +10,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.preference.DialogPreference;
-import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -64,7 +61,7 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                     public void onClick(DialogInterface dialog, int which)
                     {
                         // 設定を保存
-                        setFixedPhraseStrings(fixedPhraseStrings);
+                        MainPreferenceActivity.setFixedPhraseStrings(getContext(), fixedPhraseStrings);
                     }
                 });
 
@@ -341,35 +338,6 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                                 });
                     }
                 }, getContext().getResources().getString(R.string.fixed_phrase_pattern_letters));
-    }
-
-    /**
-     * 定型文を保存する.
-     *
-     * @param fixedPhraseStrings 定型文
-     */
-    private void setFixedPhraseStrings(List<String> fixedPhraseStrings)
-    {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getContext());
-        Editor editor = sp.edit();
-
-        int fixedPhraseStringsCount = sp.getInt("list_fixed_phrase_strings_count", 0);
-
-        // 一旦すべて削除
-        for (int i = 0; i < fixedPhraseStringsCount; i++)
-        {
-            editor.remove("list_fixed_phrase_strings_" + i);
-        }
-
-        // 保存
-        for (int i = 0; i < fixedPhraseStrings.size(); i++)
-        {
-            editor.putString("list_fixed_phrase_strings_" + i, fixedPhraseStrings.get(i));
-        }
-
-        editor.putInt("list_fixed_phrase_strings_count", fixedPhraseStrings.size());
-
-        editor.commit();
     }
 
     /**

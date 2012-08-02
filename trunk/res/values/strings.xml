@@ -110,6 +110,9 @@
     <string name="fixed_phrase_dialog_title">Fixed phrase</string>
     <string name="fixed_phrase_pattern_letters">Pattern letters</string>
 
+    <!-- メモのソート方法 -->
+    <string name="memo_sort_method_dialog_title">Sort conditions</string>
+
     <!--
     ******************************************************************
      その他

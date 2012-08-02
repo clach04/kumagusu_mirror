@@ -2,6 +2,7 @@ package jp.gr.java_conf.kumagusu.worker;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,11 +35,12 @@ public final class MemoCreateTask extends AbstractMemoCreateTask
      * @param mBuilder Memoビルダ
      * @param lView ListView
      * @param mList メモリスト
+     * @param comparator メモリストのソート処理
      */
     public MemoCreateTask(Activity act, MemoListViewMode viewMode, LinkedList<File> fQueue, MemoBuilder mBuilder,
-            ListView lView, List<IMemo> mList)
+            ListView lView, List<IMemo> mList, Comparator<IMemo> comparator)
     {
-        super(act, viewMode, mBuilder, lView, mList);
+        super(act, viewMode, mBuilder, lView, mList, comparator);
 
         this.fileQueue = fQueue;
     }

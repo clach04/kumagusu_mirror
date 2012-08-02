@@ -97,6 +97,25 @@
         <item>削除</item>
     </string-array>
 
+    <!-- メモのソート方法 -->
+    <string-array name="memo_sort_method_kind_entries">
+        <item>タイトル(辞書順)</item>
+        <item>タイトル(辞書逆順)</item>
+        <item>更新日時(最古～)</item>
+        <item>更新日時(最新～)</item>
+        <item>サイズ(最小～)</item>
+        <item>サイズ(最大～)</item>
+    </string-array>
+
+    <integer-array name="memo_sort_method_kind_values">
+        <item>00</item>
+        <item>01</item>
+        <item>10</item>
+        <item>11</item>
+        <item>20</item>
+        <item>21</item>
+    </integer-array>
+
     <!-- ファイル操作ダイアログのエントリ -->
     <string-array name="memo_file_control_dialog_entries_4_text">
         <item>コピー</item>
