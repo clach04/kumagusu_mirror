@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="jp.gr.java_conf.kumagusu"
     android:installLocation="auto"
-    android:versionCode="0102"
-    android:versionName="1.02" >
+    android:versionCode="0103"
+    android:versionName="1.03" >
 
     <uses-sdk
         android:minSdkVersion="5"

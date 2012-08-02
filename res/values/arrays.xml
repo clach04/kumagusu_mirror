@@ -99,12 +99,12 @@
 
     <!-- メモのソート方法 -->
     <string-array name="memo_sort_method_kind_entries">
-        <item>Title(Ascending)</item>
-        <item>Title(Descending)</item>
-        <item>Last modified(oldest-)</item>
-        <item>Last modified(newest-)</item>
-        <item>Size(minimum-)</item>
-        <item>Size(maxmum-)</item>
+        <item>Title - ascending</item>
+        <item>Title - descending</item>
+        <item>Last modified - from the oldest</item>
+        <item>Last modified - from the newest</item>
+        <item>Size - from minimum</item>
+        <item>Size - from maxmum</item>
     </string-array>
 
     <integer-array name="memo_sort_method_kind_values">
