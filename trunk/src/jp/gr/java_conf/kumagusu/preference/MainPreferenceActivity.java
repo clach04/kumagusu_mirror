@@ -338,4 +338,15 @@ public final class MainPreferenceActivity extends PreferenceActivity implements 
 
         editor.commit();
     }
+
+    /**
+     * 「メモをビューワーモードで開く」を取得する.
+     *
+     * @param con コンテキスト
+     * @return ビューワーモード
+     */
+    public static boolean isViwerMode(Context con)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(con).getBoolean("cb_editor_viewer_mode", true);
+    }
 }

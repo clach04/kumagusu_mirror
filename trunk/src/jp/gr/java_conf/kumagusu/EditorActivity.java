@@ -117,7 +117,7 @@ public final class EditorActivity extends Activity
         Create,
 
         /**
-         * 既存ファイル編集
+         * 既存ファイル編集.
          */
         Edit,
     }
