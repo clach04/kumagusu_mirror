@@ -3,6 +3,8 @@ package jp.gr.java_conf.kumagusu;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
@@ -12,7 +14,6 @@ import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -24,7 +25,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.text.util.Linkify;
+import android.text.Spannable;
+import android.text.Spanned;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -122,6 +125,26 @@ public final class EditorActivity extends Activity
         Edit,
     }
 
+    /**
+     * URL抽出パターン.
+     */
+    private static final Pattern URL_MATCH_PATTERN = Pattern.compile(
+            "(http|https|rtsp):([^\\x00-\\x20()\"<>\\x7F-\\xFF])*", Pattern.CASE_INSENSITIVE);
+
+    /**
+     * メールアドレス抽出パターン.
+     */
+    private static final Pattern EMAIL_MATCH_PATTERN = Pattern.compile(
+            "[a-zA-Z0-9\\+\\.\\_\\%\\-]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+",
+            Pattern.CASE_INSENSITIVE);
+
+    /**
+     * 電話番号抽出パターン.
+     */
+    private static final Pattern PHONE_MATCH_PATTERN = Pattern.compile(
+            "(\\+[0-9]+[\\- \\.]*)?(\\([0-9]+\\)[\\- \\.]*)?([0-9][0-9\\- \\.][0-9\\- \\.]+[0-9])",
+            Pattern.CASE_INSENSITIVE);
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -156,6 +179,28 @@ public final class EditorActivity extends Activity
                     }
                 }
             });
+
+        // 自動リンクを設定
+        editorEditText.addTextChangedListener(new TextWatcher()
+        {
+
+            @Override
+            public void onTextChanged(CharSequence charsequence, int i, int j, int k)
+            {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence charsequence, int i, int j, int k)
+            {
+            }
+
+            @Override
+            public void afterTextChanged(Editable e)
+            {
+                // 自動リンクを再設定
+                updateSpan();
+            }
+        });
 
         // IMEの表示非表示処理
         initialyzeEditorImeVisibility();
@@ -379,16 +424,18 @@ public final class EditorActivity extends Activity
             return;
         }
 
-        // 自動リンクを設定
-        EditText editorEditText = (EditText) findViewById(R.id.editor);
-        if (MainPreferenceActivity.isEnableAutoLink(this))
-        {
-            editorEditText.setAutoLinkMask(Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
-        }
-        else
-        {
-            editorEditText.setAutoLinkMask(0);
-        }
+        // // 自動リンクを設定
+        // EditText editorEditText = (EditText) findViewById(R.id.editor);
+        // if (MainPreferenceActivity.isEnableAutoLink(this))
+        // {
+        //
+        // editorEditText.setAutoLinkMask(Linkify.WEB_URLS |
+        // Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
+        // }
+        // else
+        // {
+        // editorEditText.setAutoLinkMask(0);
+        // }
 
         // メモデータがあれば表示する
         // なければ（復号できなければ）リストに戻る
@@ -959,6 +1006,83 @@ public final class EditorActivity extends Activity
                 return false;
             }
         });
+    }
+
+    /**
+     * 自動リンクを設定する.
+     */
+    private void updateSpan()
+    {
+        EditText memoEditText = (EditText) findViewById(R.id.editor);
+        CharSequence text = memoEditText.getText();
+        Spannable span = (Spannable) text;
+
+        // 自動リンク部分をクリア
+        AutoLinkClickableSpan[] clickableLink = span.getSpans(0, text.length(), AutoLinkClickableSpan.class);
+
+        for (AutoLinkClickableSpan autoLinkClickableSpan : clickableLink)
+        {
+            span.removeSpan(autoLinkClickableSpan);
+        }
+
+        // 自動リンクを設定
+        if (MainPreferenceActivity.isEnableAutoLink(EditorActivity.this))
+        {
+            // URL
+            Matcher urlMatcher = URL_MATCH_PATTERN.matcher(span);
+
+            while (urlMatcher.find())
+            {
+                span.setSpan(new AutoLinkClickableSpan(URL_MATCH_PATTERN,
+                        new AutoLinkClickableSpan.AutoLinkOnClickListener()
+                        {
+                            @Override
+                            public void onClick(String matchString)
+                            {
+                                Uri uri = Uri.parse(matchString);
+                                Intent i = new Intent(Intent.ACTION_VIEW, uri);
+                                EditorActivity.this.startActivity(i);
+                            }
+                        }), urlMatcher.start(), urlMatcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
+            // メールアドレス
+            Matcher emailMatcher = EMAIL_MATCH_PATTERN.matcher(span);
+
+            while (emailMatcher.find())
+            {
+                span.setSpan(new AutoLinkClickableSpan(EMAIL_MATCH_PATTERN,
+                        new AutoLinkClickableSpan.AutoLinkOnClickListener()
+                        {
+                            @Override
+                            public void onClick(String matchString)
+                            {
+                                Uri uri = Uri.parse("mailto:" + matchString);
+                                Intent i = new Intent(Intent.ACTION_VIEW, uri);
+                                EditorActivity.this.startActivity(i);
+                            }
+                        }), emailMatcher.start(), emailMatcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
+            // 電話番号
+            Matcher phoneMatcher = PHONE_MATCH_PATTERN.matcher(span);
+
+            while (phoneMatcher.find())
+            {
+                span.setSpan(new AutoLinkClickableSpan(EMAIL_MATCH_PATTERN,
+                        new AutoLinkClickableSpan.AutoLinkOnClickListener()
+                        {
+                            @Override
+                            public void onClick(String matchString)
+                            {
+                                Uri uri = Uri.parse("tel:" + matchString);
+                                Intent i = new Intent(Intent.ACTION_VIEW, uri);
+                                EditorActivity.this.startActivity(i);
+                            }
+                        }), phoneMatcher.start(), phoneMatcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
+        }
     }
 
 }
