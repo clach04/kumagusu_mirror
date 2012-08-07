@@ -49,12 +49,13 @@
 
     <EditText
         android:id="@+id/editor"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:focusableInTouchMode="true"
         android:gravity="top"
         android:inputType="text|textAutoComplete|textMultiLine"
-        android:padding="15dp"
+        android:padding="5dp"
         android:scrollbars="vertical" />
     <!--
         android:inputType="none"

@@ -33,6 +33,8 @@ public final class AutoLinkClickableSpan extends ClickableSpan
      */
     public AutoLinkClickableSpan(Pattern patt, AutoLinkOnClickListener listener)
     {
+        super();
+
         this.pattern = patt;
         this.onClickListener = listener;
     }
