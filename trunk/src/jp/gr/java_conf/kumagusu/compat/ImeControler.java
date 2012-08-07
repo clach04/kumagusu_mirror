@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 /**
@@ -32,7 +33,7 @@ public final class ImeControler
      * @param view IME表示先View
      */
     @SuppressLint("NewApi")
-    public static void showDialogWithIme(final Context con, Dialog dialog, final EditText view)
+    public static void showDialogWithIme(final Context con, final Dialog dialog, final EditText view)
     {
         // IME表示
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) // 2.2以上
@@ -58,7 +59,7 @@ public final class ImeControler
                 {
                     if (hasFocus)
                     {
-                        Utilities.setImeVisibility(con, true, view);
+                        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                     }
                 }
             });

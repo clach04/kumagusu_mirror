@@ -913,6 +913,16 @@ public final class EditorActivity extends Activity
     {
         this.editable = ed;
 
+        if (editable)
+        {
+            this.memoEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                    | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        }
+        else
+        {
+            this.memoEditText.setRawInputType(InputType.TYPE_NULL);
+        }
+
         // IME制御
         Utilities.setImeVisibility(this, ed, this.memoEditText);
 
