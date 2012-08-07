@@ -40,7 +40,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.WindowManager.LayoutParams;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -55,6 +54,16 @@ import android.widget.LinearLayout;
 @SuppressLint("NewApi")
 public final class EditorActivity extends Activity
 {
+    /**
+     * メモファイル（フルパス）.
+     */
+    private String memoFileFullPath = null;
+
+    /**
+     * メモファイル保存フォルダ.
+     */
+    private String currentFolderPath = null;
+
     /**
      * メモ編集EditText.
      */
@@ -176,6 +185,9 @@ public final class EditorActivity extends Activity
     private static final Pattern PHONE_MATCH_PATTERN = Pattern
             .compile("(\\+[0-9]{2}[\\- \\.]*)?(([0-9])*(\\([0-9]+\\)[\\- \\.]*)([0-9][0-9\\- \\.]{2,}[0-9])|([0-9][0-9\\- \\.]{3,}[0-9]))+");
 
+    /**
+     * エディタのLongクリック検出.
+     */
     private boolean editorLongClick = false;
 
     @Override
@@ -214,37 +226,34 @@ public final class EditorActivity extends Activity
                 }
             });
 
-        // IMEの表示非表示処理
-        initialyzeEditorImeVisibility();
+        // エディタのイベントを設定
+        initialyzeEditorEvent();
 
         // 自動クローズタイマ処理生成
         this.autoCloseTimer = new Timer(this);
 
         // パラメータ取得
-        String fullPath = null;
-        String currentFolderPath = null;
-
         if ((Intent.ACTION_VIEW.equals(getIntent().getAction()))
                 || (Intent.ACTION_EDIT.equals(getIntent().getAction())))
         {
             // 起動情報からパラメータ取得
             Uri uri = getIntent().getData();
 
-            fullPath = uri.getPath();
+            this.memoFileFullPath = uri.getPath();
 
-            File targetFile = new File(fullPath);
+            File targetFile = new File(this.memoFileFullPath);
             if ((!targetFile.exists()) || (!targetFile.isFile()))
             {
                 finish();
             }
 
-            currentFolderPath = targetFile.getParent();
+            this.currentFolderPath = targetFile.getParent();
         }
         else
         {
             // intentからパラメータを取得
-            fullPath = getIntent().getStringExtra("FULL_PATH");
-            currentFolderPath = getIntent().getStringExtra("CURRENT_FOLDER");
+            this.memoFileFullPath = getIntent().getStringExtra("FULL_PATH");
+            this.currentFolderPath = getIntent().getStringExtra("CURRENT_FOLDER");
 
             this.searchWords = getIntent().getStringExtra("SEARCH_WORDS");
         }
@@ -280,58 +289,6 @@ public final class EditorActivity extends Activity
                 searchWord(false);
             }
         });
-
-        // メモを表示
-        MemoBuilder builder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
-                MainPreferenceActivity.isTitleLink(this));
-
-        try
-        {
-            if (fullPath != null)
-            {
-                // 編集
-                this.editMode = EditMode.Edit;
-
-                this.memoFile = (MemoFile) builder.buildFromFile(fullPath);
-
-                // 表示モード
-                setEditable(false);
-            }
-            else
-            {
-                // 新規
-                this.editMode = EditMode.Create;
-
-                MemoType createMemoType;
-
-                if (MainPreferenceActivity.isEnctyptNewMemo(this))
-                {
-                    if (MainPreferenceActivity.isRandamName(this))
-                    {
-                        createMemoType = MemoType.Secret2;
-                    }
-                    else
-                    {
-                        createMemoType = MemoType.Secret1;
-                    }
-                }
-                else
-                {
-                    createMemoType = MemoType.Text;
-                }
-
-                this.memoFile = (MemoFile) builder.build(currentFolderPath, createMemoType);
-
-                // 編集モード
-                setEditable(true);
-            }
-        }
-        catch (FileNotFoundException ex)
-        {
-            // 無視
-            Log.e("EditorActivity", "*** START onCreate()", ex);
-            return;
-        }
     }
 
     /**
@@ -345,7 +302,7 @@ public final class EditorActivity extends Activity
         String searchWord = searchWordEditText.getText().toString();
 
         // IMEを消去
-        Utilities.setImeVisibility(this, false, searchWordEditText);
+        EditorCompat.setImeVisibility(this, getWindow(), false, searchWordEditText);
 
         // フォーカスをエディタに移す
         this.memoEditText.requestFocus();
@@ -421,9 +378,8 @@ public final class EditorActivity extends Activity
         // アプリケーションが非実行中のとき、即終了
         if (this.autoCloseTimer == null)
         {
-            // リストに戻る
-            Intent intent = new Intent(EditorActivity.this, Kumagusu.class);
-            intent.putExtra("CURRENT_FOLDER", memoFile.getParent());
+            // エディタ終了
+            finish();
 
             return;
         }
@@ -438,6 +394,57 @@ public final class EditorActivity extends Activity
             finish();
 
             return;
+        }
+
+        // メモを表示
+        MemoBuilder builder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
+                MainPreferenceActivity.isTitleLink(this));
+
+        try
+        {
+            if (this.memoFileFullPath != null)
+            {
+                // 編集
+                this.editMode = EditMode.Edit;
+
+                this.memoFile = (MemoFile) builder.buildFromFile(this.memoFileFullPath);
+
+                // 表示モード
+                setEditable(false);
+            }
+            else
+            {
+                // 新規
+                this.editMode = EditMode.Create;
+
+                MemoType createMemoType;
+
+                if (MainPreferenceActivity.isEnctyptNewMemo(this))
+                {
+                    if (MainPreferenceActivity.isRandamName(this))
+                    {
+                        createMemoType = MemoType.Secret2;
+                    }
+                    else
+                    {
+                        createMemoType = MemoType.Secret1;
+                    }
+                }
+                else
+                {
+                    createMemoType = MemoType.Text;
+                }
+
+                this.memoFile = (MemoFile) builder.build(this.currentFolderPath, createMemoType);
+
+                // 編集モード
+                setEditable(true);
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // 無視
+            Log.w("EditorActivity", "Memo file not found", ex);
         }
 
         // メモデータがあれば表示する
@@ -542,12 +549,6 @@ public final class EditorActivity extends Activity
                 {
                     // 保存OKの場合編集終了
                     setEditable(false);
-
-                    if (EditorActivity.this.editMode == EditMode.Create)
-                    {
-                        // 新規モードなら終了
-                        finish();
-                    }
                 }
             }, true);
 
@@ -835,7 +836,10 @@ public final class EditorActivity extends Activity
         updateSpan();
 
         // IMEを消去
-        getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        if (!isEditable())
+        {
+            getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        }
 
         // ファイルが開けない場合、暗号化ファイルであればパスワードを再入力
         // プレーンテキストならエディタ終了
@@ -902,7 +906,7 @@ public final class EditorActivity extends Activity
      *
      * @return 編集中のときtrue
      */
-    public boolean isEditable()
+    private boolean isEditable()
     {
         return editable;
     }
@@ -910,17 +914,17 @@ public final class EditorActivity extends Activity
     /**
      * 編集中を設定する.
      *
-     * @param ed 編集中のときtrue
+     * @param edtbl 編集中のときtrue
      */
-    private void setEditable(boolean ed)
+    private void setEditable(boolean edtbl)
     {
-        this.editable = ed;
+        this.editable = edtbl;
 
         // InputTypeを設定
         EditorCompat.setEditorInputType(this.memoEditText, this.editable);
 
         // IME制御
-        Utilities.setImeVisibility(this, ed, this.memoEditText);
+        EditorCompat.setImeVisibility(this, getWindow(), edtbl, this.memoEditText);
 
         // オプションメニューを再表示
         ActivityCompat.refreshMenu4ActionBar(this);
@@ -942,71 +946,56 @@ public final class EditorActivity extends Activity
     }
 
     /**
-     * 入力部品のIMEの有効無効を設定する.
+     * エディタのイベントを設定する.
      */
-    public void initialyzeEditorImeVisibility()
+    private void initialyzeEditorEvent()
     {
+        // クリック
         this.memoEditText.setOnClickListener(new View.OnClickListener()
         {
-
             @Override
             public void onClick(View v)
             {
                 if (!isEditable())
                 {
+                    // IME非表示
                     getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                    Utilities.setImeVisibility(EditorActivity.this, false, EditorActivity.this.memoEditText);
+                    EditorCompat.setImeVisibility(EditorActivity.this, EditorActivity.this.getWindow(), false,
+                            EditorActivity.this.memoEditText);
                 }
             }
         });
 
-        this.memoEditText.setOnTouchListener(new View.OnTouchListener()
+        // Longクリック
+        this.memoEditText.setOnLongClickListener(new View.OnLongClickListener()
         {
-
             @Override
-            public boolean onTouch(View v, MotionEvent event)
+            public boolean onLongClick(View v)
             {
-                if (!isEditable())
+                if ((!isEditable()) && (MainPreferenceActivity.isEnableAutoLink(EditorActivity.this)))
                 {
-                    getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                    Utilities.setImeVisibility(EditorActivity.this, false, EditorActivity.this.memoEditText);
+                    EditorActivity.this.editorLongClick = true;
                 }
 
                 return false;
             }
         });
-    }
 
-    /**
-     * 自動リンクを設定する.
-     */
-    private void updateSpan()
-    {
-        CharSequence text = this.memoEditText.getText();
-        Spannable span = (Spannable) text;
-
-        // 自動リンクをクリア
-        this.memoEditText.setOnTouchListener(null);
-
-        AutoLinkClickableSpan[] clickableLink = span.getSpans(0, text.length(), AutoLinkClickableSpan.class);
-
-        for (AutoLinkClickableSpan autoLinkClickableSpan : clickableLink)
+        // タッチ
+        this.memoEditText.setOnTouchListener(new View.OnTouchListener()
         {
-            span.removeSpan(autoLinkClickableSpan);
-        }
-
-        this.memoEditText.removeTextChangedListener(this.memoEditTextWatcher4AutoLink);
-
-        // 自動リンクを設定
-        if ((!isEditable()) && (MainPreferenceActivity.isEnableAutoLink(EditorActivity.this)))
-        {
-            this.memoEditText.setOnTouchListener(new OnTouchListener()
+            @Override
+            public boolean onTouch(View v, MotionEvent event)
             {
-                // @Override
-                public boolean onTouch(View v, MotionEvent event)
+                if (!isEditable())
                 {
+                    // IME非表示
+                    getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+                    EditorCompat.setImeVisibility(EditorActivity.this, EditorActivity.this.getWindow(), false,
+                            EditorActivity.this.memoEditText);
 
-                    if (true)
+                    // 自動リンク
+                    if (MainPreferenceActivity.isEnableAutoLink(EditorActivity.this))
                     {
                         int action = event.getAction();
                         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN)
@@ -1040,24 +1029,35 @@ public final class EditorActivity extends Activity
 
                             EditorActivity.this.editorLongClick = false;
                         }
-
                     }
-
-                    return false;
                 }
-            });
 
-            this.memoEditText.setOnLongClickListener(new View.OnLongClickListener()
-            {
-                @Override
-                public boolean onLongClick(View v)
-                {
-                    EditorActivity.this.editorLongClick = true;
+                return false;
+            }
+        });
+    }
 
-                    return false;
-                }
-            });
+    /**
+     * 自動リンクを設定する.
+     */
+    private void updateSpan()
+    {
+        CharSequence text = this.memoEditText.getText();
+        Spannable span = (Spannable) text;
 
+        // 自動リンクをクリア
+        AutoLinkClickableSpan[] clickableLink = span.getSpans(0, text.length(), AutoLinkClickableSpan.class);
+
+        for (AutoLinkClickableSpan autoLinkClickableSpan : clickableLink)
+        {
+            span.removeSpan(autoLinkClickableSpan);
+        }
+
+        this.memoEditText.removeTextChangedListener(this.memoEditTextWatcher4AutoLink);
+
+        // 自動リンクを設定
+        if ((!isEditable()) && (MainPreferenceActivity.isEnableAutoLink(EditorActivity.this)))
+        {
             // URL
             Matcher urlMatcher = URL_MATCH_PATTERN.matcher(span);
 

@@ -1,6 +1,5 @@
 package jp.gr.java_conf.kumagusu.compat;
 
-import jp.gr.java_conf.kumagusu.commons.Utilities;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -8,7 +7,9 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.text.InputType;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 /**
@@ -29,12 +30,12 @@ public final class EditorCompat
     /**
      * ダイアログで入力メソッドを表示する.
      *
-     * @param con コンテキスト
      * @param dialog ダイアログ
      * @param view IME表示先View
      */
     @SuppressLint("NewApi")
-    public static void showDialogWithIme(final Context con, final Dialog dialog, final EditText view)
+    public static void showDialogWithIme(final Dialog dialog, final EditText view,
+            final DialogInterface.OnShowListener showListener, final View.OnFocusChangeListener focusChangeListener)
     {
         // IME表示
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) // 2.2以上
@@ -44,7 +45,12 @@ public final class EditorCompat
                 @Override
                 public void onShow(DialogInterface d)
                 {
-                    Utilities.setImeVisibility(con, true, view);
+                    EditorCompat.setImeVisibility(dialog.getContext(), dialog.getWindow(), true, view);
+
+                    if (showListener != null)
+                    {
+                        showListener.onShow(d);
+                    }
                 }
             });
 
@@ -61,6 +67,11 @@ public final class EditorCompat
                     if (hasFocus)
                     {
                         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+                        if (focusChangeListener != null)
+                        {
+                            focusChangeListener.onFocusChange(v, hasFocus);
+                        }
                     }
                 }
             });
@@ -90,6 +101,36 @@ public final class EditorCompat
             else
             {
                 editText.setRawInputType(InputType.TYPE_NULL);
+            }
+        }
+    }
+
+    /**
+     * IME表示状態を変更する.
+     *
+     * @param con コンテキスト
+     * @param win ウィンドウ
+     * @param editable 表示するときtrue
+     * @param editText view
+     */
+    public static void setImeVisibility(Context con, Window win, boolean editable, EditText editText)
+    {
+        if (editable)
+        {
+            // IME表示
+            InputMethodManager imm = (InputMethodManager) con.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null)
+            {
+                imm.showSoftInput(editText, 0);
+            }
+        }
+        else
+        {
+            // IME非表示
+            InputMethodManager imm = (InputMethodManager) con.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null)
+            {
+                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
             }
         }
     }

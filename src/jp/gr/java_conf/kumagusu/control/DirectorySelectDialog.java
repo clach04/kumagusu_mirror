@@ -159,6 +159,16 @@ public final class DirectorySelectDialog extends Activity implements DialogInter
                             }
                         });
 
+                // 戻るキーによるキャンセルを処理
+                alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener()
+                {
+                    @Override
+                    public void onCancel(DialogInterface dialog)
+                    {
+                        mListenner.onClickFileList(null);
+                    }
+                });
+
                 alertDialogBuilder.show();
             }
         }

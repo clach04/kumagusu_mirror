@@ -74,22 +74,22 @@ public final class ConfirmDialog
             PositiveCaptionKind kind, OnClickListener okListener, OnClickListener noListener,
             OnClickListener cancelListener)
     {
-        AlertDialog.Builder b = new AlertDialog.Builder(context);
+        AlertDialog.Builder db = new AlertDialog.Builder(context);
 
         // アイコン
         if (icon == null)
         {
             icon = context.getResources().getDrawable(R.drawable.icon);
         }
-        b.setIcon(icon);
+        db.setIcon(icon);
 
         // タイトル
-        b.setTitle(title);
+        db.setTitle(title);
 
         // メッセージ
         if (message != null)
         {
-            b.setMessage(message);
+            db.setMessage(message);
         }
 
         // 肯定ボタン
@@ -107,37 +107,52 @@ public final class ConfirmDialog
         switch (kind)
         {
         case OK:
-            b.setPositiveButton(R.string.ui_ok, okListener);
+            db.setPositiveButton(R.string.ui_ok, okListener);
             break;
 
         case YES:
-            b.setPositiveButton(R.string.ui_yes, okListener);
+            db.setPositiveButton(R.string.ui_yes, okListener);
             break;
 
         default:
-            b.setPositiveButton(R.string.ui_ok, okListener);
+            db.setPositiveButton(R.string.ui_ok, okListener);
             break;
         }
 
         // 中立ボタン
         if ((noListener != null) && (cancelListener != null))
         {
-            b.setNeutralButton(R.string.ui_no, noListener);
-            b.setNegativeButton(R.string.ui_cancel, cancelListener);
+            db.setNeutralButton(R.string.ui_no, noListener);
+            db.setNegativeButton(R.string.ui_cancel, cancelListener);
 
         }
         else
         {
             if (noListener != null)
             {
-                b.setNegativeButton(R.string.ui_no, noListener);
+                db.setNegativeButton(R.string.ui_no, noListener);
             }
             if (cancelListener != null)
             {
-                b.setNegativeButton(R.string.ui_cancel, cancelListener);
+                db.setNegativeButton(R.string.ui_cancel, cancelListener);
             }
         }
 
-        b.show();
+        // 戻るキーによるキャンセルを処理
+        if (cancelListener != null)
+        {
+            final OnClickListener cancelListenerFinal = cancelListener;
+
+            db.setOnCancelListener(new DialogInterface.OnCancelListener()
+            {
+                @Override
+                public void onCancel(DialogInterface dialog)
+                {
+                    cancelListenerFinal.onClick(dialog, -1);
+                }
+            });
+        }
+
+        db.show();
     }
 }
