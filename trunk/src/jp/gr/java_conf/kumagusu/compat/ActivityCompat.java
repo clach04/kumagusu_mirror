@@ -18,7 +18,6 @@ import android.widget.Button;
  *
  * @author tarshi
  */
-@SuppressLint("NewApi")
 public final class ActivityCompat
 {
     /**
@@ -38,6 +37,7 @@ public final class ActivityCompat
      * @param vilibleTitleBar タイトルバーを表示するときtrue
      * @param enableUpIcon UPアイコンを表示するときtrue
      */
+    @SuppressLint("NewApi")
     public static void initActivity(Activity act, int layoutId, int iconId, String titleString,
             boolean vilibleTitleBar, boolean enableUpIcon)
     {
@@ -93,6 +93,7 @@ public final class ActivityCompat
      *
      * @param menuItem メニュー項目
      */
+    @SuppressLint("NewApi")
     public static void setShowAsAction4ActionBar(MenuItem menuItem)
     {
         // 3.0以上
@@ -107,6 +108,7 @@ public final class ActivityCompat
      *
      * @param act アクティビティ
      */
+    @SuppressLint("NewApi")
     public static void refreshMenu4ActionBar(Activity act)
     {
         // 3.0以上
@@ -123,6 +125,7 @@ public final class ActivityCompat
      * @param memoList メモリスト（3.0未満のとき使用）
      * @param parentItem 親フォルダのIMemo（3.0未満のとき使用）
      */
+    @SuppressLint("NewApi")
     public static void setUpFolderFunction(Activity act, List<IMemo> memoList, IMemo parentItem)
     {
         // 3.0以上かつタイトル表示か？
@@ -145,6 +148,7 @@ public final class ActivityCompat
      * @param act アクティビティ
      * @param closeButton クローズボタン（3.0未満のとき使用）
      */
+    @SuppressLint("NewApi")
     public static void setCloseSearchResultFunction(Activity act, Button closeButton)
     {
         // 3.0以上か？

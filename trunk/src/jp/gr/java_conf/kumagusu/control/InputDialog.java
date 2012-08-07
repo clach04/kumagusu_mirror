@@ -1,7 +1,7 @@
 package jp.gr.java_conf.kumagusu.control;
 
 import jp.gr.java_conf.kumagusu.R;
-import jp.gr.java_conf.kumagusu.compat.ImeControler;
+import jp.gr.java_conf.kumagusu.compat.EditorCompat;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -158,7 +158,7 @@ public final class InputDialog
         dialog.setView(view, 0, 0, 0, 0);
 
         // ダイアログを表示（IME表示）
-        ImeControler.showDialogWithIme(this.context, dialog, edtInput);
+        EditorCompat.showDialogWithIme(this.context, dialog, edtInput);
 
         // (new View.OnFocusChangeListener()
         // {

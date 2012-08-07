@@ -6,22 +6,23 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
+import android.text.InputType;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 
 /**
- * IME制御処理.
+ * エディタ関連の互換性吸収処理.
  *
  * @author tarshi
  *
  */
-public final class ImeControler
+public final class EditorCompat
 {
     /**
      * インスタンス化させない.
      */
-    private ImeControler()
+    private EditorCompat()
     {
     }
 
@@ -67,6 +68,29 @@ public final class ImeControler
             // ダイアログ表示
             dialog.show();
             view.requestFocus();
+        }
+    }
+
+    /**
+     * エディタのInputTypeを設定する.
+     *
+     * @param editText 設定先View
+     * @param editable 編集可のときtrue
+     */
+    public static void setEditorInputType(EditText editText, boolean editable)
+    {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) // 2.2未満
+        {
+            // InputType設定
+            if (editable)
+            {
+                editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                        | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+            }
+            else
+            {
+                editText.setRawInputType(InputType.TYPE_NULL);
+            }
         }
     }
 }

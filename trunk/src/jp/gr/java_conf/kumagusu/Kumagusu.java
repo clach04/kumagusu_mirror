@@ -24,7 +24,6 @@ import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.MemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.MemoSearchTask;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -45,7 +44,6 @@ import android.widget.ListView;
 /**
  * メモ一覧. Root Activity
  */
-@SuppressLint("NewApi")
 public final class Kumagusu extends Activity
 {
     /**
@@ -896,7 +894,6 @@ public final class Kumagusu extends Activity
                     .getString(R.string.memo_list_control_dialog_title),
                     getResources().getStringArray(R.array.memo_list_control_dialog_entries), new OnClickListener()
                     {
-
                         @Override
                         public void onClick(DialogInterface dialog, int which)
                         {
@@ -977,7 +974,6 @@ public final class Kumagusu extends Activity
 
                             default:
                                 break;
-
                             }
                         }
                     });

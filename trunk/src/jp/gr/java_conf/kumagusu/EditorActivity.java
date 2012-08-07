@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import jp.gr.java_conf.kumagusu.commons.Utilities;
 import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
+import jp.gr.java_conf.kumagusu.compat.EditorCompat;
 import jp.gr.java_conf.kumagusu.control.AutoLinkClickableSpan;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
@@ -174,6 +175,8 @@ public final class EditorActivity extends Activity
      */
     private static final Pattern PHONE_MATCH_PATTERN = Pattern
             .compile("(\\+[0-9]{2}[\\- \\.]*)?(([0-9])*(\\([0-9]+\\)[\\- \\.]*)([0-9][0-9\\- \\.]{2,}[0-9])|([0-9][0-9\\- \\.]{3,}[0-9]))+");
+
+    private boolean editorLongClick = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -913,15 +916,8 @@ public final class EditorActivity extends Activity
     {
         this.editable = ed;
 
-        if (editable)
-        {
-            this.memoEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
-                    | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        }
-        else
-        {
-            this.memoEditText.setRawInputType(InputType.TYPE_NULL);
-        }
+        // InputTypeを設定
+        EditorCompat.setEditorInputType(this.memoEditText, this.editable);
 
         // IME制御
         Utilities.setImeVisibility(this, ed, this.memoEditText);
@@ -1031,7 +1027,7 @@ public final class EditorActivity extends Activity
 
                             if (link.length != 0)
                             {
-                                if (action == MotionEvent.ACTION_UP)
+                                if ((action == MotionEvent.ACTION_UP) && (!EditorActivity.this.editorLongClick))
                                 {
                                     link[0].onClick(v);
                                 }
@@ -1040,11 +1036,23 @@ public final class EditorActivity extends Activity
                                     Selection.setSelection(buffer, buffer.getSpanStart(link[0]),
                                             buffer.getSpanEnd(link[0]));
                                 }
-                                return true;
                             }
+
+                            EditorActivity.this.editorLongClick = false;
                         }
 
                     }
+
+                    return false;
+                }
+            });
+
+            this.memoEditText.setOnLongClickListener(new View.OnLongClickListener()
+            {
+                @Override
+                public boolean onLongClick(View v)
+                {
+                    EditorActivity.this.editorLongClick = true;
 
                     return false;
                 }

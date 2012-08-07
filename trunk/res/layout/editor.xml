@@ -54,6 +54,7 @@
         android:layout_weight="1"
         android:focusableInTouchMode="true"
         android:gravity="top"
+        android:inputType="text|textMultiLine|textNoSuggestions"
         android:padding="5dp"
         android:scrollbars="vertical" />
 
