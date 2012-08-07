@@ -1,9 +1,10 @@
-package jp.gr.java_conf.kumagusu;
+package jp.gr.java_conf.kumagusu.control;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -60,7 +61,14 @@ public final class AutoLinkClickableSpan extends ClickableSpan
         {
             if (this.onClickListener != null)
             {
-                this.onClickListener.onClick(matcher.group());
+                try
+                {
+                    this.onClickListener.onClick(matcher.group());
+                }
+                catch (Exception ex)
+                {
+                    Log.w("AutoLinkClickableSpan", "link click error.", ex);
+                }
             }
         }
     }
@@ -81,4 +89,3 @@ public final class AutoLinkClickableSpan extends ClickableSpan
         void onClick(String matchString);
     }
 }
-

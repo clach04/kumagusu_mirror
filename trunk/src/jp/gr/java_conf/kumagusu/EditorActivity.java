@@ -6,7 +6,9 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jp.gr.java_conf.kumagusu.commons.Utilities;
 import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
+import jp.gr.java_conf.kumagusu.control.AutoLinkClickableSpan;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
 import jp.gr.java_conf.kumagusu.control.ListDialog;
@@ -16,7 +18,6 @@ import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -40,11 +41,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager.LayoutParams;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 /**
  * 編集画面.
@@ -116,6 +115,29 @@ public final class EditorActivity extends Activity
     private EditMode editMode;
 
     /**
+     * メモ変更イベント発生時の自動リンク再登録処理.
+     */
+    private TextWatcher memoEditTextWatcher4AutoLink = new TextWatcher()
+    {
+        @Override
+        public void onTextChanged(CharSequence charsequence, int i, int j, int k)
+        {
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence charsequence, int i, int j, int k)
+        {
+        }
+
+        @Override
+        public void afterTextChanged(Editable e)
+        {
+            // 自動リンクを再設定
+            updateSpan();
+        }
+    };
+
+    /**
      * 編集モード.
      *
      * @author tarshi
@@ -144,15 +166,14 @@ public final class EditorActivity extends Activity
      * メールアドレス抽出パターン.
      */
     private static final Pattern EMAIL_MATCH_PATTERN = Pattern.compile(
-            "[a-zA-Z0-9\\+\\.\\_\\%\\-]{1,256}\\@[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}(\\.[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25})+",
+            "[a-z0-9\\+\\.\\_\\%\\-]{1,256}\\@[a-z0-9][a-z0-9\\-]{0,64}(\\.[a-z0-9][a-z0-9\\-]{0,25})+",
             Pattern.CASE_INSENSITIVE);
 
     /**
      * 電話番号抽出パターン.
      */
-    private static final Pattern PHONE_MATCH_PATTERN = Pattern.compile(
-            "(\\+[0-9]+[\\- \\.]*)?(\\([0-9]+\\)[\\- \\.]*)?([0-9][0-9\\- \\.][0-9\\- \\.]+[0-9])",
-            Pattern.CASE_INSENSITIVE);
+    private static final Pattern PHONE_MATCH_PATTERN = Pattern
+            .compile("(\\+[0-9]{2}[\\- \\.]*)?(([0-9])*(\\([0-9]+\\)[\\- \\.]*)([0-9][0-9\\- \\.]{2,}[0-9])|([0-9][0-9\\- \\.]{3,}[0-9]))+");
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -269,6 +290,9 @@ public final class EditorActivity extends Activity
                 this.editMode = EditMode.Edit;
 
                 this.memoFile = (MemoFile) builder.buildFromFile(fullPath);
+
+                // 表示モード
+                setEditable(false);
             }
             else
             {
@@ -294,6 +318,8 @@ public final class EditorActivity extends Activity
                 }
 
                 this.memoFile = (MemoFile) builder.build(currentFolderPath, createMemoType);
+
+                // 編集モード
                 setEditable(true);
             }
         }
@@ -316,7 +342,7 @@ public final class EditorActivity extends Activity
         String searchWord = searchWordEditText.getText().toString();
 
         // IMEを消去
-        setImeVisibility(false, searchWordEditText);
+        Utilities.setImeVisibility(this, false, searchWordEditText);
 
         // フォーカスをエディタに移す
         this.memoEditText.requestFocus();
@@ -410,19 +436,6 @@ public final class EditorActivity extends Activity
 
             return;
         }
-
-        // // 自動リンクを設定
-        // EditText editorEditText = (EditText) findViewById(R.id.editor);
-        // if (MainPreferenceActivity.isEnableAutoLink(this))
-        // {
-        //
-        // editorEditText.setAutoLinkMask(Linkify.WEB_URLS |
-        // Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS);
-        // }
-        // else
-        // {
-        // editorEditText.setAutoLinkMask(0);
-        // }
 
         // メモデータがあれば表示する
         // なければ（復号できなければ）リストに戻る
@@ -901,41 +914,13 @@ public final class EditorActivity extends Activity
         this.editable = ed;
 
         // IME制御
-        setImeVisibility(ed, this.memoEditText);
+        Utilities.setImeVisibility(this, ed, this.memoEditText);
 
         // オプションメニューを再表示
         ActivityCompat.refreshMenu4ActionBar(this);
 
         // 自動リンク再生成
         updateSpan();
-    }
-
-    /**
-     * IME表示状態を変更する.
-     *
-     * @param ed 表示するときtrue
-     * @param textView view
-     */
-    private void setImeVisibility(boolean ed, TextView textView)
-    {
-        if (ed)
-        {
-            // IME表示
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null)
-            {
-                imm.showSoftInput(textView, InputMethodManager.SHOW_IMPLICIT);
-            }
-        }
-        else
-        {
-            // IME非表示
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null)
-            {
-                imm.hideSoftInputFromWindow(textView.getWindowToken(), 0);
-            }
-        }
     }
 
     /**
@@ -964,7 +949,7 @@ public final class EditorActivity extends Activity
                 if (!isEditable())
                 {
                     getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                    setImeVisibility(false, EditorActivity.this.memoEditText);
+                    Utilities.setImeVisibility(EditorActivity.this, false, EditorActivity.this.memoEditText);
                 }
             }
         });
@@ -978,7 +963,7 @@ public final class EditorActivity extends Activity
                 if (!isEditable())
                 {
                     getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                    setImeVisibility(false, EditorActivity.this.memoEditText);
+                    Utilities.setImeVisibility(EditorActivity.this, false, EditorActivity.this.memoEditText);
                 }
 
                 return false;
@@ -1113,27 +1098,4 @@ public final class EditorActivity extends Activity
             this.memoEditText.addTextChangedListener(this.memoEditTextWatcher4AutoLink);
         }
     }
-
-    /**
-     * メモ変更イベント発生時の自動リンク再登録処理.
-     */
-    private TextWatcher memoEditTextWatcher4AutoLink = new TextWatcher()
-    {
-        @Override
-        public void onTextChanged(CharSequence charsequence, int i, int j, int k)
-        {
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence charsequence, int i, int j, int k)
-        {
-        }
-
-        @Override
-        public void afterTextChanged(Editable e)
-        {
-            // 自動リンクを再設定
-            updateSpan();
-        }
-    };
 }
