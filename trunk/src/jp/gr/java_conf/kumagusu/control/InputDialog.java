@@ -153,29 +153,24 @@ public final class InputDialog
 
         db.setNegativeButton(R.string.ui_cancel, cancelListener);
 
+        // 戻るキーによるキャンセルを処理
+        final OnClickListener cancelListenerFinal = cancelListener;
+
+        db.setOnCancelListener(new DialogInterface.OnCancelListener()
+        {
+            @Override
+            public void onCancel(DialogInterface dialog)
+            {
+                cancelListenerFinal.onClick(dialog, -1);
+            }
+        });
+
         // ダイアログ生成
         AlertDialog dialog = db.create();
         dialog.setView(view, 0, 0, 0, 0);
 
         // ダイアログを表示（IME表示）
-        EditorCompat.showDialogWithIme(this.context, dialog, edtInput);
-
-        // (new View.OnFocusChangeListener()
-        // {
-        // @Override
-        // public void onFocusChange(View v, boolean hasFocus)
-        // {
-        // if (hasFocus)
-        // {
-        // setImeVisibility(true, edtInput);
-        // dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        // }
-        // }
-        // });
-        // edtInput.requestFocus();
-        //
-        // // 表示
-        // dialog.show();
+        EditorCompat.showDialogWithIme(dialog, edtInput, null, null);
     }
 
     /**

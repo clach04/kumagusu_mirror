@@ -46,14 +46,14 @@ public final class ListDialog
     public void showDialog(Drawable icon, String title, String[] conditionNames, OnClickListener clickListener)
     {
         // カスタムViewを取得
-        AlertDialog.Builder b = new AlertDialog.Builder(this.context);
+        AlertDialog.Builder db = new AlertDialog.Builder(this.context);
         if (icon != null)
         {
-            b.setIcon(icon);
+            db.setIcon(icon);
         }
-        b.setTitle(title);
-        b.setItems(conditionNames, clickListener);
-        b.setNegativeButton(R.string.ui_cancel, new OnClickListener()
+        db.setTitle(title);
+        db.setItems(conditionNames, clickListener);
+        db.setNegativeButton(R.string.ui_cancel, new OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
@@ -61,7 +61,8 @@ public final class ListDialog
                 // キャンセル処理なし
             }
         });
-        b.show();
+
+        db.show();
     }
 
     /**
@@ -79,13 +80,13 @@ public final class ListDialog
         this.checkedItem = chItem;
 
         // カスタムViewを取得
-        AlertDialog.Builder b = new AlertDialog.Builder(this.context);
+        AlertDialog.Builder db = new AlertDialog.Builder(this.context);
         if (icon != null)
         {
-            b.setIcon(icon);
+            db.setIcon(icon);
         }
-        b.setTitle(title);
-        b.setSingleChoiceItems(conditionNames, chItem, new OnClickListener()
+        db.setTitle(title);
+        db.setSingleChoiceItems(conditionNames, chItem, new OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
@@ -93,7 +94,7 @@ public final class ListDialog
                 ListDialog.this.checkedItem = which;
             }
         });
-        b.setPositiveButton(R.string.ui_ok, new OnClickListener()
+        db.setPositiveButton(R.string.ui_ok, new OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
@@ -104,7 +105,7 @@ public final class ListDialog
                 }
             }
         });
-        b.setNegativeButton(R.string.ui_cancel, new OnClickListener()
+        db.setNegativeButton(R.string.ui_cancel, new OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
@@ -112,6 +113,6 @@ public final class ListDialog
                 // キャンセル処理なし
             }
         });
-        b.show();
+        db.show();
     }
 }

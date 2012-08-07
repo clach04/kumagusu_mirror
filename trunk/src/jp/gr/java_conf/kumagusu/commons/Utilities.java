@@ -12,8 +12,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.InputType;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
 /**
  * ユーティリティー.
@@ -205,34 +203,5 @@ public final class Utilities
                 }
             }
         });
-    }
-
-    /**
-     * IME表示状態を変更する.
-     *
-     * @param con コンテキスト
-     * @param ed 表示するときtrue
-     * @param editText view
-     */
-    public static void setImeVisibility(Context con, boolean ed, EditText editText)
-    {
-        if (ed)
-        {
-            // IME表示
-            InputMethodManager imm = (InputMethodManager) con.getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null)
-            {
-                imm.showSoftInput(editText, 0);
-            }
-        }
-        else
-        {
-            // IME非表示
-            InputMethodManager imm = (InputMethodManager) con.getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null)
-            {
-                imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
-            }
-        }
     }
 }
