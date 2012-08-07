@@ -25,9 +25,12 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Layout;
+import android.text.Selection;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -35,6 +38,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -51,6 +55,11 @@ import android.widget.TextView;
 @SuppressLint("NewApi")
 public final class EditorActivity extends Activity
 {
+    /**
+     * メモ編集EditText.
+     */
+    private EditText memoEditText = null;
+
     /**
      * メモファイル.
      */
@@ -158,8 +167,9 @@ public final class EditorActivity extends Activity
         Log.d("EditorActivity", "*** START onCreate()");
 
         // EditTextの編集可否処理を登録
-        final EditText editorEditText = (EditText) findViewById(R.id.editor);
-        editorEditText.setFilters(new InputFilter[]
+        this.memoEditText = (EditText) findViewById(R.id.editor);
+
+        this.memoEditText.setFilters(new InputFilter[]
             {
                 new InputFilter()
                 {
@@ -179,28 +189,6 @@ public final class EditorActivity extends Activity
                     }
                 }
             });
-
-        // 自動リンクを設定
-        editorEditText.addTextChangedListener(new TextWatcher()
-        {
-
-            @Override
-            public void onTextChanged(CharSequence charsequence, int i, int j, int k)
-            {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence charsequence, int i, int j, int k)
-            {
-            }
-
-            @Override
-            public void afterTextChanged(Editable e)
-            {
-                // 自動リンクを再設定
-                updateSpan();
-            }
-        });
 
         // IMEの表示非表示処理
         initialyzeEditorImeVisibility();
@@ -326,27 +314,26 @@ public final class EditorActivity extends Activity
     {
         EditText searchWordEditText = (EditText) findViewById(R.id.edit_search_word);
         String searchWord = searchWordEditText.getText().toString();
-        EditText editorEditText = (EditText) findViewById(R.id.editor);
 
         // IMEを消去
         setImeVisibility(false, searchWordEditText);
 
         // フォーカスをエディタに移す
-        editorEditText.requestFocus();
+        this.memoEditText.requestFocus();
 
         // 検索および文字列を選択
         if (searchWord.length() > 0)
         {
-            String editingText = editorEditText.getText().toString();
+            String editingText = this.memoEditText.getText().toString();
 
             int searchStartIndex;
             if (nextFg)
             {
-                searchStartIndex = editorEditText.getSelectionEnd();
+                searchStartIndex = this.memoEditText.getSelectionEnd();
             }
             else
             {
-                searchStartIndex = editorEditText.getSelectionStart() - 1;
+                searchStartIndex = this.memoEditText.getSelectionStart() - 1;
             }
 
             if (searchStartIndex < 0)
@@ -370,7 +357,7 @@ public final class EditorActivity extends Activity
 
             if (searchIndex >= 0)
             {
-                editorEditText.setSelection(searchIndex, searchIndex + searchWord.length());
+                this.memoEditText.setSelection(searchIndex, searchIndex + searchWord.length());
             }
         }
     }
@@ -528,8 +515,6 @@ public final class EditorActivity extends Activity
 
         case MENU_ID_EDIT: // 編集
             setEditable(true);
-            // メニュー項目を再表示
-            ActivityCompat.refreshMenu4ActionBar(this);
             break;
 
         case MENU_ID_EDIT_END: // 編集終了
@@ -542,12 +527,7 @@ public final class EditorActivity extends Activity
                     // 保存OKの場合編集終了
                     setEditable(false);
 
-                    if (EditorActivity.this.editMode == EditMode.Edit)
-                    {
-                        // 編集モードならメニュー項目を再表示
-                        ActivityCompat.refreshMenu4ActionBar(EditorActivity.this);
-                    }
-                    else
+                    if (EditorActivity.this.editMode == EditMode.Create)
                     {
                         // 新規モードなら終了
                         finish();
@@ -559,9 +539,6 @@ public final class EditorActivity extends Activity
             if (!modified)
             {
                 setEditable(false);
-
-                // メニュー項目を再表示
-                ActivityCompat.refreshMenu4ActionBar(EditorActivity.this);
             }
             break;
 
@@ -589,11 +566,10 @@ public final class EditorActivity extends Activity
                         public void onClick(DialogInterface dialog, int which)
                         {
                             String insertString = fixedPhraseStrings[which];
-                            EditText memoEditText = (EditText) findViewById(R.id.editor);
 
-                            int cStart = memoEditText.getSelectionStart();
-                            int cEnd = memoEditText.getSelectionEnd();
-                            Editable memoEditable = memoEditText.getText();
+                            int cStart = EditorActivity.this.memoEditText.getSelectionStart();
+                            int cEnd = EditorActivity.this.memoEditText.getSelectionEnd();
+                            Editable memoEditable = EditorActivity.this.memoEditText.getText();
 
                             memoEditable.replace(Math.min(cStart, cEnd), Math.max(cStart, cEnd), insertString);
                         }
@@ -711,8 +687,7 @@ public final class EditorActivity extends Activity
                         @Override
                         public void onClick(DialogInterface d, int which)
                         {
-                            EditText memoEditText = (EditText) findViewById(R.id.editor);
-                            final String memoData = memoEditText.getText().toString();
+                            final String memoData = EditorActivity.this.memoEditText.getText().toString();
 
                             // 改行コードをDOS形式に
                             final String saveMemoData = memoData.replaceAll("\n", "\r\n");
@@ -823,23 +798,25 @@ public final class EditorActivity extends Activity
         // タイトルと本文を設定
         setTitle(title);
 
-        EditText memoEditText = (EditText) findViewById(R.id.editor);
-
         this.originalMemoString = memoData.replaceAll("\r", "");
         boolean editableTemp = this.editable;
         try
         {
             this.editable = true;
-            memoEditText.setText(this.originalMemoString);
+            this.memoEditText.setText(this.originalMemoString);
 
             // カーソルを先頭に移動
-            memoEditText.setSelection(0, memoEditText.getText().length());
-            memoEditText.setSelection(0);
+            this.memoEditText.setSelection(0, this.memoEditText.getText().length());
+            this.memoEditText.setSelection(0);
+
         }
         finally
         {
             this.editable = editableTemp;
         }
+
+        // 自動リンクを再設定
+        updateSpan();
 
         // IMEを消去
         getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -924,9 +901,13 @@ public final class EditorActivity extends Activity
         this.editable = ed;
 
         // IME制御
-        EditText memoEditText = (EditText) findViewById(R.id.editor);
+        setImeVisibility(ed, this.memoEditText);
 
-        setImeVisibility(ed, memoEditText);
+        // オプションメニューを再表示
+        ActivityCompat.refreshMenu4ActionBar(this);
+
+        // 自動リンク再生成
+        updateSpan();
     }
 
     /**
@@ -964,8 +945,7 @@ public final class EditorActivity extends Activity
      */
     private boolean isModifiedMemo()
     {
-        EditText memoEditText = (EditText) findViewById(R.id.editor);
-        String currentMemoString = memoEditText.getText().toString();
+        String currentMemoString = this.memoEditText.getText().toString();
 
         return (!currentMemoString.equals(this.originalMemoString));
     }
@@ -975,9 +955,7 @@ public final class EditorActivity extends Activity
      */
     public void initialyzeEditorImeVisibility()
     {
-        final EditText view = (EditText) findViewById(R.id.editor);
-
-        view.setOnClickListener(new View.OnClickListener()
+        this.memoEditText.setOnClickListener(new View.OnClickListener()
         {
 
             @Override
@@ -986,12 +964,12 @@ public final class EditorActivity extends Activity
                 if (!isEditable())
                 {
                     getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                    setImeVisibility(false, view);
+                    setImeVisibility(false, EditorActivity.this.memoEditText);
                 }
             }
         });
 
-        view.setOnTouchListener(new View.OnTouchListener()
+        this.memoEditText.setOnTouchListener(new View.OnTouchListener()
         {
 
             @Override
@@ -1000,7 +978,7 @@ public final class EditorActivity extends Activity
                 if (!isEditable())
                 {
                     getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                    setImeVisibility(false, view);
+                    setImeVisibility(false, EditorActivity.this.memoEditText);
                 }
 
                 return false;
@@ -1013,11 +991,12 @@ public final class EditorActivity extends Activity
      */
     private void updateSpan()
     {
-        EditText memoEditText = (EditText) findViewById(R.id.editor);
-        CharSequence text = memoEditText.getText();
+        CharSequence text = this.memoEditText.getText();
         Spannable span = (Spannable) text;
 
-        // 自動リンク部分をクリア
+        // 自動リンクをクリア
+        this.memoEditText.setOnTouchListener(null);
+
         AutoLinkClickableSpan[] clickableLink = span.getSpans(0, text.length(), AutoLinkClickableSpan.class);
 
         for (AutoLinkClickableSpan autoLinkClickableSpan : clickableLink)
@@ -1025,9 +1004,57 @@ public final class EditorActivity extends Activity
             span.removeSpan(autoLinkClickableSpan);
         }
 
+        this.memoEditText.removeTextChangedListener(this.memoEditTextWatcher4AutoLink);
+
         // 自動リンクを設定
-        if (MainPreferenceActivity.isEnableAutoLink(EditorActivity.this))
+        if ((!isEditable()) && (MainPreferenceActivity.isEnableAutoLink(EditorActivity.this)))
         {
+            this.memoEditText.setOnTouchListener(new OnTouchListener()
+            {
+                // @Override
+                public boolean onTouch(View v, MotionEvent event)
+                {
+
+                    if (true)
+                    {
+                        int action = event.getAction();
+                        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN)
+                        {
+                            int x = (int) event.getX();
+                            int y = (int) event.getY();
+                            x -= ((EditText) v).getTotalPaddingLeft();
+                            y -= ((EditText) v).getTotalPaddingTop();
+                            x += v.getScrollX();
+                            y += v.getScrollY();
+
+                            Layout layout = ((EditText) v).getLayout();
+                            int line = layout.getLineForVertical(y);
+                            int off = layout.getOffsetForHorizontal(line, x);
+                            Spannable buffer = ((EditText) v).getText();
+
+                            ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
+
+                            if (link.length != 0)
+                            {
+                                if (action == MotionEvent.ACTION_UP)
+                                {
+                                    link[0].onClick(v);
+                                }
+                                else if (action == MotionEvent.ACTION_DOWN)
+                                {
+                                    Selection.setSelection(buffer, buffer.getSpanStart(link[0]),
+                                            buffer.getSpanEnd(link[0]));
+                                }
+                                return true;
+                            }
+                        }
+
+                    }
+
+                    return false;
+                }
+            });
+
             // URL
             Matcher urlMatcher = URL_MATCH_PATTERN.matcher(span);
 
@@ -1069,7 +1096,7 @@ public final class EditorActivity extends Activity
 
             while (phoneMatcher.find())
             {
-                span.setSpan(new AutoLinkClickableSpan(EMAIL_MATCH_PATTERN,
+                span.setSpan(new AutoLinkClickableSpan(PHONE_MATCH_PATTERN,
                         new AutoLinkClickableSpan.AutoLinkOnClickListener()
                         {
                             @Override
@@ -1082,7 +1109,31 @@ public final class EditorActivity extends Activity
                         }), phoneMatcher.start(), phoneMatcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 
+            // テキスト変更イベントで自動リンク再登録
+            this.memoEditText.addTextChangedListener(this.memoEditTextWatcher4AutoLink);
         }
     }
 
+    /**
+     * メモ変更イベント発生時の自動リンク再登録処理.
+     */
+    private TextWatcher memoEditTextWatcher4AutoLink = new TextWatcher()
+    {
+        @Override
+        public void onTextChanged(CharSequence charsequence, int i, int j, int k)
+        {
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence charsequence, int i, int j, int k)
+        {
+        }
+
+        @Override
+        public void afterTextChanged(Editable e)
+        {
+            // 自動リンクを再設定
+            updateSpan();
+        }
+    };
 }
