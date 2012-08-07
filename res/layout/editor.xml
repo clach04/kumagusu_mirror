@@ -54,16 +54,8 @@
         android:layout_weight="1"
         android:focusableInTouchMode="true"
         android:gravity="top"
-        android:inputType="text|textAutoComplete|textMultiLine"
+        android:inputType="text|textMultiLine|textNoSuggestions"
         android:padding="5dp"
         android:scrollbars="vertical" />
-    <!--
-        android:inputType="none"
-        android:inputType="text|textMultiLine"
-
-        android:focusableInTouchMode="true"
-        android:autoLink="web|email|map"
-        android:imeOptions="flagNoExtractUi"
-    -->
 
 </LinearLayout>

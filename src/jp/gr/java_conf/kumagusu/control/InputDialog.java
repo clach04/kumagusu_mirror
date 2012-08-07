@@ -1,6 +1,7 @@
 package jp.gr.java_conf.kumagusu.control;
 
 import jp.gr.java_conf.kumagusu.R;
+import jp.gr.java_conf.kumagusu.compat.ImeControler;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -82,6 +83,8 @@ public final class InputDialog
      * @param inputType インプットタイプ
      * @param okListener Ok処理リスナ
      * @param cancelListener Cancel処理リスナ
+     * @param userButtonClickListener ボタンのクリックイベントリスナ
+     * @param userButtonText ボタンのテキスト
      */
     public void showDialog(Drawable icon, String title, int inputType, OnClickListener okListener,
             OnClickListener cancelListener, View.OnClickListener userButtonClickListener, String userButtonText)
@@ -150,10 +153,29 @@ public final class InputDialog
 
         db.setNegativeButton(R.string.ui_cancel, cancelListener);
 
+        // ダイアログ生成
         AlertDialog dialog = db.create();
-
         dialog.setView(view, 0, 0, 0, 0);
-        dialog.show();
+
+        // ダイアログを表示（IME表示）
+        ImeControler.showDialogWithIme(this.context, dialog, edtInput);
+
+        // (new View.OnFocusChangeListener()
+        // {
+        // @Override
+        // public void onFocusChange(View v, boolean hasFocus)
+        // {
+        // if (hasFocus)
+        // {
+        // setImeVisibility(true, edtInput);
+        // dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        // }
+        // }
+        // });
+        // edtInput.requestFocus();
+        //
+        // // 表示
+        // dialog.show();
     }
 
     /**
