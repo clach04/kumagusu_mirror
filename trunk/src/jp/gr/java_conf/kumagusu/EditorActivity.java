@@ -120,11 +120,6 @@ public final class EditorActivity extends Activity
     private String searchWords = null;
 
     /**
-     * 編集モード.
-     */
-    private EditMode editMode;
-
-    /**
      * メモ変更イベント発生時の自動リンク再登録処理.
      */
     private TextWatcher memoEditTextWatcher4AutoLink = new TextWatcher()
@@ -146,25 +141,6 @@ public final class EditorActivity extends Activity
             updateSpan();
         }
     };
-
-    /**
-     * 編集モード.
-     *
-     * @author tarshi
-     *
-     */
-    private enum EditMode
-    {
-        /**
-         * 新規.
-         */
-        Create,
-
-        /**
-         * 既存ファイル編集.
-         */
-        Edit,
-    }
 
     /**
      * URL抽出パターン.
@@ -405,8 +381,6 @@ public final class EditorActivity extends Activity
             if (this.memoFileFullPath != null)
             {
                 // 編集
-                this.editMode = EditMode.Edit;
-
                 this.memoFile = (MemoFile) builder.buildFromFile(this.memoFileFullPath);
 
                 // 表示モード
@@ -415,8 +389,6 @@ public final class EditorActivity extends Activity
             else
             {
                 // 新規
-                this.editMode = EditMode.Create;
-
                 MemoType createMemoType;
 
                 if (MainPreferenceActivity.isEnctyptNewMemo(this))
