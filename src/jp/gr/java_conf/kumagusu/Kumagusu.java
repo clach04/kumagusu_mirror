@@ -679,53 +679,6 @@ public final class Kumagusu extends Activity
             {
             }
         });
-    }
-
-    @Override
-    protected void onPause()
-    {
-        super.onPause();
-
-        Log.d("Kumagusu", "*** START onPause()");
-
-        // タイマ開始
-        if (this.mAutoCloseTimer != null)
-        {
-            this.mAutoCloseTimer.start();
-        }
-
-        // ワーカスレッド破棄
-        if (this.memoCreator != null)
-        {
-            this.memoCreator.cancel(true);
-        }
-    }
-
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-
-        Log.d("Kumagusu", "*** START onResume()");
-
-        // アプリケーションが非実行中のとき、即終了
-        if (this.mAutoCloseTimer == null)
-        {
-            return;
-        }
-
-        // タイムアウトの確認
-        if ((this.mAutoCloseTimer.stop()) && (!this.mExecutedChildActivityFg))
-        {
-            // パスワードをクリア
-            MainApplication.getInstance(this).clearPasswordList();
-
-            // リストをクリア
-            clearMemoList();
-        }
-
-        // エディタ起動中クリア
-        this.mExecutedChildActivityFg = false;
 
         // パラメータ取得
         Bundle bundle = getIntent().getExtras();
@@ -755,6 +708,43 @@ public final class Kumagusu extends Activity
         {
             MainApplication.getInstance(this).setCurrentMemoFolder(MainPreferenceActivity.getMemoLocation(this));
         }
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        Log.d("Kumagusu", "*** START onResume()");
+
+        // アプリケーションが非実行中のとき、即終了
+        if (this.mAutoCloseTimer == null)
+        {
+            // リスト終了
+            finish();
+
+            return;
+        }
+
+        // タイムアウトの確認
+        if ((this.mAutoCloseTimer.stop()) && (!this.mExecutedChildActivityFg))
+        {
+            // パスワードをクリア
+            MainApplication.getInstance(this).clearPasswordList();
+
+            // リストをクリア
+            clearMemoList();
+
+            // 検索モードのときリスト終了
+            if (this.memoListViewMode == MemoListViewMode.SEARCH_VIEW)
+            {
+                finish();
+
+                return;
+            }
+        }
+
+        this.mExecutedChildActivityFg = false;
 
         // ファイルリスト再生成
         if ((this.memoListViewMode != MemoListViewMode.SEARCH_VIEW) || (this.mCurrentFolderMemoFileList.size() == 0)
@@ -762,6 +752,37 @@ public final class Kumagusu extends Activity
         {
             refreshMemoList();
         }
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        Log.d("Kumagusu", "*** START onPause()");
+
+        // タイマ開始
+        if (this.mAutoCloseTimer != null)
+        {
+            this.mAutoCloseTimer.start();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
+        Log.d("Kumagusu", "*** START onDestroy()");
+
+        // ワーカスレッド破棄
+        if (this.memoCreator != null)
+        {
+            this.memoCreator.cancel(true);
+        }
+
+        // タイマ破棄
+        this.mAutoCloseTimer = null;
     }
 
     @Override
