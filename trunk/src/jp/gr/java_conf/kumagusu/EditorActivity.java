@@ -188,16 +188,22 @@ public final class EditorActivity extends Activity
                     public CharSequence filter(CharSequence source, int start, int end, android.text.Spanned dest,
                             int dstart, int dend)
                     {
+                        CharSequence inputCharSeq;
+
                         if (editable)
                         {
                             // 入力文字を返す
-                            return source;
+                            inputCharSeq = source;
                         }
                         else
                         {
                             // 入力文字を廃棄（read only）
-                            return source.length() < 1 ? dest.subSequence(dstart, dend) : "";
+                            // inputCharSeq = source.length() < 1 ?
+                            // dest.subSequence(dstart, dend) : "";
+                            inputCharSeq = dest.subSequence(dstart, dend);
                         }
+
+                        return inputCharSeq;
                     }
                 }
             });
@@ -265,6 +271,57 @@ public final class EditorActivity extends Activity
                 searchWord(false);
             }
         });
+
+        // メモを表示
+        MemoBuilder builder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
+                MainPreferenceActivity.isTitleLink(this));
+
+        try
+        {
+            if (this.memoFileFullPath != null)
+            {
+                // 編集
+                this.memoFile = (MemoFile) builder.buildFromFile(this.memoFileFullPath);
+
+                // 表示モード
+                setEditable(false);
+            }
+            else
+            {
+                // 新規
+                MemoType createMemoType;
+
+                if (MainPreferenceActivity.isEnctyptNewMemo(this))
+                {
+                    if (MainPreferenceActivity.isRandamName(this))
+                    {
+                        createMemoType = MemoType.Secret2;
+                    }
+                    else
+                    {
+                        createMemoType = MemoType.Secret1;
+                    }
+                }
+                else
+                {
+                    createMemoType = MemoType.Text;
+                }
+
+                this.memoFile = (MemoFile) builder.build(this.currentFolderPath, createMemoType);
+
+                // 編集モード
+                setEditable(true);
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // 無視
+            Log.w("EditorActivity", "Memo file not found", ex);
+        }
+
+        // メモデータがあれば表示する
+        // なければ（復号できなければ）リストに戻る
+        setMemoData();
     }
 
     /**
@@ -325,26 +382,6 @@ public final class EditorActivity extends Activity
     }
 
     @Override
-    protected void onPause()
-    {
-        super.onPause();
-
-        Log.d("EditorActivity", "*** START onPause()");
-
-        // 編集終了
-        if (isEditable())
-        {
-            setEditable(false);
-        }
-
-        // タイマ開始
-        if (this.autoCloseTimer != null)
-        {
-            this.autoCloseTimer.start();
-        }
-    }
-
-    @Override
     protected void onResume()
     {
         super.onResume();
@@ -371,57 +408,38 @@ public final class EditorActivity extends Activity
 
             return;
         }
+    }
 
-        // メモを表示
-        MemoBuilder builder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
-                MainPreferenceActivity.isTitleLink(this));
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
 
-        try
+        Log.d("EditorActivity", "*** START onPause()");
+
+        // タイマ開始
+        if (this.autoCloseTimer != null)
         {
-            if (this.memoFileFullPath != null)
-            {
-                // 編集
-                this.memoFile = (MemoFile) builder.buildFromFile(this.memoFileFullPath);
-
-                // 表示モード
-                setEditable(false);
-            }
-            else
-            {
-                // 新規
-                MemoType createMemoType;
-
-                if (MainPreferenceActivity.isEnctyptNewMemo(this))
-                {
-                    if (MainPreferenceActivity.isRandamName(this))
-                    {
-                        createMemoType = MemoType.Secret2;
-                    }
-                    else
-                    {
-                        createMemoType = MemoType.Secret1;
-                    }
-                }
-                else
-                {
-                    createMemoType = MemoType.Text;
-                }
-
-                this.memoFile = (MemoFile) builder.build(this.currentFolderPath, createMemoType);
-
-                // 編集モード
-                setEditable(true);
-            }
+            this.autoCloseTimer.start();
         }
-        catch (FileNotFoundException ex)
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        // TODO 自動生成されたメソッド・スタブ
+        super.onDestroy();
+
+        Log.d("EditorActivity", "*** START onDestroy()");
+
+        // 編集終了
+        if (isEditable())
         {
-            // 無視
-            Log.w("EditorActivity", "Memo file not found", ex);
+            setEditable(false);
         }
 
-        // メモデータがあれば表示する
-        // なければ（復号できなければ）リストに戻る
-        setMemoData();
+        // タイマ破棄
+        this.autoCloseTimer = null;
     }
 
     /**
@@ -903,6 +921,16 @@ public final class EditorActivity extends Activity
 
         // 自動リンク再生成
         updateSpan();
+
+        // 編集中はエディタの枠線を赤に設定
+        if (this.editable)
+        {
+            this.memoEditText.setBackgroundDrawable(getResources().getDrawable(R.drawable.editable_border_true));
+        }
+        else
+        {
+            this.memoEditText.setBackgroundDrawable(getResources().getDrawable(R.drawable.editable_border_false));
+        }
     }
 
     /**
@@ -961,15 +989,13 @@ public final class EditorActivity extends Activity
             {
                 if (!isEditable())
                 {
-                    // IME非表示
-                    getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-                    EditorCompat.setImeVisibility(EditorActivity.this, EditorActivity.this.getWindow(), false,
-                            EditorActivity.this.memoEditText);
-
                     // 自動リンク
                     if (MainPreferenceActivity.isEnableAutoLink(EditorActivity.this))
                     {
                         int action = event.getAction();
+
+                        Log.d("EditorActivity", new StringBuilder("action:").append(action).toString());
+
                         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN)
                         {
                             int x = (int) event.getX();
@@ -988,8 +1014,19 @@ public final class EditorActivity extends Activity
 
                             if (link.length != 0)
                             {
+                                Log.d("EditorActivity",
+                                        new StringBuilder("start:").append(buffer.getSpanStart(link[0]))
+                                                .append(" end:").append(buffer.getSpanEnd(link[0]))
+                                                .append(" LongClick:").append(EditorActivity.this.editorLongClick)
+                                                .toString());
+
                                 if ((action == MotionEvent.ACTION_UP) && (!EditorActivity.this.editorLongClick))
                                 {
+                                    Log.d("EditorActivity", "onClick!");
+
+                                    Selection.setSelection(buffer, buffer.getSpanStart(link[0]),
+                                            buffer.getSpanEnd(link[0]));
+
                                     link[0].onClick(v);
                                 }
                                 else if (action == MotionEvent.ACTION_DOWN)
@@ -1002,6 +1039,11 @@ public final class EditorActivity extends Activity
                             EditorActivity.this.editorLongClick = false;
                         }
                     }
+
+                    // IME非表示
+                    getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+                    EditorCompat.setImeVisibility(EditorActivity.this, EditorActivity.this.getWindow(), false,
+                            EditorActivity.this.memoEditText);
                 }
 
                 return false;

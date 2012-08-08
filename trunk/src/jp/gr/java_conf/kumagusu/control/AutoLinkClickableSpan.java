@@ -43,23 +43,27 @@ public final class AutoLinkClickableSpan extends ClickableSpan
     @Override
     public void onClick(View view)
     {
-        if (!(view instanceof TextView))
+        if (this.onClickListener != null)
         {
-            return;
-        }
+            if (!(view instanceof TextView))
+            {
+                return;
+            }
 
-        TextView textView = (TextView) view;
+            TextView textView = (TextView) view;
 
-        int selStart = textView.getSelectionStart();
-        int selEnd = textView.getSelectionEnd();
-        CharSequence text = textView.getText();
-        String selString = text.subSequence(selStart, selEnd).toString();
+            int selStart = textView.getSelectionStart();
+            int selEnd = textView.getSelectionEnd();
+            CharSequence text = textView.getText();
+            String selString = text.subSequence(selStart, selEnd).toString();
 
-        Matcher matcher = pattern.matcher(selString);
+            Log.d("AutoLinkClickableSpan",
+                    new StringBuilder("selStart:").append(selStart).append(" selEnd:").append(selEnd)
+                            .append(" selString:").append(selString).toString());
 
-        if (matcher.find())
-        {
-            if (this.onClickListener != null)
+            Matcher matcher = pattern.matcher(selString);
+
+            if (matcher.find())
             {
                 try
                 {
