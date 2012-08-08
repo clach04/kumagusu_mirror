@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.text.InputType;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -67,15 +66,6 @@ public final class EditorCompat
                 {
                     if (hasFocus)
                     {
-                        try
-                        {
-                            Thread.sleep(1000);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            Log.w("EditorCompat", "Sleep Exception", e);
-                        }
-
                         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
                         if (focusChangeListener != null)
@@ -125,15 +115,6 @@ public final class EditorCompat
      */
     public static void setImeVisibility(Context con, Window win, boolean editable, EditText editText)
     {
-        try
-        {
-            Thread.sleep(1000);
-        }
-        catch (InterruptedException e)
-        {
-            Log.w("EditorCompat", "Sleep Exception", e);
-        }
-
         if (editable)
         {
             // IME表示

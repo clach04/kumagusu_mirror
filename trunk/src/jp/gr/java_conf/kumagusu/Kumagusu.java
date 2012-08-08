@@ -679,35 +679,6 @@ public final class Kumagusu extends Activity
             {
             }
         });
-
-        // パラメータ取得
-        Bundle bundle = getIntent().getExtras();
-
-        MainApplication.getInstance(this).setCurrentMemoFolder(null);
-
-        if (bundle != null)
-        {
-            if ((bundle.containsKey("VIEW_MODE")) && (bundle.getString("VIEW_MODE").equals("SEARCH")))
-            {
-                this.memoListViewMode = MemoListViewMode.SEARCH_VIEW;
-                this.searchWords = bundle.getString("SEARCH_WORDS");
-            }
-
-            if ((bundle.containsKey("CURRENT_FOLDER"))
-                    && (bundle.getString("CURRENT_FOLDER").startsWith(MainPreferenceActivity.getMemoLocation(this))))
-            {
-                MainApplication.getInstance(this).setCurrentMemoFolder(bundle.getString("CURRENT_FOLDER"));
-            }
-        }
-
-        // メモリストのソート処理を生成
-        this.memoListComparator = new MemoListComparator(this, this.memoListViewMode);
-
-        // メモフォルダ設定
-        if (MainApplication.getInstance(this).getCurrentMemoFolder() == null)
-        {
-            MainApplication.getInstance(this).setCurrentMemoFolder(MainPreferenceActivity.getMemoLocation(this));
-        }
     }
 
     @Override
@@ -745,6 +716,35 @@ public final class Kumagusu extends Activity
         }
 
         this.mExecutedChildActivityFg = false;
+
+        // パラメータ取得
+        Bundle bundle = getIntent().getExtras();
+
+        MainApplication.getInstance(this).setCurrentMemoFolder(null);
+
+        if (bundle != null)
+        {
+            if ((bundle.containsKey("VIEW_MODE")) && (bundle.getString("VIEW_MODE").equals("SEARCH")))
+            {
+                this.memoListViewMode = MemoListViewMode.SEARCH_VIEW;
+                this.searchWords = bundle.getString("SEARCH_WORDS");
+            }
+
+            if ((bundle.containsKey("CURRENT_FOLDER"))
+                    && (bundle.getString("CURRENT_FOLDER").startsWith(MainPreferenceActivity.getMemoLocation(this))))
+            {
+                MainApplication.getInstance(this).setCurrentMemoFolder(bundle.getString("CURRENT_FOLDER"));
+            }
+        }
+
+        // メモリストのソート処理を生成
+        this.memoListComparator = new MemoListComparator(this, this.memoListViewMode);
+
+        // メモフォルダ設定
+        if (MainApplication.getInstance(this).getCurrentMemoFolder() == null)
+        {
+            MainApplication.getInstance(this).setCurrentMemoFolder(MainPreferenceActivity.getMemoLocation(this));
+        }
 
         // ファイルリスト再生成
         if ((this.memoListViewMode != MemoListViewMode.SEARCH_VIEW) || (this.mCurrentFolderMemoFileList.size() == 0)
