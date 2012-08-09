@@ -1193,6 +1193,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
                             // タイトルを設定
                             setTitle(EditorActivity.this.memoFile.getTitle());
 
+                            // メモ変更を設定
+                            MainApplication.getInstance(EditorActivity.this).setUpdateMemo(true);
+
                             // OK、No後処理
                             confirmSaveDialogPostOkNo();
                         }
@@ -1221,6 +1224,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
 
                     // タイトルを設定
                     setTitle(EditorActivity.this.memoFile.getTitle());
+
+                    // メモ変更を設定
+                    MainApplication.getInstance(EditorActivity.this).setUpdateMemo(true);
 
                     // OK、No後処理
                     confirmSaveDialogPostOkNo();
