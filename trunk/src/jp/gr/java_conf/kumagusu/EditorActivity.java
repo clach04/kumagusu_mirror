@@ -184,6 +184,16 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private boolean editorLongClick = false;
 
+    /**
+     * OK,NOのあと終了するか ?
+     */
+    private boolean confirmSaveDialogFinishActivity = false;
+
+    /**
+     * キャンセルを表示するときtrue.
+     */
+    private boolean confirmSaveDialogDispCancel = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -405,9 +415,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     @Override
     protected void onResume()
     {
-        super.onResume();
-
         Log.d("EditorActivity", "*** START onResume()");
+
+        super.onResume();
 
         // アプリケーションが非実行中のとき、即終了
         if (this.autoCloseTimer == null)
@@ -434,9 +444,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     @Override
     protected void onPause()
     {
-        super.onPause();
-
         Log.d("EditorActivity", "*** START onPause()");
+
+        super.onPause();
 
         // タイマ開始
         if (this.autoCloseTimer != null)
@@ -448,10 +458,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     @Override
     protected void onDestroy()
     {
-        // TODO 自動生成されたメソッド・スタブ
-        super.onDestroy();
-
         Log.d("EditorActivity", "*** START onDestroy()");
+
+        super.onDestroy();
 
         // 編集終了
         if (isEditable())
@@ -461,6 +470,59 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
 
         // タイマ破棄
         this.autoCloseTimer = null;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        Log.d("EditorActivity", "*** START onSaveInstanceState()");
+
+        super.onSaveInstanceState(outState);
+
+        // 編集フラグを保存
+        outState.putBoolean("editable", isEditable());
+
+        // 保存後終了フラグ保存
+        outState.putBoolean("confirmSaveDialogFinishActivity", this.confirmSaveDialogFinishActivity);
+
+        // 検索ビュー表示状態保存
+        outState.putBoolean("visibilitySearchView", isVisibilitySearchView());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    {
+        Log.d("EditorActivity", "*** START onRestoreInstanceState()");
+
+        // 編集フラグをリストア
+        if (savedInstanceState.containsKey("editable"))
+        {
+            setEditable(savedInstanceState.getBoolean("editable"));
+        }
+
+        // 保存後終了フラグをリストア
+        if (savedInstanceState.containsKey("confirmSaveDialogFinishActivity"))
+        {
+            this.confirmSaveDialogFinishActivity = savedInstanceState.getBoolean("confirmSaveDialogFinishActivity");
+        }
+
+        // 検索ビュー表示状態リストア
+        if (savedInstanceState.containsKey("visibilitySearchView"))
+        {
+            setVisibilitySearchView(savedInstanceState.getBoolean("visibilitySearchView"));
+        }
+
+        // onRestoreInstanceStateで、EditText（ほか）をリストア
+        boolean editableTemp = this.editable;
+        try
+        {
+            setEditable(true, true);
+            super.onRestoreInstanceState(savedInstanceState);
+        }
+        finally
+        {
+            setEditable(editableTemp, true);
+        }
     }
 
     /**
@@ -553,15 +615,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
 
         case MENU_ID_EDIT_END: // 編集終了
             // 保存確認（OK or キャンセル）
-            boolean modified = saveMemoData(new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    // 保存OKの場合編集終了
-                    setEditable(false);
-                }
-            }, true);
+            boolean modified = saveMemoData(false, true);
 
             // 変更がないならそのまま編集終了
             if (!modified)
@@ -627,18 +681,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
 
         if (isEditable())
         {
-            modify = saveMemoData(new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    // YesおよびNoのときエディタ終了
-                    setEditable(false);
-
-                    // エディタ終了
-                    finish();
-                }
-            }, dispCancel);
+            modify = saveMemoData(true, dispCancel);
         }
 
         if (!modify)
@@ -657,12 +700,10 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void displaySearchView(boolean visible, String srchWords)
     {
-        LinearLayout editSearchToolLayout = (LinearLayout) findViewById(R.id.edit_search_tool);
+        setVisibilitySearchView(visible);
 
         if (visible)
         {
-            editSearchToolLayout.setVisibility(View.VISIBLE);
-
             EditText searchWordEditText = (EditText) findViewById(R.id.edit_search_word);
             searchWordEditText.requestFocus();
 
@@ -672,25 +713,47 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
                 searchWord(true);
             }
         }
-        else
-        {
-            editSearchToolLayout.setVisibility(View.GONE);
-        }
+    }
+
+    /**
+     * 検索ビューが表示中か?
+     *
+     * @return 表示中ならtrue
+     */
+    private boolean isVisibilitySearchView()
+    {
+        LinearLayout editSearchToolLayout = (LinearLayout) findViewById(R.id.edit_search_tool);
+
+        return (editSearchToolLayout.getVisibility() == View.VISIBLE);
+    }
+
+    /**
+     * 検索ビューの表示状態を変更する.
+     *
+     * @param visible 表示するときtrue
+     */
+    private void setVisibilitySearchView(boolean visible)
+    {
+        int visibility = (visible) ? View.VISIBLE : View.GONE;
+
+        LinearLayout editSearchToolLayout = (LinearLayout) findViewById(R.id.edit_search_tool);
+
+        editSearchToolLayout.setVisibility(visibility);
     }
 
     /**
      * メモデータが変更されていれば、ファイルに保存する.
      *
-     * @param postOkNoListener OK,NOの後処理のリスナ
+     * @param finishActivity OK,NOの後終了するか?
      * @param dispCancel キャンセルを表示するときtrue
      * @return メモデータに変更があるときtrue
      */
-    private boolean saveMemoData(final DialogInterface.OnClickListener postOkNoListener, final boolean dispCancel)
+    private boolean saveMemoData(boolean finishActivity, final boolean dispCancel)
     {
         // 保存するか確認し、OKであればファイルに保存
         if (isModifiedMemo())
         {
-            showConfirmSaveDialog(postOkNoListener, dispCancel);
+            showConfirmSaveDialog(finishActivity, dispCancel);
 
             return true;
         }
@@ -725,7 +788,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         boolean editableTemp = this.editable;
         try
         {
-            this.editable = true;
+            setEditable(true, true);
             this.memoEditText.setText(this.originalMemoString);
 
             // カーソルを先頭に移動
@@ -735,7 +798,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         }
         finally
         {
-            this.editable = editableTemp;
+            setEditable(editableTemp, true);
         }
 
         // 自動リンクを再設定
@@ -824,13 +887,27 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void setEditable(boolean edtbl)
     {
+        setEditable(edtbl, false);
+    }
+
+    /**
+     * 編集中を設定する.
+     *
+     * @param edtbl 編集中のときtrue
+     * @param forceWrite 強制書き込み時
+     */
+    private void setEditable(boolean edtbl, boolean forceWrite)
+    {
         this.editable = edtbl;
 
-        // InputTypeを設定
-        EditorCompat.setEditorInputType(this.memoEditText, this.editable);
+        if (!forceWrite)
+        {
+            // InputTypeを設定
+            EditorCompat.setEditorInputType(this.memoEditText, this.editable);
 
-        // IME制御
-        EditorCompat.setImeVisibility(this, getWindow(), edtbl, this.memoEditText);
+            // IME制御
+            EditorCompat.setImeVisibility(this, getWindow(), edtbl, this.memoEditText);
+        }
 
         // オプションメニューを再表示
         ActivityCompat.refreshMenu4ActionBar(this);
@@ -838,14 +915,17 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         // 自動リンク再生成
         updateSpan();
 
-        // 編集中はエディタの枠線を赤に設定
-        if (this.editable)
+        if (!forceWrite)
         {
-            this.memoEditText.setBackgroundDrawable(getResources().getDrawable(R.drawable.editable_border_true));
-        }
-        else
-        {
-            this.memoEditText.setBackgroundDrawable(getResources().getDrawable(R.drawable.editable_border_false));
+            // 編集中はエディタの枠線を赤に設定
+            if (this.editable)
+            {
+                this.memoEditText.setBackgroundDrawable(getResources().getDrawable(R.drawable.editable_border_true));
+            }
+            else
+            {
+                this.memoEditText.setBackgroundDrawable(getResources().getDrawable(R.drawable.editable_border_false));
+            }
         }
     }
 
@@ -1048,24 +1128,14 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     }
 
     /**
-     * OK,NOの後処理のリスナ.
-     */
-    private DialogInterface.OnClickListener confirmSaveDialogPostOkNoListener = null;
-
-    /**
-     * キャンセルを表示するときtrue.
-     */
-    private boolean confirmSaveDialogDispCancel = false;
-
-    /**
      * 確認ダイアログ「保存」を表示する.
      *
-     * @param postOkNoListener OK,NOの後処理のリスナ
+     * @param finishActivity OK,NOの後終了するか?
      * @param dispCancel キャンセルを表示するときtrue
      */
-    private void showConfirmSaveDialog(DialogInterface.OnClickListener postOkNoListener, boolean dispCancel)
+    private void showConfirmSaveDialog(boolean finishActivity, boolean dispCancel)
     {
-        this.confirmSaveDialogPostOkNoListener = postOkNoListener;
+        this.confirmSaveDialogFinishActivity = finishActivity;
         this.confirmSaveDialogDispCancel = dispCancel;
 
         int dialogId;
@@ -1123,10 +1193,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
                             // タイトルを設定
                             setTitle(EditorActivity.this.memoFile.getTitle());
 
-                            if (EditorActivity.this.confirmSaveDialogPostOkNoListener != null)
-                            {
-                                EditorActivity.this.confirmSaveDialogPostOkNoListener.onClick(d, which);
-                            }
+                            // OK、No後処理
+                            confirmSaveDialogPostOkNo();
                         }
                     }, new DialogInterface.OnClickListener()
                     {
@@ -1137,7 +1205,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
                         public void onClick(DialogInterface d, int which)
                         {
                             // キャンセル時、再度保存処理（Yes/Noを再度聞くため）
-                            saveMemoData(EditorActivity.this.confirmSaveDialogPostOkNoListener,
+                            saveMemoData(EditorActivity.this.confirmSaveDialogFinishActivity,
                                     EditorActivity.this.confirmSaveDialogDispCancel);
                         }
                     });
@@ -1154,10 +1222,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
                     // タイトルを設定
                     setTitle(EditorActivity.this.memoFile.getTitle());
 
-                    if (EditorActivity.this.confirmSaveDialogPostOkNoListener != null)
-                    {
-                        EditorActivity.this.confirmSaveDialogPostOkNoListener.onClick(d, which);
-                    }
+                    // OK、No後処理
+                    confirmSaveDialogPostOkNo();
                 }
             }
         };
@@ -1173,10 +1239,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
                 // メモデータを再設定
                 setMemoData();
 
-                if (EditorActivity.this.confirmSaveDialogPostOkNoListener != null)
-                {
-                    EditorActivity.this.confirmSaveDialogPostOkNoListener.onClick(d, which);
-                }
+                // OK、No後処理
+                confirmSaveDialogPostOkNo();
             }
         };
 
@@ -1199,6 +1263,21 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         // キャンセルボタンなし
         this.confirmDialogListenerMap.put(DIALOG_ID_CONFIRM_SAVE, new ConfirmDialogListeners(okListener, noListener,
                 null));
+    }
+
+    /**
+     * 確認ダイアログ「保存」で、OkまたはNoボタンを押した後処理を実行する.
+     */
+    private void confirmSaveDialogPostOkNo()
+    {
+        setEditable(false);
+
+        // 終了
+        if (EditorActivity.this.confirmSaveDialogFinishActivity)
+        {
+            EditorActivity.this.confirmSaveDialogFinishActivity = false;
+            finish();
+        }
     }
 
     @Override
