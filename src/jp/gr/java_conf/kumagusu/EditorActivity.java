@@ -3,6 +3,7 @@ package jp.gr.java_conf.kumagusu;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,7 +11,9 @@ import jp.gr.java_conf.kumagusu.commons.Utilities;
 import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
 import jp.gr.java_conf.kumagusu.compat.EditorCompat;
 import jp.gr.java_conf.kumagusu.control.AutoLinkClickableSpan;
-import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialogFragment;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialogListenerFolder;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialogListeners;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
 import jp.gr.java_conf.kumagusu.control.ListDialog;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
@@ -18,12 +21,12 @@ import jp.gr.java_conf.kumagusu.memoio.MemoFile;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -52,7 +55,7 @@ import android.widget.LinearLayout;
  *
  */
 @SuppressLint("NewApi")
-public final class EditorActivity extends Activity
+public final class EditorActivity extends FragmentActivity implements ConfirmDialogListenerFolder
 {
     /**
      * メモファイル（フルパス）.
@@ -103,6 +106,21 @@ public final class EditorActivity extends Activity
      * メニュー項目「定型文」.
      */
     private static final int MENU_ID_FIXED_PHRASE = (Menu.FIRST + 4);
+
+    /**
+     * 確認ダイアログID「保存」.
+     */
+    private static final int DIALOG_ID_CONFIRM_SAVE = 1;
+
+    /**
+     * 確認ダイアログID「保存（キャンセルあり）」.
+     */
+    private static final int DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL = 2;
+
+    /**
+     * 確認ダイアログ保管データMap.
+     */
+    private HashMap<Integer, ConfirmDialogListeners> confirmDialogListenerMap = new HashMap<Integer, ConfirmDialogListeners>();
 
     /**
      * 開いた時点でのメモ内容.
@@ -177,6 +195,9 @@ public final class EditorActivity extends Activity
                 MainPreferenceActivity.isEnableEditorTitle(this), true);
 
         Log.d("EditorActivity", "*** START onCreate()");
+
+        // ダイアログのリスナを生成
+        initDialogListener();
 
         // EditTextの編集可否処理を登録
         this.memoEditText = (EditText) findViewById(R.id.editor);
@@ -669,112 +690,7 @@ public final class EditorActivity extends Activity
         // 保存するか確認し、OKであればファイルに保存
         if (isModifiedMemo())
         {
-            DialogInterface.OnClickListener cancelListener = null;
-            if (dispCancel)
-            {
-                cancelListener = new DialogInterface.OnClickListener()
-                {
-                    /**
-                     * キャンセルを処理する.
-                     */
-                    @Override
-                    public void onClick(DialogInterface d, int which)
-                    {
-                        // キャンセル処理なし
-                    }
-                };
-            }
-
-            ConfirmDialog.showDialog(this, null, getResources().getString(R.string.memo_edit_dialog_confiem_save),
-                    null, ConfirmDialog.PositiveCaptionKind.YES, new DialogInterface.OnClickListener()
-                    {
-                        /**
-                         * Okを処理する.
-                         */
-                        @Override
-                        public void onClick(DialogInterface d, int which)
-                        {
-                            final String memoData = EditorActivity.this.memoEditText.getText().toString();
-
-                            // 改行コードをDOS形式に
-                            final String saveMemoData = memoData.replaceAll("\n", "\r\n");
-
-                            if ((EditorActivity.this.memoFile.getMemoType() != MemoType.Text)
-                                    && (MainApplication.getInstance(EditorActivity.this).getLastCorrectPassword() == null))
-                            {
-                                // パスワードを入力し、暗号化ファイル保存
-                                Utilities.inputPassword(EditorActivity.this, new DialogInterface.OnClickListener()
-                                {
-                                    /**
-                                     * 入力パスワードが有効時を処理する.
-                                     */
-                                    @Override
-                                    public void onClick(DialogInterface d, int which)
-                                    {
-                                        // 編集元テキストを更新
-                                        EditorActivity.this.originalMemoString = memoData;
-
-                                        // メモを保存
-                                        EditorActivity.this.memoFile.setText(
-                                                MainApplication.getInstance(EditorActivity.this)
-                                                        .getLastCorrectPassword(), saveMemoData);
-
-                                        // タイトルを設定
-                                        setTitle(EditorActivity.this.memoFile.getTitle());
-
-                                        if (postOkNoListener != null)
-                                        {
-                                            postOkNoListener.onClick(d, which);
-                                        }
-                                    }
-                                }, new DialogInterface.OnClickListener()
-                                {
-                                    /**
-                                     * パスワード入力キャンセル時を処理する.
-                                     */
-                                    @Override
-                                    public void onClick(DialogInterface d, int which)
-                                    {
-                                        // キャンセル時、再度保存処理（Yes/Noを再度聞くため）
-                                        saveMemoData(postOkNoListener, dispCancel);
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                // 編集元テキストを更新
-                                EditorActivity.this.originalMemoString = memoData;
-
-                                // メモを保存
-                                EditorActivity.this.memoFile.setText(MainApplication.getInstance(EditorActivity.this)
-                                        .getLastCorrectPassword(), saveMemoData);
-
-                                // タイトルを設定
-                                setTitle(EditorActivity.this.memoFile.getTitle());
-
-                                if (postOkNoListener != null)
-                                {
-                                    postOkNoListener.onClick(d, which);
-                                }
-                            }
-                        }
-                    }, new DialogInterface.OnClickListener()
-                    {
-                        /**
-                         * Noを処理する.
-                         */
-                        @Override
-                        public void onClick(DialogInterface d, int which)
-                        {
-                            // メモデータを再設定
-                            setMemoData();
-
-                            if (postOkNoListener != null)
-                            {
-                                postOkNoListener.onClick(d, which);
-                            }
-                        }
-                    }, cancelListener);
+            showConfirmSaveDialog(postOkNoListener, dispCancel);
 
             return true;
         }
@@ -1129,5 +1045,166 @@ public final class EditorActivity extends Activity
             // テキスト変更イベントで自動リンク再登録
             this.memoEditText.addTextChangedListener(this.memoEditTextWatcher4AutoLink);
         }
+    }
+
+    /**
+     * OK,NOの後処理のリスナ.
+     */
+    private DialogInterface.OnClickListener confirmSaveDialogPostOkNoListener = null;
+
+    /**
+     * キャンセルを表示するときtrue.
+     */
+    private boolean confirmSaveDialogDispCancel = false;
+
+    /**
+     * 確認ダイアログ「保存」を表示する.
+     *
+     * @param postOkNoListener OK,NOの後処理のリスナ
+     * @param dispCancel キャンセルを表示するときtrue
+     */
+    private void showConfirmSaveDialog(DialogInterface.OnClickListener postOkNoListener, boolean dispCancel)
+    {
+        this.confirmSaveDialogPostOkNoListener = postOkNoListener;
+        this.confirmSaveDialogDispCancel = dispCancel;
+
+        int dialogId;
+
+        if (dispCancel)
+        {
+            dialogId = DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL;
+        }
+        else
+        {
+            dialogId = DIALOG_ID_CONFIRM_SAVE;
+        }
+
+        ConfirmDialogFragment.newInstance(dialogId, 0, R.string.memo_edit_dialog_confiem_save, 0,
+                ConfirmDialogFragment.POSITIVE_CAPTION_KIND_YES).show(getSupportFragmentManager(), "");
+    }
+
+    /**
+     * ダイアログのリスナを初期化する.
+     */
+    private void initDialogListener()
+    {
+        DialogInterface.OnClickListener okListener = new DialogInterface.OnClickListener()
+        {
+            /**
+             * Okを処理する.
+             */
+            @Override
+            public void onClick(DialogInterface d, int which)
+            {
+                final String memoData = EditorActivity.this.memoEditText.getText().toString();
+
+                // 改行コードをDOS形式に
+                final String saveMemoData = memoData.replaceAll("\n", "\r\n");
+
+                if ((EditorActivity.this.memoFile.getMemoType() != MemoType.Text)
+                        && (MainApplication.getInstance(EditorActivity.this).getLastCorrectPassword() == null))
+                {
+                    // パスワードを入力し、暗号化ファイル保存
+                    Utilities.inputPassword(EditorActivity.this, new DialogInterface.OnClickListener()
+                    {
+                        /**
+                         * 入力パスワードが有効時を処理する.
+                         */
+                        @Override
+                        public void onClick(DialogInterface d, int which)
+                        {
+                            // 編集元テキストを更新
+                            EditorActivity.this.originalMemoString = memoData;
+
+                            // メモを保存
+                            EditorActivity.this.memoFile.setText(MainApplication.getInstance(EditorActivity.this)
+                                    .getLastCorrectPassword(), saveMemoData);
+
+                            // タイトルを設定
+                            setTitle(EditorActivity.this.memoFile.getTitle());
+
+                            if (EditorActivity.this.confirmSaveDialogPostOkNoListener != null)
+                            {
+                                EditorActivity.this.confirmSaveDialogPostOkNoListener.onClick(d, which);
+                            }
+                        }
+                    }, new DialogInterface.OnClickListener()
+                    {
+                        /**
+                         * パスワード入力キャンセル時を処理する.
+                         */
+                        @Override
+                        public void onClick(DialogInterface d, int which)
+                        {
+                            // キャンセル時、再度保存処理（Yes/Noを再度聞くため）
+                            saveMemoData(EditorActivity.this.confirmSaveDialogPostOkNoListener,
+                                    EditorActivity.this.confirmSaveDialogDispCancel);
+                        }
+                    });
+                }
+                else
+                {
+                    // 編集元テキストを更新
+                    EditorActivity.this.originalMemoString = memoData;
+
+                    // メモを保存
+                    EditorActivity.this.memoFile.setText(MainApplication.getInstance(EditorActivity.this)
+                            .getLastCorrectPassword(), saveMemoData);
+
+                    // タイトルを設定
+                    setTitle(EditorActivity.this.memoFile.getTitle());
+
+                    if (EditorActivity.this.confirmSaveDialogPostOkNoListener != null)
+                    {
+                        EditorActivity.this.confirmSaveDialogPostOkNoListener.onClick(d, which);
+                    }
+                }
+            }
+        };
+
+        DialogInterface.OnClickListener noListener = new DialogInterface.OnClickListener()
+        {
+            /**
+             * Noを処理する.
+             */
+            @Override
+            public void onClick(DialogInterface d, int which)
+            {
+                // メモデータを再設定
+                setMemoData();
+
+                if (EditorActivity.this.confirmSaveDialogPostOkNoListener != null)
+                {
+                    EditorActivity.this.confirmSaveDialogPostOkNoListener.onClick(d, which);
+                }
+            }
+        };
+
+        DialogInterface.OnClickListener cancelListener = new DialogInterface.OnClickListener()
+        {
+            /**
+             * キャンセルを処理する.
+             */
+            @Override
+            public void onClick(DialogInterface d, int which)
+            {
+                // キャンセル処理なし
+            }
+        };
+
+        // キャンセルボタンあり
+        this.confirmDialogListenerMap.put(DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL, new ConfirmDialogListeners(okListener,
+                noListener, cancelListener));
+
+        // キャンセルボタンなし
+        this.confirmDialogListenerMap.put(DIALOG_ID_CONFIRM_SAVE, new ConfirmDialogListeners(okListener, noListener,
+                null));
+    }
+
+    @Override
+    public ConfirmDialogListeners getConfirmDialogListeners(int listenerId)
+    {
+        // 確認ダイアログ保管データを返す
+        return this.confirmDialogListenerMap.get(listenerId);
     }
 }
