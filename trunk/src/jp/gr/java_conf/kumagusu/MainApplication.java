@@ -119,6 +119,31 @@ public final class MainApplication extends Application
     }
 
     /**
+     * エディタでメモを更新しているか?
+     */
+    private boolean updateMemo = false;
+
+    /**
+     * エディタでメモを更新しているかを返す.
+     *
+     * @return エディタでメモを更新しているときtrue
+     */
+    public boolean isUpdateMemo()
+    {
+        return this.updateMemo;
+    }
+
+    /**
+     * エディタでメモを更新しているかを設定する.
+     *
+     * @param update エディタでメモを更新しているか?
+     */
+    public void setUpdateMemo(boolean update)
+    {
+        this.updateMemo = update;
+    }
+
+    /**
      * メモリスト状態.
      */
     private Stack<MemoListViewStatus> memoListStatusStack = new Stack<MainApplication.MemoListViewStatus>();
