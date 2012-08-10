@@ -6,12 +6,15 @@ import java.util.Locale;
 
 import jp.gr.java_conf.kumagusu.MainApplication;
 import jp.gr.java_conf.kumagusu.R;
-import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialogFragment;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialogListenerFolder;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialogListeners;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
+import android.util.Log;
 
 /**
  * ユーティリティー.
@@ -21,6 +24,16 @@ import android.text.InputType;
  */
 public final class Utilities
 {
+    /**
+     * 確認ダイアログID「パスワードが入力されてない」.
+     */
+    private static final int DIALOG_ID_CONFIRM_PASSWORD_EMPTY = 9001;
+
+    /**
+     * 確認ダイアログID「パスワードが一致しない」.
+     */
+    private static final int DIALOG_ID_CONFIRM_PASSWORD_INCORRECT = 9002;
+
     /**
      * ユーティリティーをインスタンス化させない.
      */
@@ -106,16 +119,34 @@ public final class Utilities
 
     }
 
+    // TODO Activity破棄時に初期化されるため、修正が必要。
+    /**
+     * OK処理（nullなら実行しない）.
+     */
+    private static DialogInterface.OnClickListener okListener = null;
+
+    // TODO Activity破棄時に初期化されるため、修正が必要。
+    /**
+     * キャンセル処理（nullなら実行しない）.
+     */
+    private static DialogInterface.OnClickListener cancelListener = null;
+
     /**
      * パスワードを2回入力し、一致すればOK処理を実行する. キャンセルを押したとき、キャンセル処理を実行する.
      *
      * @param act アクティビティ
-     * @param okListener OK処理（nullなら実行しない）
-     * @param cancelListener キャンセル処理（nullなら実行しない）
+     * @param ok OK処理（nullなら実行しない）
+     * @param cancel キャンセル処理（nullなら実行しない）
      */
-    public static void inputPassword(final Activity act, final DialogInterface.OnClickListener okListener,
-            final DialogInterface.OnClickListener cancelListener)
+    public static void inputPassword(final FragmentActivity act, final DialogInterface.OnClickListener ok,
+            final DialogInterface.OnClickListener cancel)
     {
+        // ダイアログを設定
+        okListener = ok;
+        cancelListener = cancel;
+
+        initConfirmDialogListener(act);
+
         // パスワード入力（１回目）
         final InputDialog dialog = new InputDialog(act);
         dialog.showDialog(act.getResources().getString(R.string.ui_td_input_password), InputType.TYPE_CLASS_TEXT
@@ -130,10 +161,9 @@ public final class Utilities
                 if (tryPassword1.length() == 0)
                 {
                     // 入力されていない
-                    ConfirmDialog.showDialog(act,
-                            act.getResources().getDrawable(android.R.drawable.ic_menu_info_details), act.getResources()
-                                    .getString(R.string.ui_td_input_password_empty), null,
-                            ConfirmDialog.PositiveCaptionKind.OK, null, null);
+                    ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_PASSWORD_EMPTY,
+                            android.R.drawable.ic_menu_info_details, R.string.ui_td_input_password_empty, 0,
+                            ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(act.getSupportFragmentManager(), "");
                     return;
                 }
 
@@ -162,19 +192,11 @@ public final class Utilities
                                 else
                                 {
                                     // パスワードが一致しない
-                                    ConfirmDialog.showDialog(act,
-                                            act.getResources().getDrawable(android.R.drawable.ic_menu_info_details),
-                                            act.getResources().getString(R.string.ui_td_input_password_incorrect),
-                                            null, ConfirmDialog.PositiveCaptionKind.OK,
-                                            new DialogInterface.OnClickListener()
-                                            {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which)
-                                                {
-                                                    // リトライ
-                                                    inputPassword(act, okListener, cancelListener);
-                                                }
-                                            }, null);
+                                    ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_PASSWORD_INCORRECT,
+                                            android.R.drawable.ic_menu_info_details,
+                                            R.string.ui_td_input_password_incorrect, 0,
+                                            ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                            act.getSupportFragmentManager(), "");
                                 }
                             }
                         }, new DialogInterface.OnClickListener()
@@ -203,5 +225,38 @@ public final class Utilities
                 }
             }
         });
+    }
+
+    /**
+     * 確認ダイアログのリスナを初期化する.
+     *
+     * @param act アクティビティ
+     */
+    private static void initConfirmDialogListener(final FragmentActivity act)
+    {
+        if (act instanceof ConfirmDialogListenerFolder)
+        {
+            Log.e("Utilities", "Not ConfirmDialogListenerFolder");
+            return;
+        }
+
+        ConfirmDialogListenerFolder listenerFolder = (ConfirmDialogListenerFolder) act;
+
+        // パスワードが入力されてない
+        listenerFolder.putConfirmDialogListeners(DIALOG_ID_CONFIRM_PASSWORD_EMPTY, new ConfirmDialogListeners(null,
+                null, null));
+
+        // パスワードが一致しない
+        listenerFolder.putConfirmDialogListeners(DIALOG_ID_CONFIRM_PASSWORD_INCORRECT, new ConfirmDialogListeners(
+                new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        // リトライ
+                        inputPassword(act, okListener, cancelListener);
+                    }
+                }, null, null));
+
     }
 }

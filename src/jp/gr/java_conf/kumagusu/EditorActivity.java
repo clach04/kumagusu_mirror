@@ -3,7 +3,6 @@ package jp.gr.java_conf.kumagusu;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +36,7 @@ import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -118,11 +118,6 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     private static final int DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL = 2;
 
     /**
-     * 確認ダイアログ保管データMap.
-     */
-    private HashMap<Integer, ConfirmDialogListeners> confirmDialogListenerMap = new HashMap<Integer, ConfirmDialogListeners>();
-
-    /**
      * 開いた時点でのメモ内容.
      */
     private String originalMemoString = "";
@@ -183,6 +178,11 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      * エディタのLongクリック検出.
      */
     private boolean editorLongClick = false;
+
+    /**
+     * 確認ダイアログ保管データMap.
+     */
+    private SparseArray<ConfirmDialogListeners> confirmDialogListenerMap = new SparseArray<ConfirmDialogListeners>();
 
     /**
      * OK,NOのあと終了するか ?
@@ -1263,12 +1263,11 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         };
 
         // キャンセルボタンあり
-        this.confirmDialogListenerMap.put(DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL, new ConfirmDialogListeners(okListener,
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL, new ConfirmDialogListeners(okListener,
                 noListener, cancelListener));
 
         // キャンセルボタンなし
-        this.confirmDialogListenerMap.put(DIALOG_ID_CONFIRM_SAVE, new ConfirmDialogListeners(okListener, noListener,
-                null));
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_SAVE, new ConfirmDialogListeners(okListener, noListener, null));
     }
 
     /**
@@ -1291,5 +1290,12 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     {
         // 確認ダイアログ保管データを返す
         return this.confirmDialogListenerMap.get(listenerId);
+    }
+
+    @Override
+    public void putConfirmDialogListeners(int listenerId, ConfirmDialogListeners listeners)
+    {
+        // 確認ダイアログデータを追加
+        this.confirmDialogListenerMap.put(listenerId, listeners);
     }
 }
