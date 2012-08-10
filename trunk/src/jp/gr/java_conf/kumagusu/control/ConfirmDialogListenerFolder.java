@@ -15,4 +15,12 @@ public interface ConfirmDialogListenerFolder
      * @return リスナ保持データ
      */
     ConfirmDialogListeners getConfirmDialogListeners(int listenerId);
+
+    /**
+     * リスナ保持データを追加する.
+     *
+     * @param listenerId リスナ保持データID
+     * @param listeners リスナ保持データ
+     */
+    void putConfirmDialogListeners(int listenerId, ConfirmDialogListeners listeners);
 }

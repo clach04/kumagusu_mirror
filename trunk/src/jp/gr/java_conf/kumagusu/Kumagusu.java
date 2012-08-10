@@ -9,7 +9,9 @@ import java.util.List;
 
 import jp.gr.java_conf.kumagusu.commons.Utilities;
 import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
-import jp.gr.java_conf.kumagusu.control.ConfirmDialog;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialogFragment;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialogListenerFolder;
+import jp.gr.java_conf.kumagusu.control.ConfirmDialogListeners;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog.OnDirectoryListDialogListener;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
@@ -24,13 +26,14 @@ import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.MemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.MemoSearchTask;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,7 +47,7 @@ import android.widget.ListView;
 /**
  * メモ一覧. Root Activity
  */
-public final class Kumagusu extends Activity
+public final class Kumagusu extends FragmentActivity implements ConfirmDialogListenerFolder
 {
     /**
      * メニュー項目「新規」.
@@ -214,6 +217,9 @@ public final class Kumagusu extends Activity
         ActivityCompat.initActivity(this, R.layout.main, R.drawable.icon, null, true, false);
 
         Log.d("Kumagusu", "*** START onCreate()");
+
+        // 確認ダイアログのリスナを生成
+        initConfirmDialogListener();
 
         // 自動クローズタイマ処理生成
         this.mAutoCloseTimer = new Timer(this);
@@ -398,35 +404,12 @@ public final class Kumagusu extends Activity
 
                                         case FILE_CONTROL_ID_DELETE: // 削除
                                             // 削除の確認ダイアログを表示
-                                            ConfirmDialog.showDialog(
-                                                    Kumagusu.this,
-                                                    getResources().getDrawable(android.R.drawable.ic_menu_delete),
-                                                    getResources().getString(
-                                                            R.string.memo_file_control_dialog_delete_title),
-                                                    getResources().getString(
-                                                            R.string.memo_file_control_dialog_delete_message),
-                                                    ConfirmDialog.PositiveCaptionKind.YES, new OnClickListener()
-                                                    {
-                                                        /**
-                                                         * 削除「OK 」 イベントを処理する 。
-                                                         */
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which)
-                                                        {
-                                                            MemoUtilities.deleteFile(Kumagusu.this.mSelectedMemoFile
-                                                                    .getPath());
-
-                                                            // メモリストを更新
-                                                            refreshMemoList();
-                                                        }
-                                                    }, new OnClickListener()
-                                                    {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which)
-                                                        {
-                                                            // いいえは無視
-                                                        }
-                                                    });
+                                            ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_DELETE_FILE,
+                                                    android.R.drawable.ic_menu_delete,
+                                                    R.string.memo_file_control_dialog_delete_title,
+                                                    R.string.memo_file_control_dialog_delete_message,
+                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_YES).show(
+                                                    getSupportFragmentManager(), "");
                                             break;
 
                                         case FILE_CONTROL_ID_ENCRYPT_OR_DECRYPT: // 暗号化・復号化
@@ -522,53 +505,12 @@ public final class Kumagusu extends Activity
 
                                         case FOLDER_CONTROL_ID_DELETE: // 削除
                                             // 削除の確認ダイアログを表示
-                                            ConfirmDialog.showDialog(
-                                                    Kumagusu.this,
-                                                    getResources().getDrawable(android.R.drawable.ic_menu_delete),
-                                                    getResources().getString(
-                                                            R.string.folder_control_dialog_delete_title),
-                                                    getResources().getString(
-                                                            R.string.folder_control_dialog_delete_message),
-                                                    ConfirmDialog.PositiveCaptionKind.YES, new OnClickListener()
-                                                    {
-                                                        /**
-                                                         * 削除「OK 」 イベントを処理する 。
-                                                         */
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which)
-                                                        {
-                                                            if (!MemoUtilities
-                                                                    .deleteFile(Kumagusu.this.mSelectedMemoFile
-                                                                            .getPath()))
-                                                            {
-                                                                ConfirmDialog
-                                                                        .showDialog(
-                                                                                Kumagusu.this,
-                                                                                getResources()
-                                                                                        .getDrawable(
-                                                                                                android.R.drawable.ic_menu_info_details),
-                                                                                getResources()
-                                                                                        .getString(
-                                                                                                R.string.folder_control_dialog_delete_error),
-
-                                                                                null,
-                                                                                ConfirmDialog.PositiveCaptionKind.OK,
-                                                                                null, null);
-                                                            }
-
-                                                            // メモリストを更新
-                                                            refreshMemoList();
-
-                                                        }
-                                                    }, new OnClickListener()
-                                                    {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which)
-                                                        {
-                                                            // いいえは無視
-                                                        }
-                                                    });
-
+                                            ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_DELETE_FOLDER,
+                                                    android.R.drawable.ic_menu_delete,
+                                                    R.string.folder_control_dialog_delete_title,
+                                                    R.string.folder_control_dialog_delete_message,
+                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_YES).show(
+                                                    getSupportFragmentManager(), "");
                                             break;
 
                                         case FOLDER_CONTROL_ID_RENAME: // 名称変更
@@ -591,19 +533,14 @@ public final class Kumagusu extends Activity
                                                             if (folderName.length() == 0)
                                                             {
                                                                 // フォルダ名が空
-                                                                ConfirmDialog
-                                                                        .showDialog(
-                                                                                Kumagusu.this,
-                                                                                getResources()
-                                                                                        .getDrawable(
-                                                                                                android.R.drawable.ic_menu_info_details),
-                                                                                getResources()
-                                                                                        .getString(
-                                                                                                R.string.folder_rename_control_dialog_error_noinput),
-                                                                                null,
-                                                                                ConfirmDialog.PositiveCaptionKind.OK,
-                                                                                null, null);
-
+                                                                ConfirmDialogFragment
+                                                                        .newInstance(
+                                                                                DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME,
+                                                                                android.R.drawable.ic_menu_info_details,
+                                                                                R.string.folder_rename_control_dialog_error_noinput,
+                                                                                0,
+                                                                                ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK)
+                                                                        .show(getSupportFragmentManager(), "");
                                                                 return;
                                                             }
 
@@ -626,18 +563,14 @@ public final class Kumagusu extends Activity
                                                                 else
                                                                 {
                                                                     // すでに同名のフォルダまたはファイルが存在
-                                                                    ConfirmDialog
-                                                                            .showDialog(
-                                                                                    Kumagusu.this,
-                                                                                    getResources()
-                                                                                            .getDrawable(
-                                                                                                    android.R.drawable.ic_menu_info_details),
-                                                                                    getResources()
-                                                                                            .getString(
-                                                                                                    R.string.folder_rename_control_dialog_error_duplicate),
-                                                                                    null,
-                                                                                    ConfirmDialog.PositiveCaptionKind.OK,
-                                                                                    null, null);
+                                                                    ConfirmDialogFragment
+                                                                            .newInstance(
+                                                                                    DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT,
+                                                                                    android.R.drawable.ic_menu_info_details,
+                                                                                    R.string.folder_rename_control_dialog_error_duplicate,
+                                                                                    0,
+                                                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK)
+                                                                            .show(getSupportFragmentManager(), "");
                                                                 }
                                                             }
                                                         }
@@ -967,32 +900,23 @@ public final class Kumagusu extends Activity
                                                     else
                                                     {
                                                         // すでに同名のフォルダまたはファイルが存在
-                                                        ConfirmDialog
-                                                                .showDialog(
-                                                                        Kumagusu.this,
-                                                                        getResources()
-                                                                                .getDrawable(
-                                                                                        android.R.drawable.ic_menu_info_details),
-                                                                        getResources()
-                                                                                .getString(
-                                                                                        R.string.memo_list_control_dialog_add_error_duplicate),
-                                                                        null, ConfirmDialog.PositiveCaptionKind.OK,
-                                                                        null, null);
+                                                        ConfirmDialogFragment.newInstance(
+                                                                DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT,
+                                                                android.R.drawable.ic_menu_info_details,
+                                                                R.string.memo_list_control_dialog_add_error_duplicate,
+                                                                0, ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK)
+                                                                .show(getSupportFragmentManager(), "");
                                                     }
                                                 }
                                                 else
                                                 {
                                                     // フォルダ名が空
-                                                    ConfirmDialog
-                                                            .showDialog(
-                                                                    Kumagusu.this,
-                                                                    getResources().getDrawable(
-                                                                            android.R.drawable.ic_menu_info_details),
-                                                                    getResources()
-                                                                            .getString(
-                                                                                    R.string.memo_list_control_dialog_add_error_noinput),
-                                                                    null, ConfirmDialog.PositiveCaptionKind.OK, null,
-                                                                    null);
+                                                    ConfirmDialogFragment.newInstance(
+                                                            DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME,
+                                                            android.R.drawable.ic_menu_info_details,
+                                                            R.string.memo_list_control_dialog_add_error_noinput, 0,
+                                                            ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                                            getSupportFragmentManager(), "");
                                                 }
                                             }
                                         }, null);
@@ -1291,5 +1215,136 @@ public final class Kumagusu extends Activity
         {
             this.memoCreator.sort();
         }
+    }
+
+    /**
+     * 確認ダイアログID「ファイル削除」.
+     */
+    private static final int DIALOG_ID_CONFIRM_DELETE_FILE = 1;
+
+    /**
+     * 確認ダイアログID「フォルダ削除」.
+     */
+    private static final int DIALOG_ID_CONFIRM_DELETE_FOLDER = 2;
+
+    /**
+     * 確認ダイアログID「フォルダ削除エラー」.
+     */
+    private static final int DIALOG_ID_CONFIRM_DELETE_FOLDER_ERROR = 3;
+
+    /**
+     * 確認ダイアログID「フォルダ名変更エラー（フォルダ名指定なし）」.
+     */
+    private static final int DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME = 4;
+
+    /**
+     * 確認ダイアログID「フォルダ名変更エラー（フォルダ名重複）」.
+     */
+    private static final int DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT = 5;
+
+    /**
+     * 確認ダイアログID「フォルダ追加エラー（フォルダ名重複）」.
+     */
+    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT = 6;
+
+    /**
+     * 確認ダイアログID「フォルダ追加エラー（フォルダ名指定なし）」.
+     */
+    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME = 7;
+
+    /**
+     * 確認ダイアログ保管データMap.
+     */
+    private SparseArray<ConfirmDialogListeners> confirmDialogListenerMap = new SparseArray<ConfirmDialogListeners>();
+
+    /**
+     * 確認ダイアログのリスナを初期化する.
+     */
+    private void initConfirmDialogListener()
+    {
+        // ファイル削除
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FILE, new ConfirmDialogListeners(new OnClickListener()
+        {
+            /**
+             * 削除「OK 」 イベントを処理する 。
+             */
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                MemoUtilities.deleteFile(Kumagusu.this.mSelectedMemoFile.getPath());
+
+                // メモリストを更新
+                refreshMemoList();
+            }
+        }, null, new OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                // いいえは無視
+            }
+        }));
+
+        // フォルダ削除
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FOLDER, new ConfirmDialogListeners(new OnClickListener()
+        {
+            /**
+             * 削除「OK 」 イベントを処理する 。
+             */
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                if (!MemoUtilities.deleteFile(Kumagusu.this.mSelectedMemoFile.getPath()))
+                {
+                    ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_DELETE_FOLDER_ERROR,
+                            android.R.drawable.ic_menu_info_details, R.string.folder_control_dialog_delete_error, 0,
+                            ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(getSupportFragmentManager(), "");
+                }
+
+                // メモリストを更新
+                refreshMemoList();
+
+            }
+        }, null, new OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                // いいえは無視
+            }
+        }));
+
+        // フォルダ削除エラー
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FOLDER_ERROR, new ConfirmDialogListeners(null, null, null));
+
+        // フォルダ名変更エラー（フォルダ名指定なし）
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME, new ConfirmDialogListeners(null, null,
+                null));
+
+        // フォルダ名変更エラー（フォルダ名重複）
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT, new ConfirmDialogListeners(null,
+                null, null));
+
+        // フォルダ追加エラー（フォルダ名重複）
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT, new ConfirmDialogListeners(null, null,
+                null));
+
+        // フォルダ追加エラー（フォルダ名指定なし）
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME, new ConfirmDialogListeners(null, null,
+                null));
+    }
+
+    @Override
+    public ConfirmDialogListeners getConfirmDialogListeners(int listenerId)
+    {
+        // 確認ダイアログ保管データを返す
+        return this.confirmDialogListenerMap.get(listenerId);
+    }
+
+    @Override
+    public void putConfirmDialogListeners(int listenerId, ConfirmDialogListeners listeners)
+    {
+        // 確認ダイアログデータを追加
+        this.confirmDialogListenerMap.put(listenerId, listeners);
     }
 }
