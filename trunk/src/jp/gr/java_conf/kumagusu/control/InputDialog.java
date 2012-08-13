@@ -43,6 +43,11 @@ public final class InputDialog extends OldStyleDialog
     private Dialog dialog = null;
 
     /**
+     * 同期オブジェクト.
+     */
+    private Object syncObject = new Object();
+
+    /**
      * コンストラクタ.
      *
      * @param con コンテキスト
@@ -239,9 +244,12 @@ public final class InputDialog extends OldStyleDialog
      */
     public void dismissDialog()
     {
-        if (this.dialog != null)
+        synchronized (this.syncObject)
         {
-            this.dialog.dismiss();
+            if (this.dialog != null)
+            {
+                this.dialog.dismiss();
+            }
         }
     }
 }
