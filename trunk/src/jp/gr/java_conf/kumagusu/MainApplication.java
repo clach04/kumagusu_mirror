@@ -14,6 +14,11 @@ import android.app.Application;
  */
 public final class MainApplication extends Application
 {
+    /**
+     * アクティビティ.
+     */
+    private Activity activity;
+
     @Override
     public void onCreate()
     {
@@ -28,7 +33,10 @@ public final class MainApplication extends Application
      */
     public static MainApplication getInstance(Activity act)
     {
-        return (MainApplication) act.getApplication();
+        MainApplication application = (MainApplication) act.getApplication();
+        application.activity = act;
+
+        return application;
     }
 
     /**
@@ -116,6 +124,26 @@ public final class MainApplication extends Application
     {
         this.passwordList.clear();
         this.lastCorrectPassword = null;
+    }
+
+    /**
+     * パスワードタイマー.
+     */
+    private Timer passwordTimer = null;
+
+    /**
+     * 派宇ワードタイマーを帰す.
+     *
+     * @return パスワードタイマー
+     */
+    public Timer getPasswordTimer()
+    {
+        if (this.passwordTimer == null)
+        {
+            this.passwordTimer = new Timer(this.activity);
+        }
+
+        return this.passwordTimer;
     }
 
     /**

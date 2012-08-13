@@ -32,6 +32,8 @@ public final class EditorCompat
      *
      * @param dialog ダイアログ
      * @param view IME表示先View
+     * @param showListener 表示イベントリスナ
+     * @param focusChangeListener フォーカスイベントリスナ
      */
     @SuppressLint("NewApi")
     public static void showDialogWithIme(final Dialog dialog, final EditText view,

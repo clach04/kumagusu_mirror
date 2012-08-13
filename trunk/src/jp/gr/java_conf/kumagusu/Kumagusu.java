@@ -135,16 +135,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private ListView mListView;
 
     /**
-     * 子Activity起動中.
-     */
-    private boolean mExecutedChildActivityFg = false;
-
-    /**
-     * 自動クローズタイマ.
-     */
-    private Timer mAutoCloseTimer;
-
-    /**
      * 選択中のメモ.
      */
     private IMemo mSelectedMemoFile;
@@ -221,10 +211,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // 確認ダイアログのリスナを生成
         initConfirmDialogListener();
 
-        // 自動クローズタイマ処理生成
-        this.mAutoCloseTimer = new Timer(this);
-        this.mExecutedChildActivityFg = false;
-
         // リストのインスタンスを取得
         this.mListView = (ListView) findViewById(R.id.list);
 
@@ -274,9 +260,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     // Activetyを呼び出す
                     if (intent != null)
                     {
-                        // 子Activity起動中設定
-                        mExecutedChildActivityFg = true;
-
                         startActivity(intent);
                     }
                 }
@@ -621,17 +604,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         Log.d("Kumagusu", "*** START onResume()");
 
-        // アプリケーションが非実行中のとき、即終了
-        if (this.mAutoCloseTimer == null)
-        {
-            // リスト終了
-            finish();
-
-            return;
-        }
-
         // タイムアウトの確認
-        if ((this.mAutoCloseTimer.stop()) && (!this.mExecutedChildActivityFg))
+        if (MainApplication.getInstance(this).getPasswordTimer().stop())
         {
             // パスワードをクリア
             MainApplication.getInstance(this).clearPasswordList();
@@ -647,8 +621,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 return;
             }
         }
-
-        this.mExecutedChildActivityFg = false;
 
         // パラメータ取得
         Bundle bundle = getIntent().getExtras();
@@ -689,7 +661,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
             refreshMemoList();
         }
-
     }
 
     @Override
@@ -700,10 +671,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         Log.d("Kumagusu", "*** START onPause()");
 
         // タイマ開始
-        if (this.mAutoCloseTimer != null)
-        {
-            this.mAutoCloseTimer.start();
-        }
+        MainApplication.getInstance(this).getPasswordTimer().start();
     }
 
     @Override
@@ -718,9 +686,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         {
             this.memoCreator.cancel(true);
         }
-
-        // タイマ破棄
-        this.mAutoCloseTimer = null;
     }
 
     @Override
@@ -778,9 +743,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             // 設定画面を表示
             Intent prefIntent = new Intent(Kumagusu.this, MainPreferenceActivity.class);
 
-            // 子Activity起動中設定
-            mExecutedChildActivityFg = true;
-
             startActivity(prefIntent);
             break;
 
@@ -834,9 +796,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                 intent.putExtra("VIEW_MODE", "SEARCH");
                                 intent.putExtra("SEARCH_WORDS", searchMemoDialog.getText());
 
-                                // 子Activity起動中設定
-                                mExecutedChildActivityFg = true;
-
                                 startActivity(intent);
                             }
                         }
@@ -865,9 +824,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                 editIntent.putExtra("FULL_PATH", (String) null);
                                 editIntent.putExtra("CURRENT_FOLDER", MainApplication.getInstance(Kumagusu.this)
                                         .getCurrentMemoFolder());
-
-                                // 子Activity起動中設定
-                                mExecutedChildActivityFg = true;
 
                                 startActivity(editIntent);
                                 break;

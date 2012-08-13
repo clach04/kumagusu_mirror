@@ -17,7 +17,7 @@ public abstract class OldStyleDialog
      *
      * @param con コンテキスト
      */
-    protected final static void preShowDialog(Context con)
+    protected static final void preShowDialog(Context con)
     {
         if (!(con instanceof Activity))
         {
@@ -34,7 +34,7 @@ public abstract class OldStyleDialog
      *
      * @param con コンテキスト
      */
-    protected final static void postDismissDialog(Context con)
+    protected static final void postDismissDialog(Context con)
     {
         if (!(con instanceof Activity))
         {
