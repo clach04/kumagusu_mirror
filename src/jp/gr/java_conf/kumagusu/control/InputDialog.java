@@ -3,6 +3,7 @@ package jp.gr.java_conf.kumagusu.control;
 import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.compat.EditorCompat;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -35,6 +36,11 @@ public final class InputDialog extends OldStyleDialog
      * 初期設定する入力テキスト.
      */
     private String initText = null;
+
+    /**
+     * ダイアログ.
+     */
+    private Dialog dialog = null;
 
     /**
      * コンストラクタ.
@@ -144,7 +150,7 @@ public final class InputDialog extends OldStyleDialog
             cancelListener = new OnClickListener()
             {
                 @Override
-                public void onClick(DialogInterface dialog, int which)
+                public void onClick(DialogInterface d, int w)
                 {
                     // キャンセル処理なし
                 }
@@ -159,22 +165,23 @@ public final class InputDialog extends OldStyleDialog
         db.setOnCancelListener(new DialogInterface.OnCancelListener()
         {
             @Override
-            public void onCancel(DialogInterface dialog)
+            public void onCancel(DialogInterface d)
             {
-                cancelListenerFinal.onClick(dialog, -1);
+                cancelListenerFinal.onClick(d, -1);
             }
         });
 
         // ダイアログ生成
-        AlertDialog dialog = db.create();
+        AlertDialog alertDialog = db.create();
+        this.dialog = alertDialog;
 
-        dialog.setView(view, 0, 0, 0, 0);
+        alertDialog.setView(view, 0, 0, 0, 0);
 
         // ダイアログのクローズ時の処理
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener()
         {
             @Override
-            public void onDismiss(DialogInterface dialog)
+            public void onDismiss(DialogInterface d)
             {
                 // ダイアログ消去後処理
                 postDismissDialog(context);
@@ -225,5 +232,16 @@ public final class InputDialog extends OldStyleDialog
         Editable memoEditable = edtInput.getText();
 
         memoEditable.replace(Math.min(cStart, cEnd), Math.max(cStart, cEnd), pasteString);
+    }
+
+    /**
+     * ダイアログを消去する.
+     */
+    public void dismissDialog()
+    {
+        if (this.dialog != null)
+        {
+            this.dialog.dismiss();
+        }
     }
 }

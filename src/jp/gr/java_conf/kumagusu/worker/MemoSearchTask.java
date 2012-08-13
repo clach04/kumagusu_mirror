@@ -47,14 +47,11 @@ public final class MemoSearchTask extends AbstractMemoCreateTask
     {
         super(act, viewMode, mBuilder, lView, mList, comparator);
 
+        setActivityTitleStartTask(getActivity().getResources().getString(R.string.search_memo_list_post_title_start));
+        setActivityTitleEndTask(getActivity().getResources().getString(R.string.search_memo_list_post_title_end));
+
         this.baseFolder = bFolder;
         this.searchLowerCaseWords = sWords.toLowerCase();
-    }
-
-    @Override
-    protected void onPreExecute()
-    {
-        setMainTitleText(null, getActivity().getResources().getString(R.string.search_memo_list_post_title_start));
     }
 
     @Override
@@ -110,17 +107,5 @@ public final class MemoSearchTask extends AbstractMemoCreateTask
         publishProgress(iMemoList);
 
         return;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean result)
-    {
-        setMainTitleText(null, getActivity().getResources().getString(R.string.search_memo_list_post_title_end));
-    }
-
-    @Override
-    protected void onCancelled()
-    {
-        setMainTitleText(null, getActivity().getResources().getString(R.string.search_memo_list_post_title_end));
     }
 }

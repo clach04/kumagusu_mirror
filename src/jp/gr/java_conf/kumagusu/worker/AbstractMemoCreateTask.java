@@ -88,6 +88,41 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     private Comparator<IMemo> memoListComparator;
 
     /**
+     * パスワード入力ダイアログ.
+     */
+    private InputDialog inputPasswordDialog = null;
+
+    /**
+     * アクティビティのタイトル（タスク開始時）.
+     */
+    private String activityTitleStartTask = "";
+
+    /**
+     * アクティビティのタイトル（タスク終了時）.
+     */
+    private String activityTitleEndTask = "";
+
+    /**
+     * アクティビティのタイトル（タスク開始時）を設定する.
+     *
+     * @param activityTitleInit アクティビティのタイトル（タスク開始時）
+     */
+    public final void setActivityTitleStartTask(String activityTitleInit)
+    {
+        this.activityTitleStartTask = activityTitleInit;
+    }
+
+    /**
+     * アクティビティのタイトル（Task終了時）を設定する.
+     *
+     * @param activityTitleStart アクティビティのタイトル（タスク終了時）
+     */
+    public final void setActivityTitleEndTask(String activityTitleStart)
+    {
+        this.activityTitleEndTask = activityTitleStart;
+    }
+
+    /**
      *
      * @param act アクティビティ
      * @param viewMode メモリスト表示モード
@@ -108,6 +143,36 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     }
 
     @Override
+    protected final void onPreExecute()
+    {
+        setMainTitleText(activityTitleStartTask);
+    }
+
+    @Override
+    protected final void onPostExecute(Boolean result)
+    {
+        setMainTitleText(activityTitleEndTask);
+
+        if (this.inputPasswordDialog != null)
+        {
+            this.inputPasswordDialog.dismissDialog();
+            this.inputPasswordDialog = null;
+        }
+    }
+
+    @Override
+    protected final void onCancelled()
+    {
+        setMainTitleText(activityTitleEndTask);
+
+        if (this.inputPasswordDialog != null)
+        {
+            this.inputPasswordDialog.dismissDialog();
+            this.inputPasswordDialog = null;
+        }
+    }
+
+    @Override
     protected final void onProgressUpdate(List<IMemo>... values)
     {
         // キャンセルなら終了
@@ -118,8 +183,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
 
         if (values == null)
         {
-            final InputDialog dialog = new InputDialog(AbstractMemoCreateTask.this.activity);
-            dialog.showDialog(
+            this.inputPasswordDialog = new InputDialog(AbstractMemoCreateTask.this.activity);
+            this.inputPasswordDialog.showDialog(
                     AbstractMemoCreateTask.this.activity.getResources().getString(R.string.ui_td_input_password),
                     InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
                     new DialogInterface.OnClickListener()
@@ -128,7 +193,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
                         public void onClick(DialogInterface d, int which)
                         {
                             // OK処理
-                            String tryPassword = dialog.getText();
+                            String tryPassword = AbstractMemoCreateTask.this.inputPasswordDialog.getText();
                             if (!MainApplication.getInstance(AbstractMemoCreateTask.this.activity).getPasswordList()
                                     .contains(tryPassword))
                             {
@@ -141,6 +206,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
                             {
                                 AbstractMemoCreateTask.this.syncObject.notifyAll();
                             }
+
+                            AbstractMemoCreateTask.this.inputPasswordDialog = null;
                         }
                     }, new DialogInterface.OnClickListener()
                     {
@@ -149,6 +216,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
                         {
                             // キャンセル処理
                             cancel(true);
+
+                            AbstractMemoCreateTask.this.inputPasswordDialog = null;
                         }
                     });
             return;
@@ -294,29 +363,25 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     /**
      * タイトルバーにタイトルを設定する.
      *
-     * @param titleText タイトル文字列
      * @param postTitleText 付加タイトル文字列
      */
-    protected final void setMainTitleText(String titleText, String postTitleText)
+    private void setMainTitleText(String postTitleText)
     {
         StringBuilder titleBuilder = new StringBuilder();
 
-        // タイトルの指定がなければカレントフォルダを表示
-        if (titleText == null)
-        {
-            File currentFolderFile = new File(MainApplication.getInstance(getActivity()).getCurrentMemoFolder());
-            File rootFolderFile = new File(MainPreferenceActivity.getMemoLocation(getActivity()));
-            String memoCurrentPath = currentFolderFile.getAbsolutePath().substring(
-                    rootFolderFile.getAbsolutePath().length());
+        // カレントフォルダをタイトルの最初に設定
+        File currentFolderFile = new File(MainApplication.getInstance(getActivity()).getCurrentMemoFolder());
+        File rootFolderFile = new File(MainPreferenceActivity.getMemoLocation(getActivity()));
+        String memoCurrentPath = currentFolderFile.getAbsolutePath().substring(
+                rootFolderFile.getAbsolutePath().length());
 
-            if (memoCurrentPath.length() > 0)
-            {
-                titleBuilder.append(currentFolderFile.getName());
-            }
-            else
-            {
-                titleBuilder.append("/");
-            }
+        if (memoCurrentPath.length() > 0)
+        {
+            titleBuilder.append(currentFolderFile.getName());
+        }
+        else
+        {
+            titleBuilder.append("/");
         }
 
         // 付加タイトル文字列があれば付加

@@ -42,13 +42,10 @@ public final class MemoCreateTask extends AbstractMemoCreateTask
     {
         super(act, viewMode, mBuilder, lView, mList, comparator);
 
-        this.fileQueue = fQueue;
-    }
+        setActivityTitleStartTask(getActivity().getResources().getString(R.string.memo_list_post_title_start));
+        setActivityTitleEndTask(getActivity().getResources().getString(R.string.memo_list_post_title_end));
 
-    @Override
-    protected void onPreExecute()
-    {
-        setMainTitleText(null, getActivity().getResources().getString(R.string.memo_list_post_title_start));
+        this.fileQueue = fQueue;
     }
 
     @SuppressWarnings("unchecked")
@@ -91,17 +88,5 @@ public final class MemoCreateTask extends AbstractMemoCreateTask
         publishProgress(iMemoList);
 
         return true;
-    }
-
-    @Override
-    protected void onPostExecute(Boolean result)
-    {
-        setMainTitleText(null, getActivity().getResources().getString(R.string.memo_list_post_title_end));
-    }
-
-    @Override
-    protected void onCancelled()
-    {
-        setMainTitleText(null, getActivity().getResources().getString(R.string.memo_list_post_title_end));
     }
 }

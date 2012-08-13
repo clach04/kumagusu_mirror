@@ -78,11 +78,6 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     private MemoFile memoFile = null;
 
     /**
-     * 自動クローズ処理タイマー.
-     */
-    private Timer autoCloseTimer;
-
-    /**
      * メニュー項目「検索」.
      */
     private static final int MENU_ID_SEARCH = (Menu.FIRST);
@@ -242,9 +237,6 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         // エディタのイベントを設定
         initialyzeEditorEvent();
 
-        // 自動クローズタイマ処理生成
-        this.autoCloseTimer = new Timer(this);
-
         // パラメータ取得
         if ((Intent.ACTION_VIEW.equals(getIntent().getAction()))
                 || (Intent.ACTION_EDIT.equals(getIntent().getAction())))
@@ -261,6 +253,13 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             }
 
             this.currentFolderPath = targetFile.getParent();
+
+            // タイムアウト？
+            if (MainApplication.getInstance(this).getPasswordTimer().stop())
+            {
+                // パスワードをクリア
+                MainApplication.getInstance(this).clearPasswordList();
+            }
         }
         else
         {
@@ -419,17 +418,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
 
         super.onResume();
 
-        // アプリケーションが非実行中のとき、即終了
-        if (this.autoCloseTimer == null)
-        {
-            // エディタ終了
-            finish();
-
-            return;
-        }
-
         // タイムアウト？
-        if (this.autoCloseTimer.stop())
+        if (MainApplication.getInstance(this).getPasswordTimer().stop())
         {
             // パスワードをクリア
             MainApplication.getInstance(this).clearPasswordList();
@@ -449,10 +439,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         super.onPause();
 
         // タイマ開始
-        if (this.autoCloseTimer != null)
-        {
-            this.autoCloseTimer.start();
-        }
+        MainApplication.getInstance(this).getPasswordTimer().start();
     }
 
     @Override
@@ -467,9 +454,6 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         {
             setEditable(false);
         }
-
-        // タイマ破棄
-        this.autoCloseTimer = null;
     }
 
     @Override
@@ -841,9 +825,6 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
                     @Override
                     public void onClick(DialogInterface d, int which)
                     {
-                        // タイマを破棄
-                        EditorActivity.this.autoCloseTimer = null;
-
                         // エディタ終了
                         finish();
                     }
@@ -851,9 +832,6 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             }
             else
             {
-                // タイマを破棄
-                this.autoCloseTimer = null;
-
                 // エディタ終了
                 finish();
             }
