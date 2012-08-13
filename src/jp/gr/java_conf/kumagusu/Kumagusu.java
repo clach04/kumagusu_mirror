@@ -337,7 +337,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                         {
                                         case FILE_CONTROL_ID_COPY: // コピー
                                             // コピー先フォルダ選択ダイアログを表示
-                                            DirectorySelectDialog copyDialog = new DirectorySelectDialog(Kumagusu.this);
+                                            DirectorySelectDialog copyDialog = new DirectorySelectDialog(Kumagusu.this,
+                                                    getString(R.string.memo_file_control_dialog_copy_title),
+                                                    MainPreferenceActivity.getMemoLocation(Kumagusu.this),
+                                                    Kumagusu.this.mSelectedMemoFile.getParent());
+
                                             copyDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
                                             {
                                                 /**
@@ -356,13 +360,17 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                                     }
                                                 }
                                             });
-                                            copyDialog.show(MainPreferenceActivity.getMemoLocation(Kumagusu.this),
-                                                    Kumagusu.this.mSelectedMemoFile.getParent());
+
+                                            copyDialog.show();
                                             break;
 
                                         case FILE_CONTROL_ID_MOVE: // 移動
                                             // 移動先フォルダ選択ダイアログを表示
-                                            DirectorySelectDialog moveDialog = new DirectorySelectDialog(Kumagusu.this);
+                                            DirectorySelectDialog moveDialog = new DirectorySelectDialog(Kumagusu.this,
+                                                    getString(R.string.memo_file_control_dialog_move_title),
+                                                    MainPreferenceActivity.getMemoLocation(Kumagusu.this),
+                                                    Kumagusu.this.mSelectedMemoFile.getParent());
+
                                             moveDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
                                             {
                                                 /**
@@ -381,8 +389,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                                     }
                                                 }
                                             });
-                                            moveDialog.show(MainPreferenceActivity.getMemoLocation(Kumagusu.this),
-                                                    Kumagusu.this.mSelectedMemoFile.getParent());
+
+                                            moveDialog.show();
                                             break;
 
                                         case FILE_CONTROL_ID_DELETE: // 削除
@@ -438,7 +446,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                         {
                                         case FOLDER_CONTROL_ID_COPY: // コピー
                                             // コピー先フォルダ選択ダイアログを表示
-                                            DirectorySelectDialog copyDialog = new DirectorySelectDialog(Kumagusu.this);
+                                            DirectorySelectDialog copyDialog = new DirectorySelectDialog(Kumagusu.this,
+                                                    getString(R.string.folder_control_dialog_copy_title),
+                                                    MainPreferenceActivity.getMemoLocation(Kumagusu.this),
+                                                    Kumagusu.this.mSelectedMemoFile.getParent());
+
                                             copyDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
                                             {
                                                 /**
@@ -457,13 +469,17 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                                     }
                                                 }
                                             });
-                                            copyDialog.show(MainPreferenceActivity.getMemoLocation(Kumagusu.this),
-                                                    Kumagusu.this.mSelectedMemoFile.getParent());
+
+                                            copyDialog.show();
                                             break;
 
                                         case FOLDER_CONTROL_ID_MOVE: // 移動
                                             // 移動先フォルダ選択ダイアログを表示
-                                            DirectorySelectDialog moveDialog = new DirectorySelectDialog(Kumagusu.this);
+                                            DirectorySelectDialog moveDialog = new DirectorySelectDialog(Kumagusu.this,
+                                                    getString(R.string.folder_control_dialog_move_title),
+                                                    MainPreferenceActivity.getMemoLocation(Kumagusu.this),
+                                                    Kumagusu.this.mSelectedMemoFile.getParent());
+
                                             moveDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
                                             {
                                                 /**
@@ -482,8 +498,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                                     }
                                                 }
                                             });
-                                            moveDialog.show(MainPreferenceActivity.getMemoLocation(Kumagusu.this),
-                                                    Kumagusu.this.mSelectedMemoFile.getParent());
+
+                                            moveDialog.show();
                                             break;
 
                                         case FOLDER_CONTROL_ID_DELETE: // 削除

@@ -81,12 +81,16 @@
 
     <!-- ファイル操作ダイアログ -->
     <string name="memo_file_control_dialog_title">Operation of Note</string>
+    <string name="memo_file_control_dialog_copy_title">Copy destination folder</string>
+    <string name="memo_file_control_dialog_move_title">Move destination folder</string>
     <string name="memo_file_control_dialog_delete_title">Delete</string>
     <string name="memo_file_control_dialog_delete_message">Does it delete?</string>
     <!-- <string name="memo_file_control_dialog_copy_title">コピー</string> -->
     <!-- <string name="memo_file_control_dialog_move_title">移動</string> -->
 
     <string name="folder_control_dialog_title">Operation of Folder</string>
+    <string name="folder_control_dialog_copy_title">Copy destination folder</string>
+    <string name="folder_control_dialog_move_title">Move destination folder</string>
     <string name="folder_control_dialog_delete_title">Delete</string>
     <string name="folder_control_dialog_delete_message">Is a folder deleted?</string>
     <string name="folder_control_dialog_delete_error">A folder is not empty.</string>
