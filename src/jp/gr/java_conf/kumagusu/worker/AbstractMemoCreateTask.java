@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.text.InputType;
+import android.util.Log;
 import android.widget.ListView;
 
 /**
@@ -145,12 +146,17 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     @Override
     protected final void onPreExecute()
     {
+        Log.d("AbstractMemoCreateTask", "*** START onPreExecute()");
+
+        // タイトル設定
         setMainTitleText(activityTitleStartTask);
     }
 
     @Override
     protected final void onPostExecute(Boolean result)
     {
+        Log.d("AbstractMemoCreateTask", "*** START onPostExecute()");
+
         setMainTitleText(activityTitleEndTask);
 
         if (this.inputPasswordDialog != null)
@@ -163,6 +169,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     @Override
     protected final void onCancelled()
     {
+        Log.d("AbstractMemoCreateTask", "*** START onCancelled()");
+
         setMainTitleText(activityTitleEndTask);
 
         if (this.inputPasswordDialog != null)
@@ -329,6 +337,23 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
         {
             this.memoListAdapter.sort(this.memoListComparator);
         }
+    }
+
+    /**
+     * Taskをキャンセルする.
+     *
+     * @param mayInterruptIfRunning 実行中Taskを中断するならtrue
+     */
+    public final void cancelTask(boolean mayInterruptIfRunning)
+    {
+        Log.d("AbstractMemoCreateTask", "*** START cancelTask()");
+
+        if (this.inputPasswordDialog != null)
+        {
+            this.inputPasswordDialog.dismissDialog();
+            this.inputPasswordDialog = null;
+        }
+        super.cancel(mayInterruptIfRunning);
     }
 
     /**

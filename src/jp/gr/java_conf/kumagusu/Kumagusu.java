@@ -700,7 +700,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // ワーカスレッド破棄
         if (this.memoCreator != null)
         {
-            this.memoCreator.cancel(true);
+            this.memoCreator.cancelTask(true);
         }
     }
 
