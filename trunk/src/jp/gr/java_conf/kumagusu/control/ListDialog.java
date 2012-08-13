@@ -2,6 +2,7 @@ package jp.gr.java_conf.kumagusu.control;
 
 import jp.gr.java_conf.kumagusu.R;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -13,7 +14,7 @@ import android.graphics.drawable.Drawable;
  * @author tadashi
  *
  */
-public final class ListDialog
+public final class ListDialog extends OldStyleDialog
 {
     /**
      * コンテキスト.
@@ -62,7 +63,23 @@ public final class ListDialog
             }
         });
 
-        db.show();
+        Dialog dialog = db.create();
+
+        // ダイアログのクローズ時の処理
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+        {
+            @Override
+            public void onDismiss(DialogInterface dialog)
+            {
+                // ダイアログ消去後処理
+                postDismissDialog(context);
+            }
+        });
+
+        // ダイアログ表示前処理
+        preShowDialog(context);
+
+        dialog.show();
     }
 
     /**
@@ -113,6 +130,23 @@ public final class ListDialog
                 // キャンセル処理なし
             }
         });
-        db.show();
+
+        Dialog dialog = db.create();
+
+        // ダイアログのクローズ時の処理
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+        {
+            @Override
+            public void onDismiss(DialogInterface dialog)
+            {
+                // ダイアログ消去後処理
+                postDismissDialog(context);
+            }
+        });
+
+        // ダイアログ表示前処理
+        preShowDialog(context);
+
+        dialog.show();
     }
 }

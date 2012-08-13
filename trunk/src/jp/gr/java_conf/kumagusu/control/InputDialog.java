@@ -19,7 +19,7 @@ import android.widget.EditText;
  *
  * @author tarshi
  */
-public final class InputDialog
+public final class InputDialog extends OldStyleDialog
 {
     /**
      * コンテキスト.
@@ -167,7 +167,22 @@ public final class InputDialog
 
         // ダイアログ生成
         AlertDialog dialog = db.create();
+
         dialog.setView(view, 0, 0, 0, 0);
+
+        // ダイアログのクローズ時の処理
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+        {
+            @Override
+            public void onDismiss(DialogInterface dialog)
+            {
+                // ダイアログ消去後処理
+                postDismissDialog(context);
+            }
+        });
+
+        // ダイアログ表示前処理
+        preShowDialog(context);
 
         // ダイアログを表示（IME表示）
         EditorCompat.showDialogWithIme(dialog, edtInput, null, null);

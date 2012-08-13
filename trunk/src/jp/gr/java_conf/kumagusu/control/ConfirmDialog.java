@@ -2,6 +2,7 @@ package jp.gr.java_conf.kumagusu.control;
 
 import jp.gr.java_conf.kumagusu.R;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -13,7 +14,7 @@ import android.graphics.drawable.Drawable;
  * @author tarshi
  *
  */
-public final class ConfirmDialog
+public final class ConfirmDialog extends OldStyleDialog
 {
     /**
      * 肯定ボタンのキャプション種別.
@@ -70,10 +71,11 @@ public final class ConfirmDialog
      * @param noListener NOを処理するリスナ
      * @param cancelListener Cancelを処理するリスナ
      */
-    public static void showDialog(Context context, Drawable icon, String title, String message,
+    public static void showDialog(final Context context, Drawable icon, String title, String message,
             PositiveCaptionKind kind, OnClickListener okListener, OnClickListener noListener,
             OnClickListener cancelListener)
     {
+        // ダイアログビルダ生成
         AlertDialog.Builder db = new AlertDialog.Builder(context);
 
         // アイコン
@@ -153,6 +155,22 @@ public final class ConfirmDialog
             });
         }
 
-        db.show();
+        Dialog dialog = db.create();
+
+        // ダイアログのクローズ時の処理
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+        {
+            @Override
+            public void onDismiss(DialogInterface dialog)
+            {
+                // ダイアログ消去後処理
+                postDismissDialog(context);
+            }
+        });
+
+        // ダイアログ表示前処理
+        preShowDialog(context);
+
+        dialog.show();
     }
 }

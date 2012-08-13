@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.R;
+import jp.gr.java_conf.kumagusu.commons.Utilities;
 import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -58,6 +61,9 @@ public final class MainPreferenceActivity extends PreferenceActivity implements 
     {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.pref);
+
+        // 画面の縦横表示を固定
+        Utilities.fixOrientation(this, true);
 
         // 「バックグラウンド時にメモを閉じる」の設定値をSummaryに表示
         ListPreference autoCloseDelayTimePreference = (ListPreference) getPreferenceScreen().findPreference(
