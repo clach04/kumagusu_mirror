@@ -70,7 +70,15 @@ public final class DirectorySelectDialogPreference extends DialogPreference
         super.onBindDialogView(view);
     }
 
+    /**
+     * メッセージ表示View.
+     */
     private TextView messageTextView = null;
+
+    /**
+     * リスト表示View.
+     */
+    private ListView listView = null;
 
     @Override
     protected View onCreateDialogView()
@@ -84,16 +92,16 @@ public final class DirectorySelectDialogPreference extends DialogPreference
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View view = inflater.inflate(R.layout.list_view_dialog, null);
-        ListView listView = (ListView) view.findViewById(R.id.list_view);
+        this.listView = (ListView) view.findViewById(R.id.list_view);
         this.messageTextView = (TextView) view.findViewById(R.id.message);
         this.messageTextView.setVisibility(TextView.VISIBLE);
 
         ArrayList<String> currentFolderList = new ArrayList<String>();
         this.currentFolderListAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1,
                 currentFolderList);
-        listView.setAdapter(this.currentFolderListAdapter);
+        this.listView.setAdapter(this.currentFolderListAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
@@ -103,6 +111,9 @@ public final class DirectorySelectDialogPreference extends DialogPreference
                         .get(position).getAbsolutePath();
 
                 createCurrentFolderList();
+
+                // 表示位置を先頭に戻す
+                DirectorySelectDialogPreference.this.listView.setSelectionFromTop(0, 0);
             }
         });
 
@@ -115,17 +126,20 @@ public final class DirectorySelectDialogPreference extends DialogPreference
     @Override
     protected void onDialogClosed(boolean positiveResult)
     {
-        Log.d("DirectorySelectDialogPreference", "*** START onDialogClosed()");
+        Log.d("DirectorySelectDialogPreference", "*** START onDialogClosed() positiveResult:" + positiveResult);
 
-        if ((this.currentFolderPath == null) || (this.currentFolderPath.length() == 0))
+        if (positiveResult)
         {
-            this.currentFolderPath = "/";
-        }
+            if ((this.currentFolderPath == null) || (this.currentFolderPath.length() == 0))
+            {
+                this.currentFolderPath = "/";
+            }
 
-        SharedPreferences.Editor editor = getEditor();
-        editor.putString(getKey(), this.currentFolderPath);
-        editor.commit();
-        notifyChanged();
+            SharedPreferences.Editor editor = getEditor();
+            editor.putString(getKey(), this.currentFolderPath);
+            editor.commit();
+            notifyChanged();
+        }
     }
 
     /**
@@ -159,7 +173,14 @@ public final class DirectorySelectDialogPreference extends DialogPreference
         File currentFolder = new File(this.currentFolderPath);
 
         File[] mDirectories = currentFolder.listFiles();
-        Arrays.sort(mDirectories);
+        if (mDirectories != null)
+        {
+            Arrays.sort(mDirectories);
+        }
+        else
+        {
+            mDirectories = new File[0];
+        }
 
         // ルートフォルダ
         File rootFolderFile = new File("/");
