@@ -147,6 +147,39 @@ public final class MainApplication extends Application
     }
 
     /**
+     * 縦横切り替え表示に対応していないダイアログの表示数.
+     */
+    private int oldStyleDialogCounter = 0;
+
+    /**
+     * 縦横切り替え表示に対応していないダイアログの表示数を増やす.
+     */
+    public void incrementOldStyleDialogCounter()
+    {
+        this.oldStyleDialogCounter++;
+    }
+
+    /**
+     * 縦横切り替え表示に対応していないダイアログの表示数を減らす.
+     */
+    public void decrementOldStyleDialogCounter()
+    {
+        this.oldStyleDialogCounter--;
+
+        assert (this.oldStyleDialogCounter >= 0);
+    }
+
+    /**
+     * 縦横切り替え表示に対応していないダイアログが表示中かを返す.
+     *
+     * @return 表示中ならtrue
+     */
+    public boolean isPlusOldStyleDialogCounter()
+    {
+        return (this.oldStyleDialogCounter > 0);
+    }
+
+    /**
      * エディタでメモを更新しているか?
      */
     private boolean updateMemo = false;

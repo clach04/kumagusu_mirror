@@ -5,35 +5,49 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import jp.gr.java_conf.kumagusu.R;
-import jp.gr.java_conf.kumagusu.commons.Utilities;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * ディレクトリ選択ダイアログ.
  *
  * @author tarshi
  */
-public final class DirectorySelectDialog extends Activity implements DialogInterface.OnClickListener
+public final class DirectorySelectDialog extends OldStyleDialog
 {
-    /**
-     * ルートフォルダFile.
-     */
-    private File rootFolderFile = null;
-
     /**
      * コンテキスト.
      */
     private Context mContext;
 
     /**
-     * ディレクトリリスト.
+     * タイトル.
      */
-    private ArrayList<File> mDirectoryList;
+    private String dialogTitle;
+
+    /**
+     * ルートフォルダFile.
+     */
+    private File rootFolderFile = null;
+
+    /**
+     * 現在のフォルダ内のFileオブジェクトリスト.
+     */
+    private ArrayList<File> currentFolderFileList = new ArrayList<File>();
+
+    /**
+     * 現在のフォルダ.
+     */
+    private String currentFolderPath = null;
 
     /**
      * ディレクトリリスト選択イベントのリスナ.
@@ -41,157 +55,205 @@ public final class DirectorySelectDialog extends Activity implements DialogInter
     private OnDirectoryListDialogListener mListenner;
 
     /**
+     * フォルダリストのアダプター.
+     */
+    private ArrayAdapter<String> currentFolderListAdapter;
+
+    /**
+     * メッセージ表示View.
+     */
+    private TextView messageTextView = null;
+
+    /**
+     * リスト表示View.
+     */
+    private ListView listView = null;
+
+    /**
      * ディレクトリ選択ダイアログを初期化する.
      *
      * @param context コンテキスト
+     * @param title タイトル
+     * @param path 初期フォルダパス
      */
-    public DirectorySelectDialog(Context context)
+    public DirectorySelectDialog(Context context, String title, String path)
     {
-        mContext = context;
-        mDirectoryList = new ArrayList<File>();
-    }
-
-    @Override
-    public void onClick(DialogInterface dialog, int which)
-    {
-        if ((null != mDirectoryList) && (null != mListenner))
-        {
-            File file = mDirectoryList.get(which);
-            show(file.getAbsolutePath());
-        }
+        this(context, title, null, path);
     }
 
     /**
-     * ディレクトリ選択ダイアログを表示する.
+     * ディレクトリ選択ダイアログを初期化する.
      *
-     * @param path 表示ディレクトリのパス（絶対パス）
-     */
-    public void show(final String path)
-    {
-        show(null, path);
-    }
-
-    /**
-     * ディレクトリ選択ダイアログを表示する.
-     *
+     * @param context コンテキスト
+     * @param title タイトル
      * @param chrootPath ルートとして扱うフォルダ（nullなら/）
-     * @param path 表示ディレクトリのパス（絶対パス）
+     * @param path 初期フォルダパス
      */
-    public void show(String chrootPath, final String path)
+    public DirectorySelectDialog(Context context, String title, String chrootPath, String path)
+    {
+        this.mContext = context;
+        this.dialogTitle = title;
+
+        this.rootFolderFile = new File((chrootPath != null) ? chrootPath : "/");
+
+        File currentFolder = new File(path);
+        this.currentFolderPath = currentFolder.getAbsolutePath();
+    }
+
+    /**
+     * ディレクトリ選択ダイアログを表示する.
+     */
+    public void show()
     {
         try
         {
-            File currentFolder = new File(path);
+            // View取得
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            if (this.rootFolderFile == null)
+            View view = inflater.inflate(R.layout.list_view_dialog, null);
+            this.listView = (ListView) view.findViewById(R.id.list_view);
+            this.messageTextView = (TextView) view.findViewById(R.id.message);
+            this.messageTextView.setVisibility(TextView.VISIBLE);
+
+            ArrayList<String> currentFolderList = new ArrayList<String>();
+            this.currentFolderListAdapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_list_item_1,
+                    currentFolderList);
+            this.listView.setAdapter(this.currentFolderListAdapter);
+
+            this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
             {
-                if (chrootPath == null)
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id)
                 {
-                    chrootPath = "/";
+                    // フォルダリスト再生成
+                    DirectorySelectDialog.this.currentFolderPath = DirectorySelectDialog.this.currentFolderFileList
+                            .get(position).getAbsolutePath();
+
+                    createCurrentFolderList();
+
+                    // 表示位置を先頭に戻す
+                    DirectorySelectDialog.this.listView.setSelectionFromTop(0, 0);
                 }
+            });
 
-                this.rootFolderFile = new File(chrootPath);
-            }
+            // 初期のフォルダリスト生成
+            createCurrentFolderList();
 
-            File[] mDirectories = currentFolder.listFiles();
-            Arrays.sort(mDirectories);
+            // ダイアログ表示
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+            alertDialogBuilder.setTitle(this.dialogTitle);
+            alertDialogBuilder.setView(view);
 
-            if (null == mDirectories && null != mListenner)
-            {
-                mListenner.onClickFileList(null);
-            }
-            else
-            {
-                // タイトルに表示するパスを生成
-                String showTitle = currentFolder.getAbsolutePath();
-                if (!this.rootFolderFile.getAbsolutePath().equals("/"))
-                {
-                    showTitle = showTitle.substring(this.rootFolderFile.getAbsolutePath().length());
-                    if (showTitle.length() == 0)
+            // 自身のContextではgetStringが失敗する
+            alertDialogBuilder.setPositiveButton(mContext.getString(R.string.ui_ok),
+                    new DialogInterface.OnClickListener()
                     {
-                        showTitle = "/";
-                    }
-                }
-
-                // ディレクトリのリストを作成
-                mDirectoryList.clear();
-                ArrayList<String> viewList = new ArrayList<String>();
-
-                if (!currentFolder.getPath().equals(this.rootFolderFile.getPath()))
-                {
-                    // 上位フォルダを登録
-                    viewList.add("..");
-                    mDirectoryList.add(currentFolder.getParentFile());
-                }
-
-                for (File file : mDirectories)
-                {
-                    if (file.isDirectory())
-                    {
-                        viewList.add(file.getName() + "/");
-                        mDirectoryList.add(file);
-                    }
-                }
-
-                // ダイアログ表示
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
-                alertDialogBuilder.setTitle(showTitle);
-                alertDialogBuilder.setItems(viewList.toArray(new String[0]), this);
-
-                // 自身のContextではgetStringが失敗する
-                alertDialogBuilder.setPositiveButton(mContext.getString(R.string.ui_ok),
-                        new DialogInterface.OnClickListener()
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
                         {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                Log.d("DirectorySelectDialog", path);
-                                mListenner.onClickFileList(path);
-                            }
-                        });
+                            Log.d("DirectorySelectDialog", DirectorySelectDialog.this.currentFolderPath);
+                            mListenner.onClickFileList(DirectorySelectDialog.this.currentFolderPath);
+                        }
+                    });
 
-                // 自身のContextではgetStringが失敗する
-                alertDialogBuilder.setNegativeButton(mContext.getString(R.string.ui_cancel),
-                        new DialogInterface.OnClickListener()
+            // 自身のContextではgetStringが失敗する
+            alertDialogBuilder.setNegativeButton(mContext.getString(R.string.ui_cancel),
+                    new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
                         {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                mListenner.onClickFileList(null);
-                            }
-                        });
+                            mListenner.onClickFileList(null);
+                        }
+                    });
 
-                // 戻るキーによるキャンセルを処理
-                alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener()
+            // 戻るキーによるキャンセルを処理
+            alertDialogBuilder.setOnCancelListener(new DialogInterface.OnCancelListener()
+            {
+                @Override
+                public void onCancel(DialogInterface dialog)
                 {
-                    @Override
-                    public void onCancel(DialogInterface dialog)
-                    {
-                        mListenner.onClickFileList(null);
-                    }
-                });
+                    mListenner.onClickFileList(null);
+                }
+            });
 
-                Dialog dialog = alertDialogBuilder.create();
+            Dialog dialog = alertDialogBuilder.create();
 
-                dialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+            dialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+            {
+                @Override
+                public void onDismiss(DialogInterface dialog)
                 {
-                    @Override
-                    public void onDismiss(DialogInterface dialog)
-                    {
-                        // ダイアログ消去後処理
-                        Utilities.fixOrientation((Activity) mContext, false);
-                    }
-                });
+                    // ダイアログ消去後処理
+                    postDismissDialog(mContext);
+                }
+            });
 
-                // ダイアログ表示前処理
-                Utilities.fixOrientation((Activity) mContext, true);
+            // ダイアログ表示前処理
+            preShowDialog(mContext);
 
-                dialog.show();
-            }
+            dialog.show();
         }
         catch (SecurityException e)
         {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * フォルダリストを生成する.
+     */
+    private void createCurrentFolderList()
+    {
+        if ((this.currentFolderPath == null) || (this.currentFolderPath.length() == 0))
+        {
+            this.currentFolderPath = "/";
+        }
+
+        File currentFolder = new File(this.currentFolderPath);
+
+        File[] mDirectories = currentFolder.listFiles();
+        if (mDirectories != null)
+        {
+            Arrays.sort(mDirectories);
+        }
+        else
+        {
+            mDirectories = new File[0];
+        }
+
+        // タイトルにパスを表示
+        String showTitle = currentFolder.getAbsolutePath();
+
+        if (!this.rootFolderFile.getAbsolutePath().equals("/"))
+        {
+            showTitle = showTitle.substring(this.rootFolderFile.getAbsolutePath().length());
+            if (showTitle.length() == 0)
+            {
+                showTitle = "/";
+            }
+        }
+
+        this.messageTextView.setText(showTitle);
+
+        // ディレクトリのリストを作成
+        this.currentFolderFileList.clear();
+        this.currentFolderListAdapter.clear();
+
+        if (!currentFolder.getPath().equals(this.rootFolderFile.getPath()))
+        {
+            // 上位フォルダを登録
+            this.currentFolderListAdapter.add("..");
+            this.currentFolderFileList.add(currentFolder.getParentFile());
+        }
+
+        for (File file : mDirectories)
+        {
+            if (file.isDirectory())
+            {
+                this.currentFolderListAdapter.add(file.getName() + "/");
+                this.currentFolderFileList.add(file);
+            }
         }
     }
 

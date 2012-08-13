@@ -81,12 +81,16 @@
 
     <!-- ファイル操作ダイアログ -->
     <string name="memo_file_control_dialog_title">メモの操作</string>
+    <string name="memo_file_control_dialog_copy_title">コピー先フォルダ</string>
+    <string name="memo_file_control_dialog_move_title">移動先フォルダ</string>
     <string name="memo_file_control_dialog_delete_title">削除</string>
     <string name="memo_file_control_dialog_delete_message">メモを削除しますか ?</string>
     <!-- <string name="memo_file_control_dialog_copy_title">コピー</string> -->
     <!-- <string name="memo_file_control_dialog_move_title">移動</string> -->
 
     <string name="folder_control_dialog_title">フォルダの操作</string>
+    <string name="folder_control_dialog_copy_title">コピー先フォルダ</string>
+    <string name="folder_control_dialog_move_title">移動先フォルダ</string>
     <string name="folder_control_dialog_delete_title">削除</string>
     <string name="folder_control_dialog_delete_message">フォルダを削除しますか ?</string>
     <string name="folder_control_dialog_delete_error">フォルダが空ではありません.</string>
