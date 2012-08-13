@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import jp.gr.java_conf.kumagusu.R;
+import jp.gr.java_conf.kumagusu.commons.Utilities;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
@@ -169,7 +171,22 @@ public final class DirectorySelectDialog extends Activity implements DialogInter
                     }
                 });
 
-                alertDialogBuilder.show();
+                Dialog dialog = alertDialogBuilder.create();
+
+                dialog.setOnDismissListener(new DialogInterface.OnDismissListener()
+                {
+                    @Override
+                    public void onDismiss(DialogInterface dialog)
+                    {
+                        // ダイアログ消去後処理
+                        Utilities.fixOrientation((Activity) mContext, false);
+                    }
+                });
+
+                // ダイアログ表示前処理
+                Utilities.fixOrientation((Activity) mContext, true);
+
+                dialog.show();
             }
         }
         catch (SecurityException e)

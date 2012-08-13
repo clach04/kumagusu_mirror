@@ -13,6 +13,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.preference.DialogPreference;
 import android.text.InputType;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -40,53 +41,52 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
         super.onBindView(view);
     }
 
-    @Override
-    protected void onClick()
+    /**
+     * 定型文リスト.
+     */
+    private List<String> fixedPhraseStrings;
+
+    /**
+     * 定型文リストView.
+     */
+    private ListView listView;
+
+    /**
+     * 定型文リストViewアダプタ.
+     */
+    private ArrayAdapter<String> listViewAdapter;
+
+    /**
+     * 定型文入力ダイアログを初期化する.
+     *
+     * @param context コンテキスト
+     * @param attrs 属性
+     */
+    public InputFixedPhraseDialogPreference(Context context, AttributeSet attrs)
     {
-        // アダプタ生成
-        final List<String> fixedPhraseStrings = MainPreferenceActivity.getFixedPhraseStrings(getContext());
+        super(context, attrs);
+    }
 
-        final ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(getContext(),
-                android.R.layout.simple_list_item_1, fixedPhraseStrings);
-
-        // ダイアログビルダを生成
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setTitle(getContext().getResources().getString(R.string.pref_fixed_phrase_dialog_title));
-
-        // OKボタンの処理
-        alertDialogBuilder.setPositiveButton(getContext().getString(R.string.ui_ok),
-                new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        // 設定を保存
-                        MainPreferenceActivity.setFixedPhraseStrings(getContext(), fixedPhraseStrings);
-                    }
-                });
-
-        // Cancelボタンの処理
-        alertDialogBuilder.setNegativeButton(getContext().getString(R.string.ui_cancel),
-                new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        // キャンセル処理なし
-                    }
-                });
+    @Override
+    protected View onCreateDialogView()
+    {
+        Log.d("InputFixedPhraseDialogPreference", "*** START onCreateDialogView()");
 
         // カスタムViewを取得
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View view = inflater.inflate(R.layout.pref_input_fixed_phrase_dialog, null);
 
-        // 定型文リストを設定
-        final ListView listView = (ListView) view.findViewById(R.id.fixed_phrase_list);
+        this.listView = (ListView) view.findViewById(R.id.fixed_phrase_list);
 
-        listView.setAdapter(listViewAdapter);
+        // アダプタ設定
+        this.fixedPhraseStrings = MainPreferenceActivity.getFixedPhraseStrings(getContext());
+
+        this.listViewAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1,
+                this.fixedPhraseStrings);
+        this.listView.setAdapter(this.listViewAdapter);
 
         // リストのクリック処理
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             /**
              * 既存の定型文を編集する.
@@ -94,6 +94,8 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id)
             {
+                Log.d("InputFixedPhraseDialogPreference", "*** START listView.onItemClick()");
+
                 editFixedPhraseString(fixedPhraseStrings.get(position), new FixedPhraseEditorOnTextInputListener()
                 {
                     /**
@@ -103,79 +105,20 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                     public void onTextInput(String inputText)
                     {
                         fixedPhraseStrings.set(position, inputText);
-                        listViewAdapter.notifyDataSetChanged();
+                        InputFixedPhraseDialogPreference.this.listViewAdapter.notifyDataSetChanged();
                     }
                 });
-
-                final InputDialog fixedPhraseEditor = new InputDialog(getContext());
-                fixedPhraseEditor.setText(fixedPhraseStrings.get(position));
-
-                fixedPhraseEditor.showDialog(null,
-                        getContext().getResources().getString(R.string.fixed_phrase_dialog_title),
-                        InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
-                        {
-                            /**
-                             * Okを処理する.
-                             */
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                fixedPhraseStrings.set(position, fixedPhraseEditor.getText());
-                                listViewAdapter.notifyDataSetChanged();
-                            }
-                        }, new DialogInterface.OnClickListener()
-                        {
-                            /**
-                             * キャンセルを処理する.
-                             */
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                // キャンセルは無視
-                            }
-                        }, new View.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(View v)
-                            {
-                                String[] phraseNames = getContext().getResources().getStringArray(
-                                        R.array.fixed_phrase_escape_item_entries);
-                                final String[] patternLetters = getContext().getResources().getStringArray(
-                                        R.array.fixed_phrase_escape_item_values);
-
-                                assert patternLetters.length == phraseNames.length;
-
-                                for (int i = 0; i < patternLetters.length; i++)
-                                {
-                                    phraseNames[i] = new StringBuilder(phraseNames[i]).append(" (")
-                                            .append(patternLetters[i]).append(")").toString();
-                                }
-
-                                ListDialog fixedPhrasePatternDialog = new ListDialog(getContext());
-                                fixedPhrasePatternDialog.showDialog(
-                                        getContext().getResources().getDrawable(R.drawable.fixed_phrase), getContext()
-                                                .getResources().getString(R.string.fixed_phrase_pattern_letters),
-                                        phraseNames, new DialogInterface.OnClickListener()
-                                        {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which)
-                                            {
-                                                String pasteString = patternLetters[which];
-
-                                                fixedPhraseEditor.pasteText(pasteString);
-                                            }
-                                        });
-                            }
-                        }, getContext().getResources().getString(R.string.fixed_phrase_pattern_letters));
             }
         });
 
         // リストの長押しイベント
-        listView.setOnItemLongClickListener(new OnItemLongClickListener()
+        this.listView.setOnItemLongClickListener(new OnItemLongClickListener()
         {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id)
             {
+                Log.d("InputFixedPhraseDialogPreference", "*** START listView.onItemLongClick()");
+
                 ListDialog fixedPhraseEntryesControlDialog = new ListDialog(getContext());
                 fixedPhraseEntryesControlDialog.showDialog(
                         null,
@@ -204,7 +147,8 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                                                 {
                                                     // 削除
                                                     fixedPhraseStrings.remove(position);
-                                                    listViewAdapter.notifyDataSetChanged();
+                                                    InputFixedPhraseDialogPreference.this.listViewAdapter
+                                                            .notifyDataSetChanged();
                                                 }
                                             }, new OnClickListener()
                                             {
@@ -226,6 +170,7 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
             }
         });
 
+        // 追加ボタン設定
         Button button = (Button) view.findViewById(R.id.add_button);
         button.setOnClickListener(new View.OnClickListener()
         {
@@ -244,32 +189,29 @@ public final class InputFixedPhraseDialogPreference extends DialogPreference
                     public void onTextInput(String inputText)
                     {
                         fixedPhraseStrings.add(inputText);
-                        listViewAdapter.notifyDataSetChanged();
+                        InputFixedPhraseDialogPreference.this.listViewAdapter.notifyDataSetChanged();
 
                         // 最終行（追加行）を表示
-                        listView.setSelection(listView.getCount());
+                        InputFixedPhraseDialogPreference.this.listView
+                                .setSelection(InputFixedPhraseDialogPreference.this.listView.getCount());
                     }
                 });
             }
         });
 
-        // 定型文入力のレイアウトからViewを設定
-        AlertDialog dialog = alertDialogBuilder.create();
-        dialog.setView(view, 0, 0, 0, 0);
-
-        // ダイアログ表示
-        dialog.show();
+        return view;
     }
 
-    /**
-     * 定型文入力ダイアログを初期化する.
-     *
-     * @param context コンテキスト
-     * @param attrs 属性
-     */
-    public InputFixedPhraseDialogPreference(Context context, AttributeSet attrs)
+    @Override
+    protected void onDialogClosed(boolean positiveResult)
     {
-        super(context, attrs);
+        Log.d("InputFixedPhraseDialogPreference", "*** START onDialogClosed() positiveResult:" + positiveResult);
+
+        if (positiveResult)
+        {
+            // 設定を保存
+            MainPreferenceActivity.setFixedPhraseStrings(getContext(), fixedPhraseStrings);
+        }
     }
 
     /**

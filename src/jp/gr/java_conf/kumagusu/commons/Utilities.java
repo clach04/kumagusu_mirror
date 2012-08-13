@@ -10,8 +10,11 @@ import jp.gr.java_conf.kumagusu.control.ConfirmDialogFragment;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogListenerFolder;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogListeners;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.util.Log;
@@ -258,5 +261,34 @@ public final class Utilities
                     }
                 }, null, null));
 
+    }
+
+    /**
+     * 画面の縦横を現状で固定する.
+     *
+     * @param act アクティビティ
+     * @param fixed 固定するときtrue
+     */
+    public static void fixOrientation(Activity act, boolean fixed)
+    {
+        Configuration configuration = act.getResources().getConfiguration();
+
+        if (fixed)
+        {
+            if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT)
+            {
+                // 縦固定
+                act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }
+            else if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE)
+            {
+                // 横固定
+                act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+        }
+        else
+        {
+            act.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
     }
 }

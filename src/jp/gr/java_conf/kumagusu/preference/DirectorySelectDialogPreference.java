@@ -42,6 +42,16 @@ public final class DirectorySelectDialogPreference extends DialogPreference
     private ArrayAdapter<String> currentFolderListAdapter;
 
     /**
+     * メッセージ表示View.
+     */
+    private TextView messageTextView = null;
+
+    /**
+     * リスト表示View.
+     */
+    private ListView listView = null;
+
+    /**
      * 設定のメモフォルダ選択処理を初期化する.
      *
      * @param context コンテキスト
@@ -61,24 +71,6 @@ public final class DirectorySelectDialogPreference extends DialogPreference
 
         super.onBindView(view);
     }
-
-    @Override
-    protected void onBindDialogView(View view)
-    {
-        Log.d("DirectorySelectDialogPreference", "*** START onBindDialogView()");
-
-        super.onBindDialogView(view);
-    }
-
-    /**
-     * メッセージ表示View.
-     */
-    private TextView messageTextView = null;
-
-    /**
-     * リスト表示View.
-     */
-    private ListView listView = null;
 
     @Override
     protected View onCreateDialogView()
