@@ -11,7 +11,7 @@ import jp.gr.java_conf.kumagusu.commons.Utilities;
 import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogFragment;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogListenerFolder;
-import jp.gr.java_conf.kumagusu.control.ConfirmDialogListeners;
+import jp.gr.java_conf.kumagusu.control.DialogListeners;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog.OnDirectoryListDialogListener;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
@@ -1227,7 +1227,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     /**
      * 確認ダイアログ保管データMap.
      */
-    private SparseArray<ConfirmDialogListeners> confirmDialogListenerMap = new SparseArray<ConfirmDialogListeners>();
+    private SparseArray<DialogListeners> confirmDialogListenerMap = new SparseArray<DialogListeners>();
 
     /**
      * 確認ダイアログのリスナを初期化する.
@@ -1235,7 +1235,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private void initConfirmDialogListener()
     {
         // ファイル削除
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FILE, new ConfirmDialogListeners(new OnClickListener()
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FILE, new DialogListeners(new OnClickListener()
         {
             /**
              * 削除「OK 」 イベントを処理する 。
@@ -1258,7 +1258,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         }));
 
         // フォルダ削除
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FOLDER, new ConfirmDialogListeners(new OnClickListener()
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FOLDER, new DialogListeners(new OnClickListener()
         {
             /**
              * 削除「OK 」 イベントを処理する 。
@@ -1287,34 +1287,34 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         }));
 
         // フォルダ削除エラー
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FOLDER_ERROR, new ConfirmDialogListeners(null, null, null));
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FOLDER_ERROR, new DialogListeners(null, null, null));
 
         // フォルダ名変更エラー（フォルダ名指定なし）
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME, new ConfirmDialogListeners(null, null,
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME, new DialogListeners(null, null,
                 null));
 
         // フォルダ名変更エラー（フォルダ名重複）
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT, new ConfirmDialogListeners(null,
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT, new DialogListeners(null,
                 null, null));
 
         // フォルダ追加エラー（フォルダ名重複）
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT, new ConfirmDialogListeners(null, null,
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT, new DialogListeners(null, null,
                 null));
 
         // フォルダ追加エラー（フォルダ名指定なし）
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME, new ConfirmDialogListeners(null, null,
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME, new DialogListeners(null, null,
                 null));
     }
 
     @Override
-    public ConfirmDialogListeners getConfirmDialogListeners(int listenerId)
+    public DialogListeners getConfirmDialogListeners(int listenerId)
     {
         // 確認ダイアログ保管データを返す
         return this.confirmDialogListenerMap.get(listenerId);
     }
 
     @Override
-    public void putConfirmDialogListeners(int listenerId, ConfirmDialogListeners listeners)
+    public void putConfirmDialogListeners(int listenerId, DialogListeners listeners)
     {
         // 確認ダイアログデータを追加
         this.confirmDialogListenerMap.put(listenerId, listeners);

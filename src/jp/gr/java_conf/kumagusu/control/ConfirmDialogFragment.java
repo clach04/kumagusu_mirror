@@ -12,7 +12,6 @@ import android.support.v4.app.DialogFragment;
  * 確認ダイアログ.
  *
  * @author tarshi
- *
  */
 public final class ConfirmDialogFragment extends DialogFragment
 {
@@ -98,7 +97,7 @@ public final class ConfirmDialogFragment extends DialogFragment
         {
             listenerFolder.getConfirmDialogListeners(listenerId);
 
-            ConfirmDialogListeners listeners = listenerFolder.getConfirmDialogListeners(listenerId);
+            DialogListeners listeners = listenerFolder.getConfirmDialogListeners(listenerId);
 
             if (listeners != null)
             {

@@ -8,7 +8,7 @@ import android.content.DialogInterface;
  * @author tarshi
  *
  */
-public final class ConfirmDialogListeners
+public final class DialogListeners
 {
     /**
      * OKまたはYesを処理するリスナ.
@@ -29,10 +29,35 @@ public final class ConfirmDialogListeners
      * リスナ保持データを初期化する.
      *
      * @param ok OKまたはYesを処理するリスナ
+     */
+    public DialogListeners(DialogInterface.OnClickListener ok)
+    {
+        this.okOnClickListener = ok;
+        this.noOnClickListener = null;
+        this.cancelOnClickListener = null;
+    }
+
+    /**
+     * リスナ保持データを初期化する.
+     *
+     * @param ok OKまたはYesを処理するリスナ
+     * @param cancel Cancelを処理するリスナ
+     */
+    public DialogListeners(DialogInterface.OnClickListener ok, DialogInterface.OnClickListener cancel)
+    {
+        this.okOnClickListener = ok;
+        this.noOnClickListener = null;
+        this.cancelOnClickListener = cancel;
+    }
+
+    /**
+     * リスナ保持データを初期化する.
+     *
+     * @param ok OKまたはYesを処理するリスナ
      * @param no Noを処理するリスナ
      * @param cancel Cancelを処理するリスナ
      */
-    public ConfirmDialogListeners(DialogInterface.OnClickListener ok, DialogInterface.OnClickListener no,
+    public DialogListeners(DialogInterface.OnClickListener ok, DialogInterface.OnClickListener no,
             DialogInterface.OnClickListener cancel)
     {
         this.okOnClickListener = ok;

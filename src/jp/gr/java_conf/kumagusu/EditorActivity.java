@@ -12,9 +12,10 @@ import jp.gr.java_conf.kumagusu.compat.EditorCompat;
 import jp.gr.java_conf.kumagusu.control.AutoLinkClickableSpan;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogFragment;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogListenerFolder;
-import jp.gr.java_conf.kumagusu.control.ConfirmDialogListeners;
+import jp.gr.java_conf.kumagusu.control.DialogListeners;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
-import jp.gr.java_conf.kumagusu.control.ListDialog;
+import jp.gr.java_conf.kumagusu.control.ListDialogFragment;
+import jp.gr.java_conf.kumagusu.control.ListDialogListenerFolder;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
@@ -55,7 +56,8 @@ import android.widget.LinearLayout;
  *
  */
 @SuppressLint("NewApi")
-public final class EditorActivity extends FragmentActivity implements ConfirmDialogListenerFolder
+public final class EditorActivity extends FragmentActivity implements ConfirmDialogListenerFolder,
+        ListDialogListenerFolder
 {
     /**
      * メモファイル（フルパス）.
@@ -111,6 +113,11 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      * 確認ダイアログID「保存（キャンセルあり）」.
      */
     private static final int DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL = 2;
+
+    /**
+     * 定型文選択ダイアログID
+     */
+    private static final int DIALOG_ID_LIST_FIXED_PHRASE = 11;
 
     /**
      * 開いた時点でのメモ内容.
@@ -175,9 +182,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     private boolean editorLongClick = false;
 
     /**
-     * 確認ダイアログ保管データMap.
+     * ダイアログ保管データMap.
      */
-    private SparseArray<ConfirmDialogListeners> confirmDialogListenerMap = new SparseArray<ConfirmDialogListeners>();
+    private SparseArray<DialogListeners> dialogListenerMap = new SparseArray<DialogListeners>();
 
     /**
      * OK,NOのあと終了するか ?
@@ -188,6 +195,11 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      * キャンセルを表示するときtrue.
      */
     private boolean confirmSaveDialogDispCancel = false;
+
+    /**
+     * 定型文リスト.
+     */
+    private String[] fixedPhraseStrings = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -471,6 +483,12 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
 
         // 検索ビュー表示状態保存
         outState.putBoolean("visibilitySearchView", isVisibilitySearchView());
+
+        // 定型文保存
+        if (this.fixedPhraseStrings != null)
+        {
+            outState.putStringArray("fixedPhraseStrings", this.fixedPhraseStrings);
+        }
     }
 
     @Override
@@ -494,6 +512,12 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         if (savedInstanceState.containsKey("visibilitySearchView"))
         {
             setVisibilitySearchView(savedInstanceState.getBoolean("visibilitySearchView"));
+        }
+
+        // 定型文をリストア
+        if (savedInstanceState.containsKey("fixedPhraseStrings"))
+        {
+            this.fixedPhraseStrings = savedInstanceState.getStringArray("fixedPhraseStrings");
         }
 
         // onRestoreInstanceStateで、EditText（ほか）をリストア
@@ -614,32 +638,17 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             break;
 
         case MENU_ID_FIXED_PHRASE: // 定型文
-            final String[] fixedPhraseStrings = MainPreferenceActivity.getFixedPhraseStrings(this).toArray(
-                    new String[0]);
+            this.fixedPhraseStrings = MainPreferenceActivity.getFixedPhraseStrings(this).toArray(new String[0]);
             Date nowDate = new Date();
 
-            for (int i = 0; i < fixedPhraseStrings.length; i++)
+            for (int i = 0; i < this.fixedPhraseStrings.length; i++)
             {
-                fixedPhraseStrings[i] = Utilities.getDateTimeFormattedString(this, fixedPhraseStrings[i], nowDate);
+                this.fixedPhraseStrings[i] = Utilities.getDateTimeFormattedString(this, fixedPhraseStrings[i], nowDate);
             }
 
-            ListDialog fixedPhraseSelectDialog = new ListDialog(this);
-            fixedPhraseSelectDialog.showDialog(getResources().getDrawable(R.drawable.fixed_phrase), getResources()
-                    .getString(R.string.fixed_phrase_dialog_title), fixedPhraseStrings,
-                    new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            String insertString = fixedPhraseStrings[which];
-
-                            int cStart = EditorActivity.this.memoEditText.getSelectionStart();
-                            int cEnd = EditorActivity.this.memoEditText.getSelectionEnd();
-                            Editable memoEditable = EditorActivity.this.memoEditText.getText();
-
-                            memoEditable.replace(Math.min(cStart, cEnd), Math.max(cStart, cEnd), insertString);
-                        }
-                    });
+            ListDialogFragment.newInstance(DIALOG_ID_LIST_FIXED_PHRASE, R.drawable.fixed_phrase,
+                    R.string.fixed_phrase_dialog_title, 0, this.fixedPhraseStrings).show(getSupportFragmentManager(),
+                    "");
             break;
 
         case android.R.id.home: // UPアイコン
@@ -1240,12 +1249,28 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             }
         };
 
-        // キャンセルボタンあり
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL, new ConfirmDialogListeners(okListener,
-                noListener, cancelListener));
+        // 確認ダイアログ「キャンセルボタンあり」
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL, new DialogListeners(okListener, noListener,
+                cancelListener));
 
-        // キャンセルボタンなし
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_SAVE, new ConfirmDialogListeners(okListener, noListener, null));
+        // 確認ダイアログ「キャンセルボタンなし」
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_SAVE, new DialogListeners(okListener, noListener, null));
+
+        // リストダイアログ「定型文選択」
+        putListDialogListeners(DIALOG_ID_LIST_FIXED_PHRASE, new DialogListeners(new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                String insertString = EditorActivity.this.fixedPhraseStrings[which];
+
+                int cStart = EditorActivity.this.memoEditText.getSelectionStart();
+                int cEnd = EditorActivity.this.memoEditText.getSelectionEnd();
+                Editable memoEditable = EditorActivity.this.memoEditText.getText();
+
+                memoEditable.replace(Math.min(cStart, cEnd), Math.max(cStart, cEnd), insertString);
+            }
+        }));
     }
 
     /**
@@ -1264,16 +1289,30 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     }
 
     @Override
-    public ConfirmDialogListeners getConfirmDialogListeners(int listenerId)
+    public DialogListeners getConfirmDialogListeners(int listenerId)
     {
         // 確認ダイアログ保管データを返す
-        return this.confirmDialogListenerMap.get(listenerId);
+        return this.dialogListenerMap.get(listenerId);
     }
 
     @Override
-    public void putConfirmDialogListeners(int listenerId, ConfirmDialogListeners listeners)
+    public void putConfirmDialogListeners(int listenerId, DialogListeners listeners)
     {
         // 確認ダイアログデータを追加
-        this.confirmDialogListenerMap.put(listenerId, listeners);
+        this.dialogListenerMap.put(listenerId, listeners);
+    }
+
+    @Override
+    public DialogListeners getListDialogListeners(int listenerId)
+    {
+        // リストダイアログ保管データを返す
+        return this.dialogListenerMap.get(listenerId);
+    }
+
+    @Override
+    public void putListDialogListeners(int listenerId, DialogListeners listeners)
+    {
+        // リストダイアログデータを追加
+        this.dialogListenerMap.put(listenerId, listeners);
     }
 }

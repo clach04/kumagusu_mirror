@@ -8,7 +8,7 @@ import jp.gr.java_conf.kumagusu.MainApplication;
 import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogFragment;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogListenerFolder;
-import jp.gr.java_conf.kumagusu.control.ConfirmDialogListeners;
+import jp.gr.java_conf.kumagusu.control.DialogListeners;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
 import android.app.Activity;
 import android.content.Context;
@@ -246,11 +246,11 @@ public final class Utilities
         ConfirmDialogListenerFolder listenerFolder = (ConfirmDialogListenerFolder) act;
 
         // パスワードが入力されてない
-        listenerFolder.putConfirmDialogListeners(DIALOG_ID_CONFIRM_PASSWORD_EMPTY, new ConfirmDialogListeners(null,
+        listenerFolder.putConfirmDialogListeners(DIALOG_ID_CONFIRM_PASSWORD_EMPTY, new DialogListeners(null,
                 null, null));
 
         // パスワードが一致しない
-        listenerFolder.putConfirmDialogListeners(DIALOG_ID_CONFIRM_PASSWORD_INCORRECT, new ConfirmDialogListeners(
+        listenerFolder.putConfirmDialogListeners(DIALOG_ID_CONFIRM_PASSWORD_INCORRECT, new DialogListeners(
                 new DialogInterface.OnClickListener()
                 {
                     @Override
