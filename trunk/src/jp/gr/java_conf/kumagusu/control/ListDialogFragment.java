@@ -150,10 +150,20 @@ public class ListDialogFragment extends DialogFragment
         db.setTitle(titleId);
         db.setView(view);
 
+        int listStyle;
+
+        if (this.checkedItem >= 0)
+        {
+            listStyle = android.R.layout.simple_list_item_single_choice;
+        }
+        else
+        {
+            listStyle = android.R.layout.simple_list_item_1;
+        }
+
         // アダプタ設定
         ArrayList<String> currentFolderList = new ArrayList<String>();
-        this.listAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1,
-                currentFolderList);
+        this.listAdapter = new ArrayAdapter<String>(getActivity(), listStyle, currentFolderList);
         this.listView.setAdapter(this.listAdapter);
 
         for (String name : conditionNames)
@@ -161,7 +171,24 @@ public class ListDialogFragment extends DialogFragment
             this.listAdapter.add(name);
         }
 
-        // OK、キャンセルボタン設定
+        if (this.checkedItem >= 0)
+        {
+            this.listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            this.listView.setItemChecked(this.checkedItem, true);
+            db.setPositiveButton(R.string.ui_ok, new OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    if (okListener != null)
+                    {
+                        okListener.onClick(dialog, ListDialogFragment.this.checkedItem);
+                    }
+                }
+            });
+        }
+
+        // キャンセルボタン設定
         if (cancelListener == null)
         {
             cancelListener = new OnClickListener()
@@ -172,13 +199,6 @@ public class ListDialogFragment extends DialogFragment
                     // キャンセル処理なし
                 }
             };
-        }
-
-        if (this.checkedItem >= 0)
-        {
-            this.listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            this.listView.setItemChecked(this.checkedItem, true);
-            db.setPositiveButton(R.string.ui_ok, okListener);
         }
 
         db.setNegativeButton(R.string.ui_cancel, cancelListener);
