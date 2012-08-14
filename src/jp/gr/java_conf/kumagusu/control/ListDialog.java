@@ -46,40 +46,7 @@ public final class ListDialog extends OldStyleDialog
      */
     public void showDialog(Drawable icon, String title, String[] conditionNames, OnClickListener clickListener)
     {
-        // カスタムViewを取得
-        AlertDialog.Builder db = new AlertDialog.Builder(this.context);
-        if (icon != null)
-        {
-            db.setIcon(icon);
-        }
-        db.setTitle(title);
-        db.setItems(conditionNames, clickListener);
-        db.setNegativeButton(R.string.ui_cancel, new OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                // キャンセル処理なし
-            }
-        });
-
-        Dialog dialog = db.create();
-
-        // ダイアログのクローズ時の処理
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener()
-        {
-            @Override
-            public void onDismiss(DialogInterface dialog)
-            {
-                // ダイアログ消去後処理
-                postDismissDialog(context);
-            }
-        });
-
-        // ダイアログ表示前処理
-        preShowDialog(context);
-
-        dialog.show();
+        showSingleChoiceDialog(icon, title, conditionNames, -1, clickListener);
     }
 
     /**
@@ -103,25 +70,34 @@ public final class ListDialog extends OldStyleDialog
             db.setIcon(icon);
         }
         db.setTitle(title);
-        db.setSingleChoiceItems(conditionNames, chItem, new OnClickListener()
+
+        if (chItem >= 0)
         {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
+            db.setSingleChoiceItems(conditionNames, chItem, new OnClickListener()
             {
-                ListDialog.this.checkedItem = which;
-            }
-        });
-        db.setPositiveButton(R.string.ui_ok, new OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
-                if (clickListener != null)
+                @Override
+                public void onClick(DialogInterface dialog, int which)
                 {
-                    clickListener.onClick(dialog, ListDialog.this.checkedItem);
+                    ListDialog.this.checkedItem = which;
                 }
-            }
-        });
+            });
+            db.setPositiveButton(R.string.ui_ok, new OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    if (clickListener != null)
+                    {
+                        clickListener.onClick(dialog, ListDialog.this.checkedItem);
+                    }
+                }
+            });
+        }
+        else
+        {
+            db.setItems(conditionNames, clickListener);
+        }
+
         db.setNegativeButton(R.string.ui_cancel, new OnClickListener()
         {
             @Override
