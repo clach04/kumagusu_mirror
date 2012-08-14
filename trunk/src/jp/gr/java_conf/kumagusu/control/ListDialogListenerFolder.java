@@ -1,12 +1,12 @@
 package jp.gr.java_conf.kumagusu.control;
 
 /**
- * 確認ダイアログのリスナ保持処理インタフェース.
+ * リストダイアログのリスナ保持処理インタフェース.
  *
  * @author tarshi
  *
  */
-public interface ConfirmDialogListenerFolder
+public interface ListDialogListenerFolder
 {
     /**
      * リスナ保持データを取得する.
@@ -14,7 +14,7 @@ public interface ConfirmDialogListenerFolder
      * @param listenerId リスナ保持データID
      * @return リスナ保持データ
      */
-    DialogListeners getConfirmDialogListeners(int listenerId);
+    DialogListeners getListDialogListeners(int listenerId);
 
     /**
      * リスナ保持データを追加する.
@@ -22,5 +22,5 @@ public interface ConfirmDialogListenerFolder
      * @param listenerId リスナ保持データID
      * @param listeners リスナ保持データ
      */
-    void putConfirmDialogListeners(int listenerId, DialogListeners listeners);
+    void putListDialogListeners(int listenerId, DialogListeners listeners);
 }
