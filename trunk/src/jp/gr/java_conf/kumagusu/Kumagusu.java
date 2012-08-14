@@ -135,11 +135,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private ListView mListView;
 
-    // /**
-    // * 選択中のメモ.
-    // */
-    // private IMemo mSelectedMemoFile;
-
     /**
      * 選択中のメモのパス.
      */
@@ -245,7 +240,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private static final int DIALOG_ID_LIST_FOLDER_CONTROL = 102;
 
     /**
-     * リストダイアログID「並び替え方法」
+     * リストダイアログID「並び替え方法」.
      */
     private static final int DIALOG_ID_LIST_MEMO_SORT_METHOD = 103;
 
