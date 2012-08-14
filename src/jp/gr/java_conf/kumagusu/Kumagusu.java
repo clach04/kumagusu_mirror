@@ -15,7 +15,8 @@ import jp.gr.java_conf.kumagusu.control.DialogListeners;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog.OnDirectoryListDialogListener;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
-import jp.gr.java_conf.kumagusu.control.ListDialog;
+import jp.gr.java_conf.kumagusu.control.ListDialogFragment;
+import jp.gr.java_conf.kumagusu.control.ListDialogListenerFolder;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
@@ -47,7 +48,7 @@ import android.widget.ListView;
 /**
  * メモ一覧. Root Activity
  */
-public final class Kumagusu extends FragmentActivity implements ConfirmDialogListenerFolder
+public final class Kumagusu extends FragmentActivity implements ConfirmDialogListenerFolder, ListDialogListenerFolder
 {
     /**
      * メニュー項目「新規」.
@@ -134,10 +135,15 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private ListView mListView;
 
+    // /**
+    // * 選択中のメモ.
+    // */
+    // private IMemo mSelectedMemoFile;
+
     /**
-     * 選択中のメモ.
+     * 選択中のメモのパス.
      */
-    private IMemo mSelectedMemoFile;
+    private String selectedMemoFilePath;
 
     /**
      * カレントディレクトリのメモ.
@@ -194,6 +200,66 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private Comparator<IMemo> memoListComparator = null;
 
     /**
+     * 確認ダイアログID「ファイル削除」.
+     */
+    private static final int DIALOG_ID_CONFIRM_DELETE_FILE = 1;
+
+    /**
+     * 確認ダイアログID「フォルダ削除」.
+     */
+    private static final int DIALOG_ID_CONFIRM_DELETE_FOLDER = 2;
+
+    /**
+     * 確認ダイアログID「フォルダ削除エラー」.
+     */
+    private static final int DIALOG_ID_CONFIRM_DELETE_FOLDER_ERROR = 3;
+
+    /**
+     * 確認ダイアログID「フォルダ名変更エラー（フォルダ名指定なし）」.
+     */
+    private static final int DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME = 4;
+
+    /**
+     * 確認ダイアログID「フォルダ名変更エラー（フォルダ名重複）」.
+     */
+    private static final int DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT = 5;
+
+    /**
+     * 確認ダイアログID「フォルダ追加エラー（フォルダ名重複）」.
+     */
+    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT = 6;
+
+    /**
+     * 確認ダイアログID「フォルダ追加エラー（フォルダ名指定なし）」.
+     */
+    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME = 7;
+
+    /**
+     * リストダイアログID「メモ操作」.
+     */
+    private static final int DIALOG_ID_LIST_MEMO_FILE_CONTROL = 101;
+
+    /**
+     * リストダイアログID「フォルダ操作」.
+     */
+    private static final int DIALOG_ID_LIST_FOLDER_CONTROL = 102;
+
+    /**
+     * リストダイアログID「並び替え方法」
+     */
+    private static final int DIALOG_ID_LIST_MEMO_SORT_METHOD = 103;
+
+    /**
+     * リストダイアログID「メモリスト操作」.
+     */
+    private static final int DIALOG_ID_LIST_MEMO_LIST_CONTROL = 104;
+
+    /**
+     * 確認ダイアログ保管データMap.
+     */
+    private SparseArray<DialogListeners> dialogListenerMap = new SparseArray<DialogListeners>();
+
+    /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
      *
      * @param savedInstanceState Activityの状態
@@ -208,8 +274,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         Log.d("Kumagusu", "*** START onCreate()");
 
-        // 確認ダイアログのリスナを生成
+        // ダイアログのリスナを生成
         initConfirmDialogListener();
+        initListDialogListener();
 
         // リストのインスタンスを取得
         this.mListView = (ListView) findViewById(R.id.list);
@@ -282,7 +349,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
                 if (selectedItem != null)
                 {
-                    Kumagusu.this.mSelectedMemoFile = selectedItem;
+                    Kumagusu.this.selectedMemoFilePath = selectedItem.getPath();
 
                     // ダイアログ表示
                     switch (selectedItem.getMemoType())
@@ -290,9 +357,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     case Text:
                     case Secret1:
                     case Secret2:
-
                         String[] dialogEntries;
-                        final MemoType change2MemoType;
                         if (selectedItem.getMemoType() == MemoType.Text)
                         {
                             if (MainApplication.getInstance(Kumagusu.this).getLastCorrectPassword() == null)
@@ -305,282 +370,25 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                 dialogEntries = getResources().getStringArray(
                                         R.array.memo_file_control_dialog_entries_4_text_2);
                             }
-                            change2MemoType = MemoType.Secret1;
                         }
                         else
                         {
                             dialogEntries = getResources().getStringArray(
                                     R.array.memo_file_control_dialog_entries_4_secret);
-                            change2MemoType = MemoType.Text;
                         }
 
-                        ListDialog memoControlDialog = new ListDialog(Kumagusu.this);
-                        memoControlDialog.showDialog(getResources().getDrawable(R.drawable.memo_operation),
-                                getResources().getString(R.string.memo_file_control_dialog_title), dialogEntries,
-                                new OnClickListener()
-                                {
-                                    /**
-                                     * メモ操作ダイアログの項目選択イベントを処理する。
-                                     */
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
-                                        // リストのインスタンスを取得
-                                        File file = new File(Kumagusu.this.mSelectedMemoFile.getPath());
+                        ListDialogFragment.newInstance(DIALOG_ID_LIST_MEMO_FILE_CONTROL, R.drawable.memo_operation,
+                                R.string.memo_file_control_dialog_title, 0, dialogEntries).show(
+                                getSupportFragmentManager(), "");
 
-                                        if (!file.exists())
-                                        {
-                                            return;
-                                        }
-
-                                        switch (which)
-                                        {
-                                        case FILE_CONTROL_ID_COPY: // コピー
-                                            // コピー先フォルダ選択ダイアログを表示
-                                            DirectorySelectDialog copyDialog = new DirectorySelectDialog(Kumagusu.this,
-                                                    getString(R.string.memo_file_control_dialog_copy_title),
-                                                    MainPreferenceActivity.getMemoLocation(Kumagusu.this),
-                                                    Kumagusu.this.mSelectedMemoFile.getParent());
-
-                                            copyDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
-                                            {
-                                                /**
-                                                 * コピー先ディレクトリ指定完了のイベントを処理する 。
-                                                 */
-                                                @Override
-                                                public void onClickFileList(String path)
-                                                {
-                                                    if (path != null)
-                                                    {
-                                                        MemoUtilities.copyMemoFile(
-                                                                (MemoFile) Kumagusu.this.mSelectedMemoFile, path);
-
-                                                        // メモリストを更新
-                                                        refreshMemoList();
-                                                    }
-                                                }
-                                            });
-
-                                            copyDialog.show();
-                                            break;
-
-                                        case FILE_CONTROL_ID_MOVE: // 移動
-                                            // 移動先フォルダ選択ダイアログを表示
-                                            DirectorySelectDialog moveDialog = new DirectorySelectDialog(Kumagusu.this,
-                                                    getString(R.string.memo_file_control_dialog_move_title),
-                                                    MainPreferenceActivity.getMemoLocation(Kumagusu.this),
-                                                    Kumagusu.this.mSelectedMemoFile.getParent());
-
-                                            moveDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
-                                            {
-                                                /**
-                                                 * 移動先ディレクトリ指定完了のイベントを処理する 。
-                                                 */
-                                                @Override
-                                                public void onClickFileList(String path)
-                                                {
-                                                    if (path != null)
-                                                    {
-                                                        MemoUtilities.moveMemoFile(
-                                                                (MemoFile) Kumagusu.this.mSelectedMemoFile, path);
-
-                                                        // メモリストを更新
-                                                        refreshMemoList();
-                                                    }
-                                                }
-                                            });
-
-                                            moveDialog.show();
-                                            break;
-
-                                        case FILE_CONTROL_ID_DELETE: // 削除
-                                            // 削除の確認ダイアログを表示
-                                            ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_DELETE_FILE,
-                                                    android.R.drawable.ic_menu_delete,
-                                                    R.string.memo_file_control_dialog_delete_title,
-                                                    R.string.memo_file_control_dialog_delete_message,
-                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_YES).show(
-                                                    getSupportFragmentManager(), "");
-                                            break;
-
-                                        case FILE_CONTROL_ID_ENCRYPT_OR_DECRYPT: // 暗号化・復号化
-                                            changeMemoType((MemoFile) Kumagusu.this.mSelectedMemoFile, change2MemoType,
-                                                    false);
-                                            break;
-
-                                        case FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD: // 暗号化(ﾊﾟｽﾜｰﾄﾞ入力)
-                                            if (change2MemoType == MemoType.Secret1)
-                                            {
-                                                changeMemoType((MemoFile) Kumagusu.this.mSelectedMemoFile,
-                                                        change2MemoType, true);
-                                            }
-                                            break;
-
-                                        default:
-                                            break;
-                                        }
-                                    }
-                                });
                         break;
 
                     case Folder:
-                        ListDialog folderControlDialog = new ListDialog(Kumagusu.this);
-                        folderControlDialog.showDialog(getResources().getDrawable(R.drawable.folder_operation),
-                                getResources().getString(R.string.folder_control_dialog_title), getResources()
-                                        .getStringArray(R.array.memo_file_control_dialog_entries_4_folder),
-                                new OnClickListener()
-                                {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
-                                        // リストのインスタンスを取得
-                                        File file = new File(Kumagusu.this.mSelectedMemoFile.getPath());
+                        ListDialogFragment.newInstance(DIALOG_ID_LIST_FOLDER_CONTROL, R.drawable.folder_operation,
+                                R.string.folder_control_dialog_title, 0,
+                                getResources().getStringArray(R.array.memo_file_control_dialog_entries_4_folder)).show(
+                                getSupportFragmentManager(), "");
 
-                                        if (!file.exists())
-                                        {
-                                            // コピー元が存在しない
-                                            return;
-                                        }
-
-                                        switch (which)
-                                        {
-                                        case FOLDER_CONTROL_ID_COPY: // コピー
-                                            // コピー先フォルダ選択ダイアログを表示
-                                            DirectorySelectDialog copyDialog = new DirectorySelectDialog(Kumagusu.this,
-                                                    getString(R.string.folder_control_dialog_copy_title),
-                                                    MainPreferenceActivity.getMemoLocation(Kumagusu.this),
-                                                    Kumagusu.this.mSelectedMemoFile.getParent());
-
-                                            copyDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
-                                            {
-                                                /**
-                                                 * コピー先ディレクトリ指定完了のイベントを処理する 。
-                                                 */
-                                                @Override
-                                                public void onClickFileList(String path)
-                                                {
-                                                    if (path != null)
-                                                    {
-                                                        MemoUtilities.copyMemoFolder(
-                                                                (MemoFolder) Kumagusu.this.mSelectedMemoFile, path);
-
-                                                        // メモリストを更新
-                                                        refreshMemoList();
-                                                    }
-                                                }
-                                            });
-
-                                            copyDialog.show();
-                                            break;
-
-                                        case FOLDER_CONTROL_ID_MOVE: // 移動
-                                            // 移動先フォルダ選択ダイアログを表示
-                                            DirectorySelectDialog moveDialog = new DirectorySelectDialog(Kumagusu.this,
-                                                    getString(R.string.folder_control_dialog_move_title),
-                                                    MainPreferenceActivity.getMemoLocation(Kumagusu.this),
-                                                    Kumagusu.this.mSelectedMemoFile.getParent());
-
-                                            moveDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
-                                            {
-                                                /**
-                                                 * 移動先ディレクトリ指定完了のイベントを処理する 。
-                                                 */
-                                                @Override
-                                                public void onClickFileList(String path)
-                                                {
-                                                    if (path != null)
-                                                    {
-                                                        MemoUtilities.moveMemoFolder(
-                                                                (MemoFolder) Kumagusu.this.mSelectedMemoFile, path);
-
-                                                        // メモリストを更新
-                                                        refreshMemoList();
-                                                    }
-                                                }
-                                            });
-
-                                            moveDialog.show();
-                                            break;
-
-                                        case FOLDER_CONTROL_ID_DELETE: // 削除
-                                            // 削除の確認ダイアログを表示
-                                            ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_DELETE_FOLDER,
-                                                    android.R.drawable.ic_menu_delete,
-                                                    R.string.folder_control_dialog_delete_title,
-                                                    R.string.folder_control_dialog_delete_message,
-                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_YES).show(
-                                                    getSupportFragmentManager(), "");
-                                            break;
-
-                                        case FOLDER_CONTROL_ID_RENAME: // 名称変更
-                                            final InputDialog renameFolderDialog = new InputDialog(Kumagusu.this);
-                                            renameFolderDialog.setText(Kumagusu.this.mSelectedMemoFile.getName());
-
-                                            renameFolderDialog.showDialog(
-                                                    Kumagusu.this.getResources().getDrawable(
-                                                            R.drawable.folder_operation), Kumagusu.this.getResources()
-                                                            .getString(R.string.folder_rename_control_dialog_title),
-                                                    InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
-                                                    {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which)
-                                                        {
-                                                            String folderName = MemoUtilities
-                                                                    .sanitizeFileNameString(renameFolderDialog
-                                                                            .getText());
-
-                                                            if (folderName.length() == 0)
-                                                            {
-                                                                // フォルダ名が空
-                                                                ConfirmDialogFragment
-                                                                        .newInstance(
-                                                                                DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME,
-                                                                                android.R.drawable.ic_menu_info_details,
-                                                                                R.string.folder_rename_control_dialog_error_noinput,
-                                                                                0,
-                                                                                ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK)
-                                                                        .show(getSupportFragmentManager(), "");
-                                                                return;
-                                                            }
-
-                                                            if (!folderName.equals(Kumagusu.this.mSelectedMemoFile
-                                                                    .getName()))
-                                                            {
-                                                                File srcFolderFile = new File(
-                                                                        Kumagusu.this.mSelectedMemoFile.getPath());
-                                                                File newFolderFile = new File(
-                                                                        Kumagusu.this.mSelectedMemoFile.getParent(),
-                                                                        folderName);
-
-                                                                if (!newFolderFile.exists())
-                                                                {
-                                                                    srcFolderFile.renameTo(newFolderFile);
-
-                                                                    // メモリストを更新
-                                                                    refreshMemoList();
-                                                                }
-                                                                else
-                                                                {
-                                                                    // すでに同名のフォルダまたはファイルが存在
-                                                                    ConfirmDialogFragment
-                                                                            .newInstance(
-                                                                                    DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT,
-                                                                                    android.R.drawable.ic_menu_info_details,
-                                                                                    R.string.folder_rename_control_dialog_error_duplicate,
-                                                                                    0,
-                                                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK)
-                                                                            .show(getSupportFragmentManager(), "");
-                                                                }
-                                                            }
-                                                        }
-                                                    }, null);
-                                            break;
-
-                                        default:
-                                            break;
-                                        }
-                                    }
-                                });
                         break;
 
                     default:
@@ -705,6 +513,31 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        Log.d("Kumagusu", "*** START onSaveInstanceState()");
+
+        super.onSaveInstanceState(outState);
+
+        // 選択中メモファイルパス
+        outState.putString("selectedMemoFilePath", this.selectedMemoFilePath);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    {
+        Log.d("Kumagusu", "*** START onRestoreInstanceState()");
+
+        // 選択中メモファイルパス
+        if (savedInstanceState.containsKey("selectedMemoFilePath"))
+        {
+            this.selectedMemoFilePath = savedInstanceState.getString("selectedMemoFilePath");
+        }
+
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         boolean ret = super.onCreateOptionsMenu(menu);
@@ -777,18 +610,10 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 }
             }
 
-            ListDialog memoSortMethodChoiseDialog = new ListDialog(this);
-            memoSortMethodChoiseDialog.showSingleChoiceDialog(getResources().getDrawable(R.drawable.memo_sort),
-                    getResources().getString(R.string.memo_sort_method_dialog_title),
-                    getResources().getStringArray(R.array.memo_sort_method_kind_entries), memoSortMothodIndex,
-                    new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            setMemoSortMethod(memoSortMethodValues[which]);
-                        }
-                    });
+            ListDialogFragment.newInstance(DIALOG_ID_LIST_MEMO_SORT_METHOD, R.drawable.memo_sort,
+                    R.string.memo_sort_method_dialog_title, 0,
+                    getResources().getStringArray(R.array.memo_sort_method_kind_entries), memoSortMothodIndex).show(
+                    getSupportFragmentManager(), "");
             break;
 
         case MENU_ID_SEARCH: // 検索（メモ検索）
@@ -823,83 +648,10 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             break;
 
         case MENU_ID_CREATE_MEMO: // 新規
-            ListDialog memoCreateDialog = new ListDialog(Kumagusu.this);
-            memoCreateDialog.showDialog(getResources().getDrawable(R.drawable.memo_folder_add), getResources()
-                    .getString(R.string.memo_list_control_dialog_title),
-                    getResources().getStringArray(R.array.memo_list_control_dialog_entries), new OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            switch (which)
-                            {
-                            case FILE_LIST_CONTROL_ID_ADD_MEMO: // メモ追加
-                                // エディタを開始
-                                Intent editIntent = new Intent(Kumagusu.this, EditorActivity.class);
-
-                                editIntent.putExtra("FULL_PATH", (String) null);
-                                editIntent.putExtra("CURRENT_FOLDER", MainApplication.getInstance(Kumagusu.this)
-                                        .getCurrentMemoFolder());
-
-                                startActivity(editIntent);
-                                break;
-
-                            case FILE_LIST_CONTROL_ID_ADD_FOLDER: // フォルダ追加
-                                final InputDialog addFolderDialog = new InputDialog(Kumagusu.this);
-                                addFolderDialog.showDialog(
-                                        Kumagusu.this.getResources().getDrawable(R.drawable.folder_add), Kumagusu.this
-                                                .getResources().getString(R.string.folder_add_control_dialog_title),
-                                        InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
-                                        {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which)
-                                            {
-                                                String folderName = MemoUtilities
-                                                        .sanitizeFileNameString(addFolderDialog.getText());
-
-                                                if (folderName.length() > 0)
-                                                {
-                                                    File addFolderFile = new File(MainApplication.getInstance(
-                                                            Kumagusu.this).getCurrentMemoFolder(), folderName);
-
-                                                    if (!addFolderFile.exists())
-                                                    {
-                                                        addFolderFile.mkdirs();
-
-                                                        // メモリストを更新
-                                                        refreshMemoList();
-                                                    }
-                                                    else
-                                                    {
-                                                        // すでに同名のフォルダまたはファイルが存在
-                                                        ConfirmDialogFragment.newInstance(
-                                                                DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT,
-                                                                android.R.drawable.ic_menu_info_details,
-                                                                R.string.memo_list_control_dialog_add_error_duplicate,
-                                                                0, ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK)
-                                                                .show(getSupportFragmentManager(), "");
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    // フォルダ名が空
-                                                    ConfirmDialogFragment.newInstance(
-                                                            DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME,
-                                                            android.R.drawable.ic_menu_info_details,
-                                                            R.string.memo_list_control_dialog_add_error_noinput, 0,
-                                                            ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
-                                                            getSupportFragmentManager(), "");
-                                                }
-                                            }
-                                        }, null);
-                                break;
-
-                            default:
-                                break;
-                            }
-                        }
-                    });
-
+            ListDialogFragment.newInstance(DIALOG_ID_LIST_MEMO_LIST_CONTROL, R.drawable.memo_folder_add,
+                    R.string.memo_list_control_dialog_title, 0,
+                    getResources().getStringArray(R.array.memo_list_control_dialog_entries)).show(
+                    getSupportFragmentManager(), "");
             break;
 
         case android.R.id.home: // UPアイコン
@@ -1190,44 +942,28 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     /**
-     * 確認ダイアログID「ファイル削除」.
+     * 選択中メモファイルを取得する.
+     *
+     * @return 選択中メモファイル
      */
-    private static final int DIALOG_ID_CONFIRM_DELETE_FILE = 1;
+    private IMemo getSelectedMemoFile()
+    {
+        @SuppressWarnings("unchecked")
+        ArrayAdapter<IMemo> adapter = (ArrayAdapter<IMemo>) Kumagusu.this.mListView.getAdapter();
 
-    /**
-     * 確認ダイアログID「フォルダ削除」.
-     */
-    private static final int DIALOG_ID_CONFIRM_DELETE_FOLDER = 2;
+        IMemo selectedMemoFileTemp = null;
 
-    /**
-     * 確認ダイアログID「フォルダ削除エラー」.
-     */
-    private static final int DIALOG_ID_CONFIRM_DELETE_FOLDER_ERROR = 3;
+        for (int i = 0; i < adapter.getCount(); i++)
+        {
+            if (Kumagusu.this.selectedMemoFilePath.equals(adapter.getItem(i).getPath()))
+            {
+                selectedMemoFileTemp = adapter.getItem(i);
+                break;
+            }
+        }
 
-    /**
-     * 確認ダイアログID「フォルダ名変更エラー（フォルダ名指定なし）」.
-     */
-    private static final int DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME = 4;
-
-    /**
-     * 確認ダイアログID「フォルダ名変更エラー（フォルダ名重複）」.
-     */
-    private static final int DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT = 5;
-
-    /**
-     * 確認ダイアログID「フォルダ追加エラー（フォルダ名重複）」.
-     */
-    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT = 6;
-
-    /**
-     * 確認ダイアログID「フォルダ追加エラー（フォルダ名指定なし）」.
-     */
-    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME = 7;
-
-    /**
-     * 確認ダイアログ保管データMap.
-     */
-    private SparseArray<DialogListeners> confirmDialogListenerMap = new SparseArray<DialogListeners>();
+        return selectedMemoFileTemp;
+    }
 
     /**
      * 確認ダイアログのリスナを初期化する.
@@ -1243,7 +979,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                MemoUtilities.deleteFile(Kumagusu.this.mSelectedMemoFile.getPath());
+                MemoUtilities.deleteFile(getSelectedMemoFile().getPath());
 
                 // メモリストを更新
                 refreshMemoList();
@@ -1266,7 +1002,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                if (!MemoUtilities.deleteFile(Kumagusu.this.mSelectedMemoFile.getPath()))
+                if (!MemoUtilities.deleteFile(getSelectedMemoFile().getPath()))
                 {
                     ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_DELETE_FOLDER_ERROR,
                             android.R.drawable.ic_menu_info_details, R.string.folder_control_dialog_delete_error, 0,
@@ -1290,33 +1026,402 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FOLDER_ERROR, new DialogListeners(null, null, null));
 
         // フォルダ名変更エラー（フォルダ名指定なし）
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME, new DialogListeners(null, null,
-                null));
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME, new DialogListeners(null, null, null));
 
         // フォルダ名変更エラー（フォルダ名重複）
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT, new DialogListeners(null,
-                null, null));
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT, new DialogListeners(null, null, null));
 
         // フォルダ追加エラー（フォルダ名重複）
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT, new DialogListeners(null, null,
-                null));
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT, new DialogListeners(null, null, null));
 
         // フォルダ追加エラー（フォルダ名指定なし）
-        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME, new DialogListeners(null, null,
-                null));
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME, new DialogListeners(null, null, null));
     }
 
     @Override
     public DialogListeners getConfirmDialogListeners(int listenerId)
     {
         // 確認ダイアログ保管データを返す
-        return this.confirmDialogListenerMap.get(listenerId);
+        return this.dialogListenerMap.get(listenerId);
     }
 
     @Override
     public void putConfirmDialogListeners(int listenerId, DialogListeners listeners)
     {
         // 確認ダイアログデータを追加
-        this.confirmDialogListenerMap.put(listenerId, listeners);
+        this.dialogListenerMap.put(listenerId, listeners);
+    }
+
+    /**
+     * リストダイアログのリスナを初期化する.
+     */
+    private void initListDialogListener()
+    {
+        // メモ操作
+        putListDialogListeners(DIALOG_ID_LIST_MEMO_FILE_CONTROL, new DialogListeners(new OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                // リストのインスタンスを取得
+                File file = new File(Kumagusu.this.selectedMemoFilePath);
+
+                if (!file.exists())
+                {
+                    return;
+                }
+
+                // 選択中メモファイルを取得
+                final IMemo selectedMemoFile = getSelectedMemoFile();
+
+                if (selectedMemoFile == null)
+                {
+                    return;
+                }
+
+                switch (which)
+                {
+                case FILE_CONTROL_ID_COPY: // コピー
+                    // コピー先フォルダ選択ダイアログを表示
+                    DirectorySelectDialog copyDialog = new DirectorySelectDialog(Kumagusu.this,
+                            getString(R.string.memo_file_control_dialog_copy_title), MainPreferenceActivity
+                                    .getMemoLocation(Kumagusu.this), selectedMemoFile.getParent());
+
+                    copyDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
+                    {
+                        /**
+                         * コピー先ディレクトリ指定完了のイベントを処理する 。
+                         */
+                        @Override
+                        public void onClickFileList(String path)
+                        {
+                            if (path != null)
+                            {
+                                MemoUtilities.copyMemoFile((MemoFile) selectedMemoFile, path);
+
+                                // メモリストを更新
+                                refreshMemoList();
+                            }
+                        }
+                    });
+
+                    copyDialog.show();
+                    break;
+
+                case FILE_CONTROL_ID_MOVE: // 移動
+                    // 移動先フォルダ選択ダイアログを表示
+                    DirectorySelectDialog moveDialog = new DirectorySelectDialog(Kumagusu.this,
+                            getString(R.string.memo_file_control_dialog_move_title), MainPreferenceActivity
+                                    .getMemoLocation(Kumagusu.this), selectedMemoFile.getParent());
+
+                    moveDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
+                    {
+                        /**
+                         * 移動先ディレクトリ指定完了のイベントを処理する 。
+                         */
+                        @Override
+                        public void onClickFileList(String path)
+                        {
+                            if (path != null)
+                            {
+                                MemoUtilities.moveMemoFile((MemoFile) selectedMemoFile, path);
+
+                                // メモリストを更新
+                                refreshMemoList();
+                            }
+                        }
+                    });
+
+                    moveDialog.show();
+                    break;
+
+                case FILE_CONTROL_ID_DELETE: // 削除
+                    // 削除の確認ダイアログを表示
+                    ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_DELETE_FILE, android.R.drawable.ic_menu_delete,
+                            R.string.memo_file_control_dialog_delete_title,
+                            R.string.memo_file_control_dialog_delete_message,
+                            ConfirmDialogFragment.POSITIVE_CAPTION_KIND_YES).show(getSupportFragmentManager(), "");
+                    break;
+
+                case FILE_CONTROL_ID_ENCRYPT_OR_DECRYPT: // 暗号化・復号化
+                    changeMemoType((MemoFile) selectedMemoFile, getChange2MemoType(selectedMemoFile), false);
+                    break;
+
+                case FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD: // 暗号化(ﾊﾟｽﾜｰﾄﾞ入力)
+                    if (getChange2MemoType(selectedMemoFile) == MemoType.Secret1)
+                    {
+                        changeMemoType((MemoFile) selectedMemoFile, getChange2MemoType(selectedMemoFile), true);
+                    }
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }));
+
+        // フォルダ操作
+        putListDialogListeners(DIALOG_ID_LIST_FOLDER_CONTROL, new DialogListeners(new OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                // リストのインスタンスを取得
+                File file = new File(Kumagusu.this.selectedMemoFilePath);
+
+                if (!file.exists())
+                {
+                    // コピー元が存在しない
+                    return;
+                }
+
+                // 選択中メモファイルを取得
+                final IMemo selectedMemoFile = getSelectedMemoFile();
+
+                if (selectedMemoFile == null)
+                {
+                    return;
+                }
+
+                switch (which)
+                {
+                case FOLDER_CONTROL_ID_COPY: // コピー
+                    // コピー先フォルダ選択ダイアログを表示
+                    DirectorySelectDialog copyDialog = new DirectorySelectDialog(Kumagusu.this,
+                            getString(R.string.folder_control_dialog_copy_title), MainPreferenceActivity
+                                    .getMemoLocation(Kumagusu.this), selectedMemoFile.getParent());
+
+                    copyDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
+                    {
+                        /**
+                         * コピー先ディレクトリ指定完了のイベントを処理する 。
+                         */
+                        @Override
+                        public void onClickFileList(String path)
+                        {
+                            if (path != null)
+                            {
+                                MemoUtilities.copyMemoFolder((MemoFolder) selectedMemoFile, path);
+
+                                // メモリストを更新
+                                refreshMemoList();
+                            }
+                        }
+                    });
+
+                    copyDialog.show();
+                    break;
+
+                case FOLDER_CONTROL_ID_MOVE: // 移動
+                    // 移動先フォルダ選択ダイアログを表示
+                    DirectorySelectDialog moveDialog = new DirectorySelectDialog(Kumagusu.this,
+                            getString(R.string.folder_control_dialog_move_title), MainPreferenceActivity
+                                    .getMemoLocation(Kumagusu.this), selectedMemoFile.getParent());
+
+                    moveDialog.setOnFileListDialogListener(new OnDirectoryListDialogListener()
+                    {
+                        /**
+                         * 移動先ディレクトリ指定完了のイベントを処理する 。
+                         */
+                        @Override
+                        public void onClickFileList(String path)
+                        {
+                            if (path != null)
+                            {
+                                MemoUtilities.moveMemoFolder((MemoFolder) selectedMemoFile, path);
+
+                                // メモリストを更新
+                                refreshMemoList();
+                            }
+                        }
+                    });
+
+                    moveDialog.show();
+                    break;
+
+                case FOLDER_CONTROL_ID_DELETE: // 削除
+                    // 削除の確認ダイアログを表示
+                    ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_DELETE_FOLDER,
+                            android.R.drawable.ic_menu_delete, R.string.folder_control_dialog_delete_title,
+                            R.string.folder_control_dialog_delete_message,
+                            ConfirmDialogFragment.POSITIVE_CAPTION_KIND_YES).show(getSupportFragmentManager(), "");
+                    break;
+
+                case FOLDER_CONTROL_ID_RENAME: // 名称変更
+                    final InputDialog renameFolderDialog = new InputDialog(Kumagusu.this);
+                    renameFolderDialog.setText(selectedMemoFile.getName());
+
+                    renameFolderDialog.showDialog(
+                            Kumagusu.this.getResources().getDrawable(R.drawable.folder_operation), Kumagusu.this
+                                    .getResources().getString(R.string.folder_rename_control_dialog_title),
+                            InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    String folderName = MemoUtilities.sanitizeFileNameString(renameFolderDialog
+                                            .getText());
+
+                                    if (folderName.length() == 0)
+                                    {
+                                        // フォルダ名が空
+                                        ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME,
+                                                android.R.drawable.ic_menu_info_details,
+                                                R.string.folder_rename_control_dialog_error_noinput, 0,
+                                                ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                                getSupportFragmentManager(), "");
+                                        return;
+                                    }
+
+                                    if (!folderName.equals(selectedMemoFile.getName()))
+                                    {
+                                        File srcFolderFile = new File(selectedMemoFile.getPath());
+                                        File newFolderFile = new File(selectedMemoFile.getParent(), folderName);
+
+                                        if (!newFolderFile.exists())
+                                        {
+                                            srcFolderFile.renameTo(newFolderFile);
+
+                                            // メモリストを更新
+                                            refreshMemoList();
+                                        }
+                                        else
+                                        {
+                                            // すでに同名のフォルダまたはファイルが存在
+                                            ConfirmDialogFragment.newInstance(
+                                                    DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT,
+                                                    android.R.drawable.ic_menu_info_details,
+                                                    R.string.folder_rename_control_dialog_error_duplicate, 0,
+                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                                    getSupportFragmentManager(), "");
+                                        }
+                                    }
+                                }
+                            }, null);
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }));
+
+        // 並び替え方法選択
+        putListDialogListeners(DIALOG_ID_LIST_MEMO_SORT_METHOD, new DialogListeners(new OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                int[] memoSortMethodValues = getResources().getIntArray(R.array.memo_sort_method_kind_values);
+                setMemoSortMethod(memoSortMethodValues[which]);
+            }
+        }));
+
+        // メモリスト操作
+        putListDialogListeners(DIALOG_ID_LIST_MEMO_LIST_CONTROL, new DialogListeners(new OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                switch (which)
+                {
+                case FILE_LIST_CONTROL_ID_ADD_MEMO: // メモ追加
+                    // エディタを開始
+                    Intent editIntent = new Intent(Kumagusu.this, EditorActivity.class);
+
+                    editIntent.putExtra("FULL_PATH", (String) null);
+                    editIntent.putExtra("CURRENT_FOLDER", MainApplication.getInstance(Kumagusu.this)
+                            .getCurrentMemoFolder());
+
+                    startActivity(editIntent);
+                    break;
+
+                case FILE_LIST_CONTROL_ID_ADD_FOLDER: // フォルダ追加
+                    final InputDialog addFolderDialog = new InputDialog(Kumagusu.this);
+                    addFolderDialog.showDialog(Kumagusu.this.getResources().getDrawable(R.drawable.folder_add),
+                            Kumagusu.this.getResources().getString(R.string.folder_add_control_dialog_title),
+                            InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    String folderName = MemoUtilities.sanitizeFileNameString(addFolderDialog.getText());
+
+                                    if (folderName.length() > 0)
+                                    {
+                                        File addFolderFile = new File(MainApplication.getInstance(Kumagusu.this)
+                                                .getCurrentMemoFolder(), folderName);
+
+                                        if (!addFolderFile.exists())
+                                        {
+                                            addFolderFile.mkdirs();
+
+                                            // メモリストを更新
+                                            refreshMemoList();
+                                        }
+                                        else
+                                        {
+                                            // すでに同名のフォルダまたはファイルが存在
+                                            ConfirmDialogFragment.newInstance(
+                                                    DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT,
+                                                    android.R.drawable.ic_menu_info_details,
+                                                    R.string.memo_list_control_dialog_add_error_duplicate, 0,
+                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                                    getSupportFragmentManager(), "");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // フォルダ名が空
+                                        ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME,
+                                                android.R.drawable.ic_menu_info_details,
+                                                R.string.memo_list_control_dialog_add_error_noinput, 0,
+                                                ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                                getSupportFragmentManager(), "");
+                                    }
+                                }
+                            }, null);
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }));
+    }
+
+    /**
+     * メモ操作・メモ種別変更で、変更先メモ種別を取得する.
+     *
+     * @param memoFile 変更元メモ
+     * @return 変更先メモ種別
+     */
+    private MemoType getChange2MemoType(IMemo memoFile)
+    {
+        MemoType change2MemoType;
+        if (memoFile.getMemoType() == MemoType.Text)
+        {
+            change2MemoType = MemoType.Secret1;
+        }
+        else
+        {
+            change2MemoType = MemoType.Text;
+        }
+
+        return change2MemoType;
+    }
+
+    @Override
+    public DialogListeners getListDialogListeners(int listenerId)
+    {
+        // リストダイアログ保管データを返す
+        return this.dialogListenerMap.get(listenerId);
+    }
+
+    @Override
+    public void putListDialogListeners(int listenerId, DialogListeners listeners)
+    {
+        // リストダイアログデータを追加
+        this.dialogListenerMap.put(listenerId, listeners);
     }
 }
