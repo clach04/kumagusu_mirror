@@ -82,19 +82,27 @@ public final class MemoSearchTask extends AbstractMemoCreateTask
 
         for (File file : files)
         {
-            // キャンセルなら終了
-            if (isCancelled())
+            while (true)
             {
-                return;
-            }
+                // キャンセルなら終了
+                if (isCancelled())
+                {
+                    return;
+                }
 
-            if (file.isDirectory())
-            {
-                findMemoFile(file.getAbsoluteFile());
-            }
-            else
-            {
-                decryptMemoFile(file, iMemoList, this.searchLowerCaseWords);
+                if (file.isDirectory())
+                {
+                    findMemoFile(file.getAbsoluteFile());
+                }
+                else
+                {
+                    if (!decryptMemoFile(file, iMemoList, this.searchLowerCaseWords))
+                    {
+                        continue;
+                    }
+                }
+
+                break;
             }
         }
 
