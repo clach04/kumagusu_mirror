@@ -1,6 +1,7 @@
 package jp.gr.java_conf.kumagusu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
@@ -129,21 +130,24 @@ public final class MainApplication extends Application
     /**
      * パスワードタイマー.
      */
-    private Timer passwordTimer = null;
+    private HashMap<String, Timer> passwordTimerMap = new HashMap<String, Timer>();
 
     /**
      * 派宇ワードタイマーを帰す.
-     *
+     * @param activityClassName アクティビティーのクラス名
      * @return パスワードタイマー
      */
-    public Timer getPasswordTimer()
+    public Timer getPasswordTimer(String activityClassName)
     {
-        if (this.passwordTimer == null)
+        Timer passwordTimer = this.passwordTimerMap.get(activityClassName);
+
+        if (passwordTimer == null)
         {
-            this.passwordTimer = new Timer(this.activity);
+            passwordTimer = new Timer(this.activity);
+            this.passwordTimerMap.put(activityClassName, passwordTimer);
         }
 
-        return this.passwordTimer;
+        return passwordTimer;
     }
 
     /**
@@ -178,6 +182,31 @@ public final class MainApplication extends Application
     {
         return (this.oldStyleDialogCounter > 0);
     }
+
+//    /**
+//     * エディタ起動中.
+//     */
+//    private boolean executedEditorActivity = false;
+//
+//    /**
+//     * エディタ起動中を設定する.
+//     *
+//     * @param executed エディタ起動中
+//     */
+//    public void setExecutedEditorActivity(boolean executed)
+//    {
+//        this.executedEditorActivity = executed;
+//    }
+//
+//    /**
+//     * エディタ起動中を返す.
+//     *
+//     * @return エディタ起動中
+//     */
+//    public boolean isExecutedEditorActivity()
+//    {
+//        return this.executedEditorActivity;
+//    }
 
     /**
      * エディタでメモを更新しているか?

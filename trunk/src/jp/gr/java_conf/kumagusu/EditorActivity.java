@@ -201,6 +201,11 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private String[] fixedPhraseStrings = null;
 
+    /**
+     * Kumagusuから起動.
+     */
+    private boolean executeByKumagusu = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -267,7 +272,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             this.currentFolderPath = targetFile.getParent();
 
             // タイムアウト？
-            if (MainApplication.getInstance(this).getPasswordTimer().stop())
+            if (isPasswordTimeout())
             {
                 // パスワードをクリア
                 MainApplication.getInstance(this).clearPasswordList();
@@ -275,6 +280,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         }
         else
         {
+            // Kumagusuからの起動
+            executeByKumagusu = true;
+
             // intentからパラメータを取得
             this.memoFileFullPath = getIntent().getStringExtra("FULL_PATH");
             this.currentFolderPath = getIntent().getStringExtra("CURRENT_FOLDER");
@@ -366,63 +374,6 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         setMemoData();
     }
 
-    /**
-     * 文字列を検索し、検索された文字列を選択する.
-     *
-     * @param nextFg trueのとき後方検索、falseのとき前方検索
-     */
-    private void searchWord(boolean nextFg)
-    {
-        EditText searchWordEditText = (EditText) findViewById(R.id.edit_search_word);
-        String searchWord = searchWordEditText.getText().toString();
-
-        // IMEを消去
-        EditorCompat.setImeVisibility(this, getWindow(), false, searchWordEditText);
-
-        // フォーカスをエディタに移す
-        this.memoEditText.requestFocus();
-
-        // 検索および文字列を選択
-        if (searchWord.length() > 0)
-        {
-            String editingText = this.memoEditText.getText().toString();
-
-            int searchStartIndex;
-            if (nextFg)
-            {
-                searchStartIndex = this.memoEditText.getSelectionEnd();
-            }
-            else
-            {
-                searchStartIndex = this.memoEditText.getSelectionStart() - 1;
-            }
-
-            if (searchStartIndex < 0)
-            {
-                searchStartIndex = 0;
-            }
-            else if (searchStartIndex >= editingText.length())
-            {
-                searchStartIndex = editingText.length() - 1;
-            }
-
-            int searchIndex;
-            if (nextFg)
-            {
-                searchIndex = editingText.toLowerCase().indexOf(searchWord.toLowerCase(), searchStartIndex);
-            }
-            else
-            {
-                searchIndex = editingText.toLowerCase().lastIndexOf(searchWord.toLowerCase(), searchStartIndex);
-            }
-
-            if (searchIndex >= 0)
-            {
-                this.memoEditText.setSelection(searchIndex, searchIndex + searchWord.length());
-            }
-        }
-    }
-
     @Override
     protected void onResume()
     {
@@ -431,16 +382,16 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         super.onResume();
 
         // タイムアウト？
-        if (MainApplication.getInstance(this).getPasswordTimer().stop())
+        if (isPasswordTimeout())
         {
-            // パスワードをクリア
-            MainApplication.getInstance(this).clearPasswordList();
-
             // エディタ終了
             finish();
 
             return;
         }
+
+        // Kumagusuからの起動をクリア（チェック終了のため）
+        this.executeByKumagusu = false;
     }
 
     @Override
@@ -451,7 +402,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         super.onPause();
 
         // タイマ開始
-        MainApplication.getInstance(this).getPasswordTimer().start();
+        MainApplication.getInstance(this).getPasswordTimer(this.getClass().getName()).start();
     }
 
     @Override
@@ -534,7 +485,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     }
 
     /**
-     * 戻るキーをフックする. ※Android2.0未満にも対応するばてonBackPressedを使わない
+     * 戻るキーをフックする. ※Android2.0未満にも対応するためonBackPressedを使わない
      *
      * @param event イベント
      * @return ここで処理を終了するときtrue
@@ -664,6 +615,26 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     }
 
     /**
+     * パスワード保持がタイムアウトしているかを調べる.
+     *
+     * @return タイムアウトしていればtrue
+     */
+    private boolean isPasswordTimeout()
+    {
+        // タイムアウト発生?
+        if ((MainApplication.getInstance(this).getPasswordTimer(this.getClass().getName()).stop())
+                && (!this.executeByKumagusu))
+        {
+            // パスワードをクリア
+            MainApplication.getInstance(this).clearPasswordList();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * エディタを閉じる.
      *
      * @param dispCancel キャンセルボタン表示（キャンセルクリック時、変更なし扱い）
@@ -682,6 +653,63 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             // Kumagusuを表示
             setEditable(false);
             finish();
+        }
+    }
+
+    /**
+     * 文字列を検索し、検索された文字列を選択する.
+     *
+     * @param nextFg trueのとき後方検索、falseのとき前方検索
+     */
+    private void searchWord(boolean nextFg)
+    {
+        EditText searchWordEditText = (EditText) findViewById(R.id.edit_search_word);
+        String searchWord = searchWordEditText.getText().toString();
+
+        // IMEを消去
+        EditorCompat.setImeVisibility(this, getWindow(), false, searchWordEditText);
+
+        // フォーカスをエディタに移す
+        this.memoEditText.requestFocus();
+
+        // 検索および文字列を選択
+        if (searchWord.length() > 0)
+        {
+            String editingText = this.memoEditText.getText().toString();
+
+            int searchStartIndex;
+            if (nextFg)
+            {
+                searchStartIndex = this.memoEditText.getSelectionEnd();
+            }
+            else
+            {
+                searchStartIndex = this.memoEditText.getSelectionStart() - 1;
+            }
+
+            if (searchStartIndex < 0)
+            {
+                searchStartIndex = 0;
+            }
+            else if (searchStartIndex >= editingText.length())
+            {
+                searchStartIndex = editingText.length() - 1;
+            }
+
+            int searchIndex;
+            if (nextFg)
+            {
+                searchIndex = editingText.toLowerCase().indexOf(searchWord.toLowerCase(), searchStartIndex);
+            }
+            else
+            {
+                searchIndex = editingText.toLowerCase().lastIndexOf(searchWord.toLowerCase(), searchStartIndex);
+            }
+
+            if (searchIndex >= 0)
+            {
+                this.memoEditText.setSelection(searchIndex, searchIndex + searchWord.length());
+            }
         }
     }
 

@@ -13,8 +13,11 @@ import jp.gr.java_conf.kumagusu.control.ConfirmDialogFragment;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogListenerFolder;
 import jp.gr.java_conf.kumagusu.control.DialogListeners;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog;
+import jp.gr.java_conf.kumagusu.control.InputDialogFragment;
+import jp.gr.java_conf.kumagusu.control.InputDialogListenerFolder;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog.OnDirectoryListDialogListener;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
+import jp.gr.java_conf.kumagusu.control.InputDialogListeners;
 import jp.gr.java_conf.kumagusu.control.ListDialogFragment;
 import jp.gr.java_conf.kumagusu.control.ListDialogListenerFolder;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
@@ -30,6 +33,7 @@ import jp.gr.java_conf.kumagusu.worker.MemoSearchTask;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
@@ -48,7 +52,8 @@ import android.widget.ListView;
 /**
  * メモ一覧. Root Activity
  */
-public final class Kumagusu extends FragmentActivity implements ConfirmDialogListenerFolder, ListDialogListenerFolder
+public final class Kumagusu extends FragmentActivity implements ConfirmDialogListenerFolder, ListDialogListenerFolder,
+        InputDialogListenerFolder
 {
     /**
      * メニュー項目「新規」.
@@ -161,7 +166,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private AbstractMemoCreateTask memoCreator = null;
 
     /**
-     * メモ表示モード.
+     * リスト表示モード.
      */
     private MemoListViewMode memoListViewMode = MemoListViewMode.FOLDER_VIEW;
 
@@ -250,9 +255,34 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private static final int DIALOG_ID_LIST_MEMO_LIST_CONTROL = 104;
 
     /**
-     * 確認ダイアログ保管データMap.
+     * ダイアログ保管データMap.
      */
     private SparseArray<DialogListeners> dialogListenerMap = new SparseArray<DialogListeners>();
+
+    /**
+     * 入力ダイアログ保管データMap.
+     */
+    private SparseArray<InputDialogListeners> inputDialogListenerMap = new SparseArray<InputDialogListeners>();
+
+    /**
+     * タイマーキー文字.
+     */
+    private String timerKeyString;
+
+    /**
+     * Kumagusuから起動された？.
+     */
+    private boolean executeByKumagusu = false;
+
+    /**
+     * 画面回転で起動された？.
+     */
+    private boolean executeByChangingOrientation = false;
+
+    /**
+     * 子アクティビティー起動中？.
+     */
+    private boolean executedChildActivity = false;
 
     /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
@@ -269,9 +299,41 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         Log.d("Kumagusu", "*** START onCreate()");
 
+        // パラメータ取得
+        Bundle bundle = getIntent().getExtras();
+
+        MainApplication.getInstance(this).setCurrentMemoFolder(null);
+
+        if (bundle != null)
+        {
+            if ((bundle.containsKey("VIEW_MODE")) && (bundle.getString("VIEW_MODE").equals("SEARCH")))
+            {
+                this.memoListViewMode = MemoListViewMode.SEARCH_VIEW;
+                this.searchWords = bundle.getString("SEARCH_WORDS");
+
+                this.timerKeyString = this.getClass().getName() + "_SEARCH_VIEW";
+
+                // Kumagusuから起動（検索結果表示）
+                this.executeByKumagusu = true;
+            }
+            else
+            {
+                this.memoListViewMode = MemoListViewMode.FOLDER_VIEW;
+
+                this.timerKeyString = this.getClass().getName() + "_FOLDER_VIEW";
+            }
+
+            if ((bundle.containsKey("CURRENT_FOLDER"))
+                    && (bundle.getString("CURRENT_FOLDER").startsWith(MainPreferenceActivity.getMemoLocation(this))))
+            {
+                MainApplication.getInstance(this).setCurrentMemoFolder(bundle.getString("CURRENT_FOLDER"));
+            }
+        }
+
         // ダイアログのリスナを生成
         initConfirmDialogListener();
         initListDialogListener();
+        initInputDialogListener();
 
         // リストのインスタンスを取得
         this.mListView = (ListView) findViewById(R.id.list);
@@ -322,6 +384,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     // Activetyを呼び出す
                     if (intent != null)
                     {
+                        // 子Activity起動中設定
+                        Kumagusu.this.executedChildActivity = true;
+
                         startActivity(intent);
                     }
                 }
@@ -424,7 +489,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         Log.d("Kumagusu", "*** START onResume()");
 
         // タイムアウトの確認
-        if (MainApplication.getInstance(this).getPasswordTimer().stop())
+        if ((MainApplication.getInstance(this).getPasswordTimer(this.timerKeyString).stop())
+                && (!this.executedChildActivity) && (!this.executeByKumagusu) && (!this.executeByChangingOrientation))
         {
             // パスワードをクリア
             MainApplication.getInstance(this).clearPasswordList();
@@ -441,25 +507,14 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             }
         }
 
-        // パラメータ取得
-        Bundle bundle = getIntent().getExtras();
+        // エディタ起動中フラグクリア
+        this.executedChildActivity = false;
 
-        MainApplication.getInstance(this).setCurrentMemoFolder(null);
+        // Kumagusuからの起動をクリア（チェック終了のため）
+        this.executeByKumagusu = false;
 
-        if (bundle != null)
-        {
-            if ((bundle.containsKey("VIEW_MODE")) && (bundle.getString("VIEW_MODE").equals("SEARCH")))
-            {
-                this.memoListViewMode = MemoListViewMode.SEARCH_VIEW;
-                this.searchWords = bundle.getString("SEARCH_WORDS");
-            }
-
-            if ((bundle.containsKey("CURRENT_FOLDER"))
-                    && (bundle.getString("CURRENT_FOLDER").startsWith(MainPreferenceActivity.getMemoLocation(this))))
-            {
-                MainApplication.getInstance(this).setCurrentMemoFolder(bundle.getString("CURRENT_FOLDER"));
-            }
-        }
+        // 画面回転からの起動をクリア（チェック終了のため）
+        this.executeByChangingOrientation = false;
 
         // メモリストのソート処理を生成
         this.memoListComparator = new MemoListComparator(this, this.memoListViewMode);
@@ -489,8 +544,20 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         Log.d("Kumagusu", "*** START onPause()");
 
+        // 画面回転による終了か？
+        int changingConf = getChangingConfigurations();
+        this.executeByChangingOrientation = ((changingConf & ActivityInfo.CONFIG_ORIENTATION) != 0);
+
         // タイマ開始
-        MainApplication.getInstance(this).getPasswordTimer().start();
+        MainApplication.getInstance(this).getPasswordTimer(this.timerKeyString).start();
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        Log.d("Kumagusu", "*** START onStop()");
     }
 
     @Override
@@ -516,6 +583,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // 選択中メモファイルパス
         outState.putString("selectedMemoFilePath", this.selectedMemoFilePath);
+
+        // 画面回転で起動された？
+        outState.putBoolean("executeByChangingOrientation", this.executeByChangingOrientation);
     }
 
     @Override
@@ -527,6 +597,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         if (savedInstanceState.containsKey("selectedMemoFilePath"))
         {
             this.selectedMemoFilePath = savedInstanceState.getString("selectedMemoFilePath");
+        }
+
+        // 画面回転で起動された？
+        if (savedInstanceState.containsKey("executeByChangingOrientation"))
+        {
+            this.executeByChangingOrientation = savedInstanceState.getBoolean("executeByChangingOrientation");
         }
 
         super.onRestoreInstanceState(savedInstanceState);
@@ -612,30 +688,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             break;
 
         case MENU_ID_SEARCH: // 検索（メモ検索）
-            final InputDialog searchMemoDialog = new InputDialog(Kumagusu.this);
-            searchMemoDialog.showDialog(this.getResources().getDrawable(R.drawable.search), this.getResources()
-                    .getString(R.string.search_memo_control_dialog_title), InputType.TYPE_CLASS_TEXT,
-                    new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            if (searchMemoDialog.getText().length() > 0)
-                            {
-                                // メモリストの状態をクリア
-                                MainApplication.getInstance(Kumagusu.this).setMemoListStatus4Search(null);
-
-                                // Activetyを呼び出す
-                                Intent intent = new Intent(Kumagusu.this, Kumagusu.class);
-                                intent.putExtra("CURRENT_FOLDER", MainApplication.getInstance(Kumagusu.this)
-                                        .getCurrentMemoFolder());
-                                intent.putExtra("VIEW_MODE", "SEARCH");
-                                intent.putExtra("SEARCH_WORDS", searchMemoDialog.getText());
-
-                                startActivity(intent);
-                            }
-                        }
-                    }, null);
+            InputDialogFragment.newInstance(DIALOG_ID_INPUT_SEARCH_MEMO_CONTROL, R.drawable.search,
+                    R.string.search_memo_control_dialog_title, InputType.TYPE_CLASS_TEXT, 0).show(
+                    getSupportFragmentManager(), "");
             break;
 
         case MENU_ID_REFRESH: // 最新の情報に更新
@@ -961,6 +1016,27 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     /**
+     * メモ操作・メモ種別変更で、変更先メモ種別を取得する.
+     *
+     * @param memoFile 変更元メモ
+     * @return 変更先メモ種別
+     */
+    private MemoType getChange2MemoType(IMemo memoFile)
+    {
+        MemoType change2MemoType;
+        if (memoFile.getMemoType() == MemoType.Text)
+        {
+            change2MemoType = MemoType.Secret1;
+        }
+        else
+        {
+            change2MemoType = MemoType.Text;
+        }
+
+        return change2MemoType;
+    }
+
+    /**
      * 確認ダイアログのリスナを初期化する.
      */
     private void initConfirmDialogListener()
@@ -1031,20 +1107,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // フォルダ追加エラー（フォルダ名指定なし）
         putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME, new DialogListeners(null, null, null));
-    }
-
-    @Override
-    public DialogListeners getConfirmDialogListeners(int listenerId)
-    {
-        // 確認ダイアログ保管データを返す
-        return this.dialogListenerMap.get(listenerId);
-    }
-
-    @Override
-    public void putConfirmDialogListeners(int listenerId, DialogListeners listeners)
-    {
-        // 確認ダイアログデータを追加
-        this.dialogListenerMap.put(listenerId, listeners);
     }
 
     /**
@@ -1328,6 +1390,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     editIntent.putExtra("CURRENT_FOLDER", MainApplication.getInstance(Kumagusu.this)
                             .getCurrentMemoFolder());
 
+                    // 子Activity起動中設定
+                    Kumagusu.this.executedChildActivity = true;
+
                     startActivity(editIntent);
                     break;
 
@@ -1386,24 +1451,55 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     /**
-     * メモ操作・メモ種別変更で、変更先メモ種別を取得する.
-     *
-     * @param memoFile 変更元メモ
-     * @return 変更先メモ種別
+     * 入力ダイアログID「メモ検索条件」.
      */
-    private MemoType getChange2MemoType(IMemo memoFile)
-    {
-        MemoType change2MemoType;
-        if (memoFile.getMemoType() == MemoType.Text)
-        {
-            change2MemoType = MemoType.Secret1;
-        }
-        else
-        {
-            change2MemoType = MemoType.Text;
-        }
+    private static final int DIALOG_ID_INPUT_SEARCH_MEMO_CONTROL = 201;
 
-        return change2MemoType;
+    /**
+     * 入力ダイアログのリスナを初期化する.
+     */
+    private void initInputDialogListener()
+    {
+        // メモ検索条件
+        putInputDialogListeners(DIALOG_ID_INPUT_SEARCH_MEMO_CONTROL, new InputDialogListeners(
+                new InputDialogFragment.OnClickInputDialogListener()
+                {
+                    @Override
+                    public void onClick(String text)
+                    {
+                        if ((text != null) && (text.length() > 0))
+                        {
+                            // メモリストの状態をクリア
+                            MainApplication.getInstance(Kumagusu.this).setMemoListStatus4Search(null);
+
+                            // Activetyを呼び出す
+                            Intent intent = new Intent(Kumagusu.this, Kumagusu.class);
+                            intent.putExtra("CURRENT_FOLDER", MainApplication.getInstance(Kumagusu.this)
+                                    .getCurrentMemoFolder());
+                            intent.putExtra("VIEW_MODE", "SEARCH");
+                            intent.putExtra("SEARCH_WORDS", text);
+
+                            // 子Activity起動中設定
+                            Kumagusu.this.executedChildActivity = true;
+
+                            startActivity(intent);
+                        }
+                    }
+                }));
+    }
+
+    @Override
+    public DialogListeners getConfirmDialogListeners(int listenerId)
+    {
+        // 確認ダイアログ保管データを返す
+        return this.dialogListenerMap.get(listenerId);
+    }
+
+    @Override
+    public void putConfirmDialogListeners(int listenerId, DialogListeners listeners)
+    {
+        // 確認ダイアログデータを追加
+        this.dialogListenerMap.put(listenerId, listeners);
     }
 
     @Override
@@ -1418,5 +1514,19 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     {
         // リストダイアログデータを追加
         this.dialogListenerMap.put(listenerId, listeners);
+    }
+
+    @Override
+    public InputDialogListeners getInputDialogListeners(int listenerId)
+    {
+        // 入力ダイアログ保管データを返す
+        return this.inputDialogListenerMap.get(listenerId);
+    }
+
+    @Override
+    public void putInputDialogListeners(int listenerId, InputDialogListeners listeners)
+    {
+        // 入力ダイアログデータを追加
+        this.inputDialogListenerMap.put(listenerId, listeners);
     }
 }
