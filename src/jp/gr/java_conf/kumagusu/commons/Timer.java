@@ -1,7 +1,8 @@
-package jp.gr.java_conf.kumagusu;
+package jp.gr.java_conf.kumagusu.commons;
 
 import java.util.Date;
 
+import jp.gr.java_conf.kumagusu.MainApplication;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 
 import android.app.Activity;
@@ -26,6 +27,11 @@ public final class Timer
     private long startDateTime;
 
     /**
+     * タイムアウト発生？.
+     */
+    private boolean timeout;
+
+    /**
      * タイマーを初期化する.
      *
      * @param con コンテキスト
@@ -33,6 +39,8 @@ public final class Timer
     public Timer(Context con)
     {
         this.context = con;
+
+        this.timeout = false;
     }
 
     /**
@@ -50,6 +58,8 @@ public final class Timer
         {
             this.startDateTime = new Date().getTime();
         }
+
+        this.timeout = false;
     }
 
     /**
@@ -71,6 +81,8 @@ public final class Timer
             {
                 // タイムアウト！
                 ret = true;
+
+                this.timeout = true;
             }
         }
 
@@ -99,5 +111,23 @@ public final class Timer
             Activity act = (Activity) context;
             act.moveTaskToBack(true);
         }
+    }
+
+    /**
+     * タイムアウト発生？を返す.
+     *
+     * @return タイムアウト発生のときtrue
+     */
+    public boolean isTimeout()
+    {
+        return this.timeout;
+    }
+
+    /**
+     * タイムアウト発生？をリセットする.
+     */
+    public void resetTimeout()
+    {
+        this.timeout = false;
     }
 }

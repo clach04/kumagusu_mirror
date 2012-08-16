@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import jp.gr.java_conf.kumagusu.commons.Timer;
 import jp.gr.java_conf.kumagusu.commons.Utilities;
 import jp.gr.java_conf.kumagusu.compat.ActivityCompat;
 import jp.gr.java_conf.kumagusu.control.ConfirmDialogFragment;
@@ -39,6 +40,7 @@ import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -265,24 +267,19 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private SparseArray<InputDialogListeners> inputDialogListenerMap = new SparseArray<InputDialogListeners>();
 
     /**
-     * タイマーキー文字.
+     * 子アクティビティー起動中？.
      */
-    private String timerKeyString;
+    private boolean executedChildActivity = false;
 
     /**
-     * Kumagusuから起動された？.
+     * Kumagusuから起動.
      */
     private boolean executeByKumagusu = false;
 
     /**
-     * 画面回転で起動された？.
+     * Kumagusuに戻る？.
      */
-    private boolean executeByChangingOrientation = false;
-
-    /**
-     * 子アクティビティー起動中？.
-     */
-    private boolean executedChildActivity = false;
+    private boolean return2Kumagusu = false;
 
     /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
@@ -300,35 +297,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         Log.d("Kumagusu", "*** START onCreate()");
 
         // パラメータ取得
-        Bundle bundle = getIntent().getExtras();
-
-        MainApplication.getInstance(this).setCurrentMemoFolder(null);
-
-        if (bundle != null)
-        {
-            if ((bundle.containsKey("VIEW_MODE")) && (bundle.getString("VIEW_MODE").equals("SEARCH")))
-            {
-                this.memoListViewMode = MemoListViewMode.SEARCH_VIEW;
-                this.searchWords = bundle.getString("SEARCH_WORDS");
-
-                this.timerKeyString = this.getClass().getName() + "_SEARCH_VIEW";
-
-                // Kumagusuから起動（検索結果表示）
-                this.executeByKumagusu = true;
-            }
-            else
-            {
-                this.memoListViewMode = MemoListViewMode.FOLDER_VIEW;
-
-                this.timerKeyString = this.getClass().getName() + "_FOLDER_VIEW";
-            }
-
-            if ((bundle.containsKey("CURRENT_FOLDER"))
-                    && (bundle.getString("CURRENT_FOLDER").startsWith(MainPreferenceActivity.getMemoLocation(this))))
-            {
-                MainApplication.getInstance(this).setCurrentMemoFolder(bundle.getString("CURRENT_FOLDER"));
-            }
-        }
+        getParameter();
 
         // ダイアログのリスナを生成
         initConfirmDialogListener();
@@ -374,11 +343,17 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                             intent.putExtra("SEARCH_WORDS", Kumagusu.this.searchWords);
                         }
                     }
-                    else if ((selectedItem.getMemoType() == MemoType.Folder)
-                            || (selectedItem.getMemoType() == MemoType.ParentFolder))
+                    else if (selectedItem.getMemoType() == MemoType.Folder)
                     {
                         intent = new Intent(Kumagusu.this, Kumagusu.class);
                         intent.putExtra("CURRENT_FOLDER", selectedItem.getPath());
+                    }
+                    else if (selectedItem.getMemoType() == MemoType.ParentFolder)
+                    {
+                        // 上位Activetyを呼び出す
+                        finishKumagusuActivity();
+
+                        return;
                     }
 
                     // Activetyを呼び出す
@@ -488,9 +463,13 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         Log.d("Kumagusu", "*** START onResume()");
 
+        // パラメータ取得
+        getParameter();
+
         // タイムアウトの確認
-        if ((MainApplication.getInstance(this).getPasswordTimer(this.timerKeyString).stop())
-                && (!this.executedChildActivity) && (!this.executeByKumagusu) && (!this.executeByChangingOrientation))
+        Timer timer = MainApplication.getInstance(this).getPasswordTimer();
+
+        if ((timer.isTimeout()) || (timer.stop()))
         {
             // パスワードをクリア
             MainApplication.getInstance(this).clearPasswordList();
@@ -501,20 +480,13 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             // 検索モードのときリスト終了
             if (this.memoListViewMode == MemoListViewMode.SEARCH_VIEW)
             {
-                finish();
+                finishKumagusuActivity();
 
                 return;
             }
         }
 
-        // エディタ起動中フラグクリア
-        this.executedChildActivity = false;
-
-        // Kumagusuからの起動をクリア（チェック終了のため）
-        this.executeByKumagusu = false;
-
-        // 画面回転からの起動をクリア（チェック終了のため）
-        this.executeByChangingOrientation = false;
+        timer.resetTimeout();
 
         // メモリストのソート処理を生成
         this.memoListComparator = new MemoListComparator(this, this.memoListViewMode);
@@ -546,10 +518,16 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // 画面回転による終了か？
         int changingConf = getChangingConfigurations();
-        this.executeByChangingOrientation = ((changingConf & ActivityInfo.CONFIG_ORIENTATION) != 0);
+        boolean changingOrientation = ((changingConf & ActivityInfo.CONFIG_ORIENTATION) != 0);
 
         // タイマ開始
-        MainApplication.getInstance(this).getPasswordTimer(this.timerKeyString).start();
+        if ((!this.executedChildActivity) && (!changingOrientation) && (!this.return2Kumagusu))
+        {
+            MainApplication.getInstance(this).getPasswordTimer().start();
+        }
+
+        // 子アクティビティーフラグクリア
+        this.executedChildActivity = false;
     }
 
     @Override
@@ -583,9 +561,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // 選択中メモファイルパス
         outState.putString("selectedMemoFilePath", this.selectedMemoFilePath);
-
-        // 画面回転で起動された？
-        outState.putBoolean("executeByChangingOrientation", this.executeByChangingOrientation);
     }
 
     @Override
@@ -599,13 +574,29 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             this.selectedMemoFilePath = savedInstanceState.getString("selectedMemoFilePath");
         }
 
-        // 画面回転で起動された？
-        if (savedInstanceState.containsKey("executeByChangingOrientation"))
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    /**
+     * 戻るキーをフックする. ※Android2.0未満にも対応するためonBackPressedを使わない
+     *
+     * @param event イベント
+     * @return ここで処理を終了するときtrue
+     */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event)
+    {
+        Log.d("Kumagusu", "*** START dispatchKeyEvent()");
+
+        if ((event.getKeyCode() == KeyEvent.KEYCODE_BACK) && (event.getAction() == KeyEvent.ACTION_DOWN))
         {
-            this.executeByChangingOrientation = savedInstanceState.getBoolean("executeByChangingOrientation");
+            // エディタ終了
+            finishKumagusuActivity();
+
+            return true;
         }
 
-        super.onRestoreInstanceState(savedInstanceState);
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -706,7 +697,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         case android.R.id.home: // UPアイコン
             // 上位Activetyを呼び出す
-            finish();
+            finishKumagusuActivity();
             break;
 
         default:
@@ -714,6 +705,41 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         }
 
         return ret;
+    }
+
+    /**
+     * パラメータを取得する.
+     */
+    private void getParameter()
+    {
+        // パラメータ取得
+        Bundle bundle = getIntent().getExtras();
+
+        MainApplication.getInstance(this).setCurrentMemoFolder(null);
+
+        if (bundle != null)
+        {
+            if ((bundle.containsKey("VIEW_MODE")) && (bundle.getString("VIEW_MODE").equals("SEARCH")))
+            {
+                this.memoListViewMode = MemoListViewMode.SEARCH_VIEW;
+                this.searchWords = bundle.getString("SEARCH_WORDS");
+            }
+            else
+            {
+                this.memoListViewMode = MemoListViewMode.FOLDER_VIEW;
+            }
+
+            if (bundle.containsKey("CURRENT_FOLDER"))
+            {
+                // Kumagusuから起動
+                this.executeByKumagusu = true;
+
+                if (bundle.getString("CURRENT_FOLDER").startsWith(MainPreferenceActivity.getMemoLocation(this)))
+                {
+                    MainApplication.getInstance(this).setCurrentMemoFolder(bundle.getString("CURRENT_FOLDER"));
+                }
+            }
+        }
     }
 
     /**
@@ -811,7 +837,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             public void onClick(View view)
             {
                 // アクティビティを終了
-                finish();
+                finishKumagusuActivity();
             }
         });
 
@@ -1034,6 +1060,18 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         }
 
         return change2MemoType;
+    }
+
+    /**
+     * リストを終了する.
+     */
+    private void finishKumagusuActivity()
+    {
+        // Kumagusuに戻る？
+        this.return2Kumagusu = this.executeByKumagusu;
+
+        // アクティビティー終了
+        finish();
     }
 
     /**
