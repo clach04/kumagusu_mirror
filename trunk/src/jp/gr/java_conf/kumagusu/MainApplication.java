@@ -1,12 +1,10 @@
 package jp.gr.java_conf.kumagusu;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
 import jp.gr.java_conf.kumagusu.commons.Timer;
-
 import android.app.Activity;
 import android.app.Application;
 
