@@ -115,7 +115,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     private static final int DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL = 2;
 
     /**
-     * 定型文選択ダイアログID
+     * 定型文選択ダイアログID.
      */
     private static final int DIALOG_ID_LIST_FIXED_PHRASE = 11;
 
@@ -206,6 +206,11 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private boolean executeByKumagusu = false;
 
+    /**
+     * Kumagusuに戻る？.
+     */
+    private boolean return2Kumagusu = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -258,6 +263,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         if ((Intent.ACTION_VIEW.equals(getIntent().getAction()))
                 || (Intent.ACTION_EDIT.equals(getIntent().getAction())))
         {
+            // Kumagusu以外から起動
+            this.executeByKumagusu = false;
+
             // 起動情報からパラメータ取得
             Uri uri = getIntent().getData();
 
@@ -266,7 +274,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             File targetFile = new File(this.memoFileFullPath);
             if ((!targetFile.exists()) || (!targetFile.isFile()))
             {
-                finish();
+                finishEditorActivity();
             }
 
             this.currentFolderPath = targetFile.getParent();
@@ -281,7 +289,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         else
         {
             // Kumagusuからの起動
-            executeByKumagusu = true;
+            this.executeByKumagusu = true;
 
             // intentからパラメータを取得
             this.memoFileFullPath = getIntent().getStringExtra("FULL_PATH");
@@ -385,13 +393,10 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         if (isPasswordTimeout())
         {
             // エディタ終了
-            finish();
+            finishEditorActivity();
 
             return;
         }
-
-        // Kumagusuからの起動をクリア（チェック終了のため）
-        this.executeByKumagusu = false;
     }
 
     @Override
@@ -402,7 +407,10 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         super.onPause();
 
         // タイマ開始
-        MainApplication.getInstance(this).getPasswordTimer(this.getClass().getName()).start();
+        if (!this.return2Kumagusu)
+        {
+            MainApplication.getInstance(this).getPasswordTimer().start();
+        }
     }
 
     @Override
@@ -493,6 +501,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     @Override
     public boolean dispatchKeyEvent(KeyEvent event)
     {
+        Log.d("EditorActivity", "*** START dispatchKeyEvent()");
+
         if ((event.getKeyCode() == KeyEvent.KEYCODE_BACK) && (event.getAction() == KeyEvent.ACTION_DOWN))
         {
             // エディタ終了
@@ -622,8 +632,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     private boolean isPasswordTimeout()
     {
         // タイムアウト発生?
-        if ((MainApplication.getInstance(this).getPasswordTimer(this.getClass().getName()).stop())
-                && (!this.executeByKumagusu))
+        if (MainApplication.getInstance(this).getPasswordTimer().stop())
         {
             // パスワードをクリア
             MainApplication.getInstance(this).clearPasswordList();
@@ -650,9 +659,10 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
 
         if (!modify)
         {
-            // Kumagusuを表示
             setEditable(false);
-            finish();
+
+            // エディタ終了
+            finishEditorActivity();
         }
     }
 
@@ -863,14 +873,14 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
                     public void onClick(DialogInterface d, int which)
                     {
                         // エディタ終了
-                        finish();
+                        finishEditorActivity();
                     }
                 });
             }
             else
             {
                 // エディタ終了
-                finish();
+                finishEditorActivity();
             }
         }
         else
@@ -1312,8 +1322,20 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         if (EditorActivity.this.confirmSaveDialogFinishActivity)
         {
             EditorActivity.this.confirmSaveDialogFinishActivity = false;
-            finish();
+            finishEditorActivity();
         }
+    }
+
+    /**
+     * エディタを終了する.
+     */
+    private void finishEditorActivity()
+    {
+        // Kumagusuに戻る？
+        this.return2Kumagusu = this.executeByKumagusu;
+
+        // アクティビティー終了
+        finish();
     }
 
     @Override

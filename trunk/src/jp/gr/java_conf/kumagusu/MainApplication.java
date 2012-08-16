@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
+import jp.gr.java_conf.kumagusu.commons.Timer;
+
 import android.app.Activity;
 import android.app.Application;
 
@@ -130,24 +132,20 @@ public final class MainApplication extends Application
     /**
      * パスワードタイマー.
      */
-    private HashMap<String, Timer> passwordTimerMap = new HashMap<String, Timer>();
+    private Timer passwordTimer = null;
 
     /**
-     * 派宇ワードタイマーを帰す.
-     * @param activityClassName アクティビティーのクラス名
+     * パスワードタイマーを帰す.
      * @return パスワードタイマー
      */
-    public Timer getPasswordTimer(String activityClassName)
+    public Timer getPasswordTimer()
     {
-        Timer passwordTimer = this.passwordTimerMap.get(activityClassName);
-
-        if (passwordTimer == null)
+        if (this.passwordTimer == null)
         {
-            passwordTimer = new Timer(this.activity);
-            this.passwordTimerMap.put(activityClassName, passwordTimer);
+            this.passwordTimer = new Timer(this.activity);
         }
 
-        return passwordTimer;
+        return this.passwordTimer;
     }
 
     /**
