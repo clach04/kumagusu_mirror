@@ -1447,7 +1447,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 }));
 
         // フォルダ名変更
-        putInputDialogListeners(DIALOG_ID_INPUT_SEARCH_MEMO_CONTROL, new InputDialogListeners(
+        putInputDialogListeners(DIALOG_ID_INPUT_FOLDER_RENAME_CONTROL, new InputDialogListeners(
                 new InputDialogFragment.OnClickInputDialogListener()
                 {
                     @Override
@@ -1500,7 +1500,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 }));
 
         // フォルダ追加
-        putInputDialogListeners(DIALOG_ID_INPUT_SEARCH_MEMO_CONTROL, new InputDialogListeners(
+        putInputDialogListeners(DIALOG_ID_INPUT_FOLDER_ADD_CONTROL, new InputDialogListeners(
                 new InputDialogFragment.OnClickInputDialogListener()
                 {
                     @Override
