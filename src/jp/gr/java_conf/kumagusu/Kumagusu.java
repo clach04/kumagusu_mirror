@@ -17,7 +17,6 @@ import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog;
 import jp.gr.java_conf.kumagusu.control.InputDialogFragment;
 import jp.gr.java_conf.kumagusu.control.InputDialogListenerFolder;
 import jp.gr.java_conf.kumagusu.control.DirectorySelectDialog.OnDirectoryListDialogListener;
-import jp.gr.java_conf.kumagusu.control.InputDialog;
 import jp.gr.java_conf.kumagusu.control.InputDialogListeners;
 import jp.gr.java_conf.kumagusu.control.ListDialogFragment;
 import jp.gr.java_conf.kumagusu.control.ListDialogListenerFolder;
@@ -255,6 +254,21 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      * リストダイアログID「メモリスト操作」.
      */
     private static final int DIALOG_ID_LIST_MEMO_LIST_CONTROL = 104;
+
+    /**
+     * 入力ダイアログID「メモ検索条件」.
+     */
+    private static final int DIALOG_ID_INPUT_SEARCH_MEMO_CONTROL = 201;
+
+    /**
+     * 入力ダイアログID「フォルダ名変更」.
+     */
+    private static final int DIALOG_ID_INPUT_FOLDER_RENAME_CONTROL = 202;
+
+    /**
+     * 入力ダイアログID「フォルダ追加」.
+     */
+    private static final int DIALOG_ID_INPUT_FOLDER_ADD_CONTROL = 203;
 
     /**
      * ダイアログ保管データMap.
@@ -1343,56 +1357,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     break;
 
                 case FOLDER_CONTROL_ID_RENAME: // 名称変更
-                    final InputDialog renameFolderDialog = new InputDialog(Kumagusu.this);
-                    renameFolderDialog.setText(selectedMemoFile.getName());
-
-                    renameFolderDialog.showDialog(
-                            Kumagusu.this.getResources().getDrawable(R.drawable.folder_operation), Kumagusu.this
-                                    .getResources().getString(R.string.folder_rename_control_dialog_title),
-                            InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    String folderName = MemoUtilities.sanitizeFileNameString(renameFolderDialog
-                                            .getText());
-
-                                    if (folderName.length() == 0)
-                                    {
-                                        // フォルダ名が空
-                                        ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME,
-                                                android.R.drawable.ic_menu_info_details,
-                                                R.string.folder_rename_control_dialog_error_noinput, 0,
-                                                ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
-                                                getSupportFragmentManager(), "");
-                                        return;
-                                    }
-
-                                    if (!folderName.equals(selectedMemoFile.getName()))
-                                    {
-                                        File srcFolderFile = new File(selectedMemoFile.getPath());
-                                        File newFolderFile = new File(selectedMemoFile.getParent(), folderName);
-
-                                        if (!newFolderFile.exists())
-                                        {
-                                            srcFolderFile.renameTo(newFolderFile);
-
-                                            // メモリストを更新
-                                            refreshMemoList();
-                                        }
-                                        else
-                                        {
-                                            // すでに同名のフォルダまたはファイルが存在
-                                            ConfirmDialogFragment.newInstance(
-                                                    DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT,
-                                                    android.R.drawable.ic_menu_info_details,
-                                                    R.string.folder_rename_control_dialog_error_duplicate, 0,
-                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
-                                                    getSupportFragmentManager(), "");
-                                        }
-                                    }
-                                }
-                            }, null);
+                    InputDialogFragment.newInstance(DIALOG_ID_INPUT_FOLDER_RENAME_CONTROL, R.drawable.folder_operation,
+                            R.string.folder_rename_control_dialog_title, InputType.TYPE_CLASS_TEXT, 0,
+                            selectedMemoFile.getName()).show(getSupportFragmentManager(), "");
                     break;
 
                 default:
@@ -1435,50 +1402,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     break;
 
                 case FILE_LIST_CONTROL_ID_ADD_FOLDER: // フォルダ追加
-                    final InputDialog addFolderDialog = new InputDialog(Kumagusu.this);
-                    addFolderDialog.showDialog(Kumagusu.this.getResources().getDrawable(R.drawable.folder_add),
-                            Kumagusu.this.getResources().getString(R.string.folder_add_control_dialog_title),
-                            InputType.TYPE_CLASS_TEXT, new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    String folderName = MemoUtilities.sanitizeFileNameString(addFolderDialog.getText());
-
-                                    if (folderName.length() > 0)
-                                    {
-                                        File addFolderFile = new File(MainApplication.getInstance(Kumagusu.this)
-                                                .getCurrentMemoFolder(), folderName);
-
-                                        if (!addFolderFile.exists())
-                                        {
-                                            addFolderFile.mkdirs();
-
-                                            // メモリストを更新
-                                            refreshMemoList();
-                                        }
-                                        else
-                                        {
-                                            // すでに同名のフォルダまたはファイルが存在
-                                            ConfirmDialogFragment.newInstance(
-                                                    DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT,
-                                                    android.R.drawable.ic_menu_info_details,
-                                                    R.string.memo_list_control_dialog_add_error_duplicate, 0,
-                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
-                                                    getSupportFragmentManager(), "");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        // フォルダ名が空
-                                        ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME,
-                                                android.R.drawable.ic_menu_info_details,
-                                                R.string.memo_list_control_dialog_add_error_noinput, 0,
-                                                ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
-                                                getSupportFragmentManager(), "");
-                                    }
-                                }
-                            }, null);
+                    InputDialogFragment.newInstance(DIALOG_ID_INPUT_FOLDER_ADD_CONTROL, R.drawable.folder_add,
+                            R.string.folder_add_control_dialog_title, InputType.TYPE_CLASS_TEXT, 0).show(
+                            getSupportFragmentManager(), "");
                     break;
 
                 default:
@@ -1487,11 +1413,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             }
         }));
     }
-
-    /**
-     * 入力ダイアログID「メモ検索条件」.
-     */
-    private static final int DIALOG_ID_INPUT_SEARCH_MEMO_CONTROL = 201;
 
     /**
      * 入力ダイアログのリスナを初期化する.
@@ -1521,6 +1442,102 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                             Kumagusu.this.executedChildActivity = true;
 
                             startActivity(intent);
+                        }
+                    }
+                }));
+
+        // フォルダ名変更
+        putInputDialogListeners(DIALOG_ID_INPUT_SEARCH_MEMO_CONTROL, new InputDialogListeners(
+                new InputDialogFragment.OnClickInputDialogListener()
+                {
+                    @Override
+                    public void onClick(String text)
+                    {
+                        // 選択中メモファイルを取得
+                        final IMemo selectedMemoFile = getSelectedMemoFile();
+
+                        if (selectedMemoFile == null)
+                        {
+                            return;
+                        }
+
+                        String folderName = MemoUtilities.sanitizeFileNameString(text);
+
+                        if (folderName.length() == 0)
+                        {
+                            // フォルダ名が空
+                            ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_NONAME,
+                                    android.R.drawable.ic_menu_info_details,
+                                    R.string.folder_rename_control_dialog_error_noinput, 0,
+                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(getSupportFragmentManager(),
+                                    "");
+                            return;
+                        }
+
+                        if (!folderName.equals(selectedMemoFile.getName()))
+                        {
+                            File srcFolderFile = new File(selectedMemoFile.getPath());
+                            File newFolderFile = new File(selectedMemoFile.getParent(), folderName);
+
+                            if (!newFolderFile.exists())
+                            {
+                                srcFolderFile.renameTo(newFolderFile);
+
+                                // メモリストを更新
+                                refreshMemoList();
+                            }
+                            else
+                            {
+                                // すでに同名のフォルダまたはファイルが存在
+                                ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT,
+                                        android.R.drawable.ic_menu_info_details,
+                                        R.string.folder_rename_control_dialog_error_duplicate, 0,
+                                        ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                        getSupportFragmentManager(), "");
+                            }
+                        }
+                    }
+                }));
+
+        // フォルダ追加
+        putInputDialogListeners(DIALOG_ID_INPUT_SEARCH_MEMO_CONTROL, new InputDialogListeners(
+                new InputDialogFragment.OnClickInputDialogListener()
+                {
+                    @Override
+                    public void onClick(String text)
+                    {
+                        String folderName = MemoUtilities.sanitizeFileNameString(text);
+
+                        if (folderName.length() > 0)
+                        {
+                            File addFolderFile = new File(MainApplication.getInstance(Kumagusu.this)
+                                    .getCurrentMemoFolder(), folderName);
+
+                            if (!addFolderFile.exists())
+                            {
+                                addFolderFile.mkdirs();
+
+                                // メモリストを更新
+                                refreshMemoList();
+                            }
+                            else
+                            {
+                                // すでに同名のフォルダまたはファイルが存在
+                                ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT,
+                                        android.R.drawable.ic_menu_info_details,
+                                        R.string.memo_list_control_dialog_add_error_duplicate, 0,
+                                        ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                        getSupportFragmentManager(), "");
+                            }
+                        }
+                        else
+                        {
+                            // フォルダ名が空
+                            ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME,
+                                    android.R.drawable.ic_menu_info_details,
+                                    R.string.memo_list_control_dialog_add_error_noinput, 0,
+                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(getSupportFragmentManager(),
+                                    "");
                         }
                     }
                 }));
