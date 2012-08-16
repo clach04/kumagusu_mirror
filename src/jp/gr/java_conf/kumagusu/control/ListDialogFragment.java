@@ -148,7 +148,6 @@ public class ListDialogFragment extends DialogFragment
         }
 
         db.setTitle(titleId);
-        db.setView(view);
 
         int listStyle;
 
@@ -204,7 +203,8 @@ public class ListDialogFragment extends DialogFragment
         db.setNegativeButton(R.string.ui_cancel, cancelListener);
 
         // ダイアログ生成
-        final Dialog dialog = db.create();
+        final AlertDialog dialog = db.create();
+        dialog.setView(view, 0, 0, 0, 0);
 
         // イベント設定
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener()

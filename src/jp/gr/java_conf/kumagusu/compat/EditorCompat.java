@@ -85,6 +85,58 @@ public final class EditorCompat
     }
 
     /**
+     * ダイアログで入力メソッドを表示する.
+     *
+     * @param dialog ダイアログ
+     * @param view IME表示先View
+     * @param showListener 表示イベントリスナ
+     * @param focusChangeListener フォーカスイベントリスナ
+     */
+    @SuppressLint("NewApi")
+    public static void showIme4DialogEditText(final Dialog dialog, final EditText view,
+            final DialogInterface.OnShowListener showListener, final View.OnFocusChangeListener focusChangeListener)
+    {
+        // IME表示
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) // 2.2以上
+        {
+            dialog.setOnShowListener(new DialogInterface.OnShowListener()
+            {
+                @Override
+                public void onShow(DialogInterface d)
+                {
+                    EditorCompat.setImeVisibility(dialog.getContext(), dialog.getWindow(), true, view);
+
+                    if (showListener != null)
+                    {
+                        showListener.onShow(d);
+                    }
+                }
+            });
+        }
+        else
+        {
+            view.setOnFocusChangeListener(new View.OnFocusChangeListener()
+            {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus)
+                {
+                    if (hasFocus)
+                    {
+                        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+                        if (focusChangeListener != null)
+                        {
+                            focusChangeListener.onFocusChange(v, hasFocus);
+                        }
+                    }
+                }
+            });
+
+            view.requestFocus();
+        }
+    }
+
+    /**
      * エディタのInputTypeを設定する.
      *
      * @param editText 設定先View
