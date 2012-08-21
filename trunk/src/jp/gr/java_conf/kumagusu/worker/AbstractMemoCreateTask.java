@@ -69,6 +69,11 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     private MemoBuilder memoBuilder;
 
     /**
+     * メモファイルを発見したときの処理.
+     */
+    private OnFindMemoFileListener onFindMemoFileListener;
+
+    /**
      * 同期用オブジェクト.
      */
     private Object syncObject = new Object();
@@ -127,6 +132,20 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
      * メモ生成共通処理を初期化する.
      *
      * @param act アクティビティ
+     * @param mBuilder Memoビルダ
+     * @param listener メモファイルを発見したときの処理
+     */
+    public AbstractMemoCreateTask(Activity act, MemoBuilder mBuilder, OnFindMemoFileListener listener)
+    {
+        this(act, MemoListViewMode.NONE, mBuilder, null, null, null);
+
+        this.onFindMemoFileListener = listener;
+    }
+
+    /**
+     * メモ生成共通処理を初期化する.
+     *
+     * @param act アクティビティ
      * @param viewMode メモリスト表示モード
      * @param mBuilder Memoビルダ
      * @param lView ListView
@@ -142,6 +161,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
         this.targetListView = lView;
         this.memoList = mList;
         this.memoListComparator = comparator;
+
+        this.onFindMemoFileListener = null;
     }
 
     @Override
@@ -233,26 +254,44 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
         }
         else
         {
-            // ListViewにメモリストを設定
-            if (this.memoListAdapter == null)
+            // 発見メモの処理が設定されていなければデフォルト処理を使用
+            if (this.onFindMemoFileListener == null)
             {
-                this.memoList.addAll(values[0]);
-                this.memoListAdapter = new MemoListAdapter(this.activity, this.memoList);
-                this.targetListView.setAdapter(memoListAdapter);
-            }
-            else
-            {
-                for (IMemo memo : values[0])
+                this.onFindMemoFileListener = new OnFindMemoFileListener()
                 {
-                    this.memoListAdapter.add(memo);
-                }
+                    @Override
+                    public void onFind(List<IMemo> mList)
+                    {
+                        // ListViewにメモリストを設定
+                        if (AbstractMemoCreateTask.this.targetListView != null)
+                        {
+                            if (AbstractMemoCreateTask.this.memoListAdapter == null)
+                            {
+                                AbstractMemoCreateTask.this.memoList.addAll(mList);
+                                AbstractMemoCreateTask.this.memoListAdapter = new MemoListAdapter(
+                                        AbstractMemoCreateTask.this.activity, AbstractMemoCreateTask.this.memoList);
+                                AbstractMemoCreateTask.this.targetListView.setAdapter(memoListAdapter);
+                            }
+                            else
+                            {
+                                for (IMemo memo : mList)
+                                {
+                                    AbstractMemoCreateTask.this.memoListAdapter.add(memo);
+                                }
+                            }
+
+                            // ソート
+                            sort();
+
+                            // 表示位置を復元
+                            loadListViewStatus();
+                        }
+                    }
+                };
             }
 
-            // ソート
-            sort();
-
-            // 表示位置を復元
-            loadListViewStatus();
+            // メモの発見時の処理
+            this.onFindMemoFileListener.onFind(values[0]);
         }
     }
 
@@ -334,7 +373,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
      */
     public final void sort()
     {
-        if (this.memoListComparator != null)
+        if ((this.targetListView != null) && (this.memoListComparator != null))
         {
             this.memoListAdapter.sort(this.memoListComparator);
         }
@@ -362,27 +401,32 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
      */
     private void loadListViewStatus()
     {
-        MainApplication.MemoListViewStatus listViewStatus = null;
-
-        switch (this.memoListViewMode)
+        // リストViewが設定されている場合、リストの表示位置を復元
+        // ※画面処理でなければリストViewが設定されない。
+        if (this.targetListView != null)
         {
-        case FOLDER_VIEW:
-            listViewStatus = MainApplication.getInstance(this.activity).popMemoListViewStatus(
-                    MainApplication.getInstance(this.activity).getCurrentMemoFolder());
-            break;
+            MainApplication.MemoListViewStatus listViewStatus = null;
 
-        case SEARCH_VIEW:
-            listViewStatus = MainApplication.getInstance(this.activity).getMemoListStatus4Search();
-            break;
+            switch (this.memoListViewMode)
+            {
+            case FOLDER_VIEW:
+                listViewStatus = MainApplication.getInstance(this.activity).popMemoListViewStatus(
+                        MainApplication.getInstance(this.activity).getCurrentMemoFolder());
+                break;
 
-        default:
-            break;
-        }
+            case SEARCH_VIEW:
+                listViewStatus = MainApplication.getInstance(this.activity).getMemoListStatus4Search();
+                break;
 
-        if (listViewStatus != null)
-        {
-            this.targetListView.setSelectionFromTop(listViewStatus.getLastTopPosition(),
-                    listViewStatus.getLastTopPositionY());
+            default:
+                break;
+            }
+
+            if (listViewStatus != null)
+            {
+                this.targetListView.setSelectionFromTop(listViewStatus.getLastTopPosition(),
+                        listViewStatus.getLastTopPositionY());
+            }
         }
     }
 
@@ -393,30 +437,51 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
      */
     private void setMainTitleText(String postTitleText)
     {
-        StringBuilder titleBuilder = new StringBuilder();
-
-        // カレントフォルダをタイトルの最初に設定
-        File currentFolderFile = new File(MainApplication.getInstance(getActivity()).getCurrentMemoFolder());
-        File rootFolderFile = new File(MainPreferenceActivity.getMemoLocation(getActivity()));
-        String memoCurrentPath = currentFolderFile.getAbsolutePath().substring(
-                rootFolderFile.getAbsolutePath().length());
-
-        if (memoCurrentPath.length() > 0)
+        // リストViewが設定されている場合、アクティビティのタイトルを変更
+        // ※画面処理でなければリストViewが設定されない。
+        if (this.targetListView != null)
         {
-            titleBuilder.append(currentFolderFile.getName());
-        }
-        else
-        {
-            titleBuilder.append("/");
-        }
+            StringBuilder titleBuilder = new StringBuilder();
 
-        // 付加タイトル文字列があれば付加
-        if (postTitleText != null)
-        {
-            titleBuilder.append(" ");
-            titleBuilder.append(postTitleText);
-        }
+            // カレントフォルダをタイトルの最初に設定
+            File currentFolderFile = new File(MainApplication.getInstance(getActivity()).getCurrentMemoFolder());
+            File rootFolderFile = new File(MainPreferenceActivity.getMemoLocation(getActivity()));
+            String memoCurrentPath = currentFolderFile.getAbsolutePath().substring(
+                    rootFolderFile.getAbsolutePath().length());
 
-        getActivity().setTitle(titleBuilder.toString());
+            if (memoCurrentPath.length() > 0)
+            {
+                titleBuilder.append(currentFolderFile.getName());
+            }
+            else
+            {
+                titleBuilder.append("/");
+            }
+
+            // 付加タイトル文字列があれば付加
+            if (postTitleText != null)
+            {
+                titleBuilder.append(" ");
+                titleBuilder.append(postTitleText);
+            }
+
+            getActivity().setTitle(titleBuilder.toString());
+        }
+    }
+
+    /**
+     * 検索条件に一致するメモを発見したときの処理.
+     *
+     * @author tarshi
+     *
+     */
+    public interface OnFindMemoFileListener
+    {
+        /**
+         * メモを発見したとき呼び出される.
+         *
+         * @param mList メモファイル/メモフォルダ
+         */
+        void onFind(List<IMemo> mList);
     }
 }
