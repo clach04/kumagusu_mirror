@@ -1123,14 +1123,75 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * カレントフォルダ以下のすべてのメモのパスワードを再設定する.
+     *
+     * @param dstMemoType 変換先のメモ種別
      */
-    private void changePasswordAllMemoFile()
+    private void changePasswordAllMemoFile(final MemoType dstMemoType)
+    {
+        switch (dstMemoType)
+        {
+        case Text:
+            changePasswordAllMemoFileCommon(dstMemoType);
+
+            break;
+
+        case Secret1:
+            // 新しいパスワードを入力
+            // パスワードを入力し、暗号化ファイル保存
+            Utilities.inputPassword(this, new DialogInterface.OnClickListener()
+            {
+                /**
+                 * 入力パスワードが有効時を処理する.
+                 */
+                @Override
+                public void onClick(DialogInterface d, int which)
+                {
+                    changePasswordAllMemoFileCommon(dstMemoType);
+                }
+            }, new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface d, int which)
+                {
+                    // キャンセル処理なし
+                }
+            });
+
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    /**
+     * カレントフォルダ以下のすべてのメモのパスワードを再設定する（共通処理）.
+     * @param dstMemoType 変換先のメモ種別
+     */
+    private void changePasswordAllMemoFileCommon(final MemoType dstMemoType)
     {
         // メモを検索
         if (MainApplication.getInstance(Kumagusu.this).getCurrentMemoFolder() != null)
         {
-            MemoChangePasswordTask targetMemoSearchTask = new MemoChangePasswordTask(this, MainApplication.getInstance(
-                    this).getCurrentMemoFolder(), this.memoBuilder);
+            MemoChangePasswordTask targetMemoSearchTask = new MemoChangePasswordTask(Kumagusu.this, MainApplication
+                    .getInstance(Kumagusu.this).getCurrentMemoFolder(), Kumagusu.this.memoBuilder,
+                    new AbstractMemoCreateTask.OnFindMemoFileListener()
+                    {
+                        @Override
+                        public void onFind(List<IMemo> mList)
+                        {
+                            // 変換処理
+                            for (IMemo memo : mList)
+                            {
+                                if ((memo == null) || (!(memo instanceof MemoFile)))
+                                {
+                                    continue;
+                                }
+
+                                changeMemoType((MemoFile) memo, dstMemoType, false);
+                            }
+                        }
+                    });
 
             targetMemoSearchTask.execute();
         }
