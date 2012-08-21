@@ -29,6 +29,7 @@ import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask;
+import jp.gr.java_conf.kumagusu.worker.MemoChangePasswordTask;
 import jp.gr.java_conf.kumagusu.worker.MemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.MemoSearchTask;
 import android.content.DialogInterface;
@@ -180,6 +181,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     public enum MemoListViewMode
     {
+        /**
+         * モードなし.
+         */
+        NONE,
+
         /**
          * フォルダ表示.
          */
@@ -1113,6 +1119,21 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // アクティビティー終了
         finish();
+    }
+
+    /**
+     * カレントフォルダ以下のすべてのメモのパスワードを再設定する.
+     */
+    private void changePasswordAllMemoFile()
+    {
+        // メモを検索
+        if (MainApplication.getInstance(Kumagusu.this).getCurrentMemoFolder() != null)
+        {
+            MemoChangePasswordTask targetMemoSearchTask = new MemoChangePasswordTask(this, MainApplication.getInstance(
+                    this).getCurrentMemoFolder(), this.memoBuilder);
+
+            targetMemoSearchTask.execute();
+        }
     }
 
     /**
