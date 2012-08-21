@@ -1,12 +1,12 @@
-package jp.gr.java_conf.kumagusu.control;
+package jp.gr.java_conf.kumagusu.control.fragment;
 
 /**
- * 入力ダイアログのリスナ保持処理インタフェース.
+ * フォルダ選択ダイアログのリスナ保持処理インタフェース.
  *
  * @author tarshi
  *
  */
-public interface InputDialogListenerFolder
+public interface SelectFolderDialogListenerFolder
 {
     /**
      * リスナ保持データを取得する.
@@ -14,7 +14,7 @@ public interface InputDialogListenerFolder
      * @param listenerId リスナ保持データID
      * @return リスナ保持データ
      */
-    InputDialogListeners getInputDialogListeners(int listenerId);
+    SelectFolderDialogListeners getSelectFolderDialogListeners(int listenerId);
 
     /**
      * リスナ保持データを追加する.
@@ -22,5 +22,5 @@ public interface InputDialogListenerFolder
      * @param listenerId リスナ保持データID
      * @param listeners リスナ保持データ
      */
-    void putInputDialogListeners(int listenerId, InputDialogListeners listeners);
+    void putSelectFolderDialogListeners(int listenerId, SelectFolderDialogListeners listeners);
 }

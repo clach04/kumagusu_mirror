@@ -1,4 +1,4 @@
-package jp.gr.java_conf.kumagusu.control;
+package jp.gr.java_conf.kumagusu.control.fragment;
 
 import android.view.View;
 
