@@ -272,6 +272,26 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private static final int DIALOG_ID_INPUT_FOLDER_ADD_CONTROL = 203;
 
     /**
+     * フォルダ選択ダイアログ「メモコピー先フォルダ選択」.
+     */
+    private static final int DIALOG_ID_SELECT_FOLDER_MEMO_FILE_COPY = 301;
+
+    /**
+     * フォルダ選択ダイアログ「メモ移動先フォルダ選択」.
+     */
+    private static final int DIALOG_ID_SELECT_FOLDER_MEMO_FILE_MOVE = 302;
+
+    /**
+     * フォルダ選択ダイアログ「フォルダコピー先フォルダ選択」.
+     */
+    private static final int DIALOG_ID_SELECT_FOLDER_MEMO_FOLDER_COPY = 303;
+
+    /**
+     * フォルダ選択ダイアログ「フォルダ移動先フォルダ選択」.
+     */
+    private static final int DIALOG_ID_SELECT_FOLDER_MEMO_FOLDER_MOVE = 304;
+
+    /**
      * ダイアログ保管データMap.
      */
     private SparseArray<DialogListeners> dialogListenerMap = new SparseArray<DialogListeners>();
@@ -280,6 +300,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      * 入力ダイアログ保管データMap.
      */
     private SparseArray<InputDialogListeners> inputDialogListenerMap = new SparseArray<InputDialogListeners>();
+
+    /**
+     * フォルダ選択ダイアログ保管データMap.
+     */
+    private SparseArray<SelectFolderDialogListeners> selectFolderDialogListenerMap = new SparseArray<SelectFolderDialogListeners>();
 
     /**
      * 子アクティビティー起動中？.
@@ -1470,26 +1495,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     /**
-     * フォルダ選択ダイアログ「メモコピー先フォルダ選択」.
-     */
-    private static final int DIALOG_ID_SELECT_FOLDER_MEMO_FILE_COPY = 301;
-
-    /**
-     * フォルダ選択ダイアログ「メモ移動先フォルダ選択」.
-     */
-    private static final int DIALOG_ID_SELECT_FOLDER_MEMO_FILE_MOVE = 302;
-
-    /**
-     * フォルダ選択ダイアログ「フォルダコピー先フォルダ選択」.
-     */
-    private static final int DIALOG_ID_SELECT_FOLDER_MEMO_FOLDER_COPY = 303;
-
-    /**
-     * フォルダ選択ダイアログ「フォルダ移動先フォルダ選択」.
-     */
-    private static final int DIALOG_ID_SELECT_FOLDER_MEMO_FOLDER_MOVE = 304;
-
-    /**
      * フォルダ選択ダイアログのリスナを初期化する.
      */
     private void initSelectDialogListener()
@@ -1646,14 +1651,14 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     @Override
     public SelectFolderDialogListeners getSelectFolderDialogListeners(int listenerId)
     {
-        // TODO 自動生成されたメソッド・スタブ
-        return null;
+        // フォルダ選択ダイアログ保管データを返す
+        return this.selectFolderDialogListenerMap.get(listenerId);
     }
 
     @Override
     public void putSelectFolderDialogListeners(int listenerId, SelectFolderDialogListeners listeners)
     {
-        // TODO 自動生成されたメソッド・スタブ
-
+        // フォルダ選択ダイアログデータを追加
+        this.selectFolderDialogListenerMap.put(listenerId, listeners);
     }
 }
