@@ -22,9 +22,9 @@ import android.util.Log;
 import android.widget.ListView;
 
 /**
+ * メモ生成共通処理.
  *
  * @author tarshi
- *
  */
 public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>, Boolean>
 {
@@ -124,6 +124,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     }
 
     /**
+     * メモ生成共通処理を初期化する.
      *
      * @param act アクティビティ
      * @param viewMode メモリスト表示モード
