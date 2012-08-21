@@ -1,4 +1,4 @@
-package jp.gr.java_conf.kumagusu.control;
+package jp.gr.java_conf.kumagusu.control.fragment;
 
 import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.compat.EditorCompat;

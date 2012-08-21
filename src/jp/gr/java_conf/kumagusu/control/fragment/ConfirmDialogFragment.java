@@ -1,6 +1,7 @@
-package jp.gr.java_conf.kumagusu.control;
+package jp.gr.java_conf.kumagusu.control.fragment;
 
 import jp.gr.java_conf.kumagusu.R;
+import jp.gr.java_conf.kumagusu.control.DialogListeners;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
