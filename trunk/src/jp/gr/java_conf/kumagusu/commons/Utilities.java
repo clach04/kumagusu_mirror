@@ -237,17 +237,11 @@ public final class Utilities
      */
     private static void initConfirmDialogListener(final FragmentActivity act)
     {
-        if (act instanceof ConfirmDialogListenerFolder)
-        {
-            Log.e("Utilities", "Not ConfirmDialogListenerFolder");
-            return;
-        }
-
         ConfirmDialogListenerFolder listenerFolder = (ConfirmDialogListenerFolder) act;
 
         // パスワードが入力されてない
-        listenerFolder.putConfirmDialogListeners(DIALOG_ID_CONFIRM_PASSWORD_EMPTY, new DialogListeners(null,
-                null, null));
+        listenerFolder.putConfirmDialogListeners(DIALOG_ID_CONFIRM_PASSWORD_EMPTY,
+                new DialogListeners(null, null, null));
 
         // パスワードが一致しない
         listenerFolder.putConfirmDialogListeners(DIALOG_ID_CONFIRM_PASSWORD_INCORRECT, new DialogListeners(
