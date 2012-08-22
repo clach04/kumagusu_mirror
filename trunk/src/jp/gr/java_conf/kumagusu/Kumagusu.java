@@ -630,6 +630,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // 選択中メモファイルパス
         outState.putString("selectedMemoFilePath", this.selectedMemoFilePath);
+
+        // メモ種別・パスワード統一処理用のパスワード
+        outState.putString("passwordOfUnificationType", this.passwordOfUnificationType);
     }
 
     @Override
@@ -641,6 +644,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         if (savedInstanceState.containsKey("selectedMemoFilePath"))
         {
             this.selectedMemoFilePath = savedInstanceState.getString("selectedMemoFilePath");
+        }
+
+        // メモ種別・パスワード統一処理用のパスワード
+        if (savedInstanceState.containsKey("passwordOfUnificationType"))
+        {
+            this.passwordOfUnificationType = savedInstanceState.getString("passwordOfUnificationType");
         }
 
         super.onRestoreInstanceState(savedInstanceState);
@@ -1164,6 +1173,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     /**
+     * メモ種別・パスワード統一処理で使用するパスワード.
+     */
+    private String passwordOfUnificationType;
+
+    /**
      * カレントフォルダ以下のすべてのメモのパスワードを再設定する.
      *
      * @param dstMemoType 変換先のメモ種別
@@ -1188,6 +1202,10 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 @Override
                 public void onClick(DialogInterface d, int which)
                 {
+                    // 途中で最新パスワードが変更されることがあるため、入力パスワードを保管
+                    Kumagusu.this.passwordOfUnificationType = MainApplication.getInstance(Kumagusu.this)
+                            .getLastCorrectPassword();
+
                     unificationTypeAllMemoCommon(dstMemoType);
                 }
             }, new DialogInterface.OnClickListener()
@@ -1236,6 +1254,10 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                         @Override
                         public void onFind(List<IMemo> mList)
                         {
+                            // 保管パスワードを再設定
+                            MainApplication.getInstance(Kumagusu.this).setLastCorrectPassword(
+                                    Kumagusu.this.passwordOfUnificationType);
+
                             // 変換処理
                             for (IMemo memo : mList)
                             {
