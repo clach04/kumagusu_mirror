@@ -33,6 +33,7 @@ import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.UnificationTypeMemoTask;
 import jp.gr.java_conf.kumagusu.worker.MemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.MemoSearchTask;
+import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask.TaskState;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -1006,8 +1007,10 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      * @param srcMemoFile 変更するメモ
      * @param dstMemoType 変更先のメモ種別
      * @param refreshPassword パスワードを再入力
+     * @param refreshListView リストビューを再表示するときtrue
      */
-    private void changeMemoType(MemoFile srcMemoFile, MemoType dstMemoType, final boolean refreshPassword)
+    private void changeMemoType(MemoFile srcMemoFile, MemoType dstMemoType, final boolean refreshPassword,
+            final boolean refreshListView)
     {
         // ファイル名のランダム化設定値により暗号化種別を変更
         if ((dstMemoType == MemoType.Secret1) && (MainPreferenceActivity.isRandamName(this)))
@@ -1048,7 +1051,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 public void onClick(DialogInterface d, int which)
                 {
                     // 再呼出
-                    changeMemoType(srcMemoFileTemp, dstMemoTypeTemp, false);
+                    changeMemoType(srcMemoFileTemp, dstMemoTypeTemp, false, refreshListView);
                 }
             }, new DialogInterface.OnClickListener()
             {
@@ -1074,7 +1077,10 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     MemoUtilities.deleteFile(srcMemoFile.getPath());
 
                     // メモリストを更新
-                    refreshMemoList();
+                    if (refreshListView)
+                    {
+                        refreshMemoList();
+                    }
                 }
             }
         }
@@ -1224,7 +1230,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             }
 
             UnificationTypeMemoTask task = new UnificationTypeMemoTask(Kumagusu.this, MainApplication.getInstance(
-                    Kumagusu.this).getCurrentMemoFolder(), Kumagusu.this.memoBuilder, progressDialog,
+                    Kumagusu.this).getCurrentMemoFolder(), Kumagusu.this.memoBuilder,
                     new AbstractMemoCreateTask.OnFindMemoFileListener()
                     {
                         @Override
@@ -1240,7 +1246,32 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
                                 progressDialog.setMessage(memo.getName());
 
-                                changeMemoType((MemoFile) memo, dstMemoType, false);
+                                changeMemoType((MemoFile) memo, dstMemoType, false, false);
+                            }
+                        }
+                    }, new AbstractMemoCreateTask.OnTaskStateListener()
+                    {
+                        @Override
+                        public void onChangeState(TaskState state)
+                        {
+                            switch (state)
+                            {
+                            case PreExecute:
+                                // プログレスダイアログ表示
+                                progressDialog.show(getSupportFragmentManager(), "");
+                                break;
+
+                            case PostExecute:
+                            case Cancel:
+                                // リスト表示を更新
+                                refreshMemoList();
+
+                                // プログレスダイアログ消去
+                                progressDialog.dismiss();
+                                break;
+
+                            default:
+                                break;
                             }
                         }
                     });
@@ -1376,13 +1407,13 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     break;
 
                 case FILE_CONTROL_ID_ENCRYPT_OR_DECRYPT: // 暗号化・復号化
-                    changeMemoType((MemoFile) selectedMemoFile, getChange2MemoType(selectedMemoFile), false);
+                    changeMemoType((MemoFile) selectedMemoFile, getChange2MemoType(selectedMemoFile), false, true);
                     break;
 
                 case FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD: // 暗号化(ﾊﾟｽﾜｰﾄﾞ入力)
                     if (getChange2MemoType(selectedMemoFile) == MemoType.Secret1)
                     {
-                        changeMemoType((MemoFile) selectedMemoFile, getChange2MemoType(selectedMemoFile), true);
+                        changeMemoType((MemoFile) selectedMemoFile, getChange2MemoType(selectedMemoFile), true, true);
                     }
                     break;
 

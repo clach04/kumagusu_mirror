@@ -7,6 +7,7 @@ import java.util.List;
 import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
+import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask.OnTaskStateListener;
 import android.app.Activity;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -25,26 +26,20 @@ public final class UnificationTypeMemoTask extends AbstractMemoCreateTask
     private String baseFolder;
 
     /**
-     * プログレスダイアログ.
-     */
-    private ProgressDialogFragment progressDialog;
-
-    /**
      * メモ種別（パスワード）統一処理を初期化する.
      *
      * @param act アクティビティー
      * @param bFolder 検索フォルダ
      * @param mBuilder Memoビルダ
      * @param listener メモ発見時の処理
-     * @param progress プログレスダイアログ
+     * @param stateListener メモ作成処理の状態変更を受け取るのリスナ
      */
-    public UnificationTypeMemoTask(Activity act, String bFolder, MemoBuilder mBuilder, ProgressDialogFragment progress,
-            OnFindMemoFileListener listener)
+    public UnificationTypeMemoTask(Activity act, String bFolder, MemoBuilder mBuilder, OnFindMemoFileListener listener,
+            OnTaskStateListener stateListener)
     {
-        super(act, mBuilder, listener);
+        super(act, mBuilder, listener, stateListener);
 
         this.baseFolder = bFolder;
-        this.progressDialog = progress;
     }
 
     @Override
@@ -56,42 +51,6 @@ public final class UnificationTypeMemoTask extends AbstractMemoCreateTask
         findMemoFile(new File(this.baseFolder));
 
         return true;
-    }
-
-    @Override
-    protected void onPreExecute()
-    {
-        Log.d("UnificationTypeMemoTask", "*** START onPreExecute()");
-
-        // プログレスダイアログ表示
-        this.progressDialog.show(((FragmentActivity) getActivity()).getSupportFragmentManager(), "");
-
-        // 親クラスの処理実行
-        super.onPreExecute();
-    }
-
-    @Override
-    protected void onPostExecute(Boolean result)
-    {
-        Log.d("UnificationTypeMemoTask", "*** START onPostExecute()");
-
-        // プログレスダイアログ消去
-        this.progressDialog.dismiss();
-
-        // 親クラスの処理実行
-        super.onPostExecute(result);
-    }
-
-    @Override
-    protected void onCancelled()
-    {
-        Log.d("UnificationTypeMemoTask", "*** START onCancelled()");
-
-        // プログレスダイアログ消去
-        this.progressDialog.dismiss();
-
-        // 親クラスの処理実行
-        super.onCancelled();
     }
 
     /**
