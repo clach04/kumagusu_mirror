@@ -1,5 +1,6 @@
 package jp.gr.java_conf.kumagusu.control.fragment;
 
+import jp.gr.java_conf.kumagusu.MainApplication;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -69,11 +70,24 @@ public final class ProgressDialogFragment extends DialogFragment
             this.progressDialog.setMessage(getString(messageId));
         }
 
+        // 表示中プログレスダイアログを保存
+        MainApplication.getInstance(getActivity()).setProgressDialog(this);
+
         return this.progressDialog;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle args)
+    {
+        // 表示中プログレスダイアログをクリア
+        MainApplication.getInstance(getActivity()).setProgressDialog(null);
+
+        super.onSaveInstanceState(args);
     }
 
     /**
      * メッセージを設定する.
+     *
      * @param message メッセージ
      */
     public void setMessage(CharSequence message)
