@@ -116,6 +116,12 @@
         <item>21</item>
     </integer-array>
 
+    <!-- メモ種別・パスワード統一 -->
+    <string-array name="memo_unification_type_entries">
+        <item>@string/memo_unification_type_encrypt_title</item>
+        <item>@string/memo_unification_type_decrypt_title</item>
+    </string-array>
+
     <!-- ファイル操作ダイアログのエントリ -->
     <string-array name="memo_file_control_dialog_entries_4_text">
         <item>コピー</item>

@@ -2,24 +2,22 @@ package jp.gr.java_conf.kumagusu.worker;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
-import jp.gr.java_conf.kumagusu.R;
+import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.widget.ListView;
 
 /**
- * 検索メモリスト作成処理.
+ * メモ種別（パスワード）統一処理.
  *
  * @author tarshi
  *
  */
-public final class MemoChangePasswordTask extends AbstractMemoCreateTask
+public final class UnificationTypeMemoTask extends AbstractMemoCreateTask
 {
     /**
      * 検索フォルダ.
@@ -27,27 +25,73 @@ public final class MemoChangePasswordTask extends AbstractMemoCreateTask
     private String baseFolder;
 
     /**
-     * 検索メモリスト作成処理を初期化する.
+     * プログレスダイアログ.
+     */
+    private ProgressDialogFragment progressDialog;
+
+    /**
+     * メモ種別（パスワード）統一処理を初期化する.
      *
      * @param act アクティビティー
      * @param bFolder 検索フォルダ
      * @param mBuilder Memoビルダ
      * @param listener メモ発見時の処理
+     * @param progress プログレスダイアログ
      */
-    public MemoChangePasswordTask(Activity act, String bFolder, MemoBuilder mBuilder, OnFindMemoFileListener listener)
+    public UnificationTypeMemoTask(Activity act, String bFolder, MemoBuilder mBuilder, ProgressDialogFragment progress,
+            OnFindMemoFileListener listener)
     {
         super(act, mBuilder, listener);
 
         this.baseFolder = bFolder;
+        this.progressDialog = progress;
     }
 
     @Override
     protected Boolean doInBackground(Void... params)
     {
+        Log.d("UnificationTypeMemoTask", "*** START doInBackground()");
+
         // メモファイルの検索処理
         findMemoFile(new File(this.baseFolder));
 
         return true;
+    }
+
+    @Override
+    protected void onPreExecute()
+    {
+        Log.d("UnificationTypeMemoTask", "*** START onPreExecute()");
+
+        // プログレスダイアログ表示
+        this.progressDialog.show(((FragmentActivity) getActivity()).getSupportFragmentManager(), "");
+
+        // 親クラスの処理実行
+        super.onPreExecute();
+    }
+
+    @Override
+    protected void onPostExecute(Boolean result)
+    {
+        Log.d("UnificationTypeMemoTask", "*** START onPostExecute()");
+
+        // プログレスダイアログ消去
+        this.progressDialog.dismiss();
+
+        // 親クラスの処理実行
+        super.onPostExecute(result);
+    }
+
+    @Override
+    protected void onCancelled()
+    {
+        Log.d("UnificationTypeMemoTask", "*** START onCancelled()");
+
+        // プログレスダイアログ消去
+        this.progressDialog.dismiss();
+
+        // 親クラスの処理実行
+        super.onCancelled();
     }
 
     /**
