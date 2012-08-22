@@ -171,12 +171,13 @@ public final class MemoFile extends AbstractMemo
     /**
      * メモのデータを設定（保存）する.
      *
+     * @param password パスワード
      * @param memoData メモデータ
      * @return 保存成功時true
      */
-    public boolean setText(String memoData)
+    public boolean setText(String password, String memoData)
     {
-        return setText(null, memoData);
+        return setText(password, memoData, 0);
     }
 
     /**
@@ -184,9 +185,10 @@ public final class MemoFile extends AbstractMemo
      *
      * @param password パスワード
      * @param memoData メモデータ
+     * @param lastModified 出力ファイルの更新日時
      * @return 保存成功時true
      */
-    public boolean setText(String password, String memoData)
+    public boolean setText(String password, String memoData, long lastModified)
     {
         if ((this.getMemoType() != MemoType.Text) && (this.getMemoType() != MemoType.Secret1)
                 && (this.getMemoType() != MemoType.Secret2))
@@ -280,6 +282,12 @@ public final class MemoFile extends AbstractMemo
                 catch (IOException e)
                 {
                     Log.w("MemoFile", "memo file close error.", e);
+                }
+
+                // メモファイルの更新日時を設定
+                if (lastModified != 0)
+                {
+                    this.getMemoFile().setLastModified(lastModified);
                 }
             }
         }

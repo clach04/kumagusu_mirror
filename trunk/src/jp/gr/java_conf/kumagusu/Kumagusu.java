@@ -1062,9 +1062,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         }
         else
         {
+            // メモを出力（更新日時は変更しない）
             MemoFile dstMemoFile = (MemoFile) mb.build(srcMemoFile.getParent(), dstMemoType);
 
-            if (dstMemoFile.setText(MainApplication.getInstance(this).getLastCorrectPassword(), srcMemoData))
+            if (dstMemoFile.setText(MainApplication.getInstance(this).getLastCorrectPassword(), srcMemoData,
+                    srcMemoFile.lastModified()))
             {
                 // メモ種別の変更に成功した場合、元のファイルを削除
                 if (!srcMemoFile.getPath().equals(dstMemoFile.getPath()))
