@@ -87,10 +87,12 @@ public final class MainApplication extends Application
      */
     public void addPassword(String pass)
     {
-        if (!getPasswordList().contains(pass))
+        if (getPasswordList().contains(pass))
         {
-            getPasswordList().add(pass);
+            getPasswordList().remove(pass);
         }
+
+        getPasswordList().add(pass);
     }
 
     /**
@@ -134,6 +136,7 @@ public final class MainApplication extends Application
 
     /**
      * パスワードタイマーを帰す.
+     *
      * @return パスワードタイマー
      */
     public Timer getPasswordTimer()
@@ -179,30 +182,30 @@ public final class MainApplication extends Application
         return (this.oldStyleDialogCounter > 0);
     }
 
-//    /**
-//     * エディタ起動中.
-//     */
-//    private boolean executedEditorActivity = false;
-//
-//    /**
-//     * エディタ起動中を設定する.
-//     *
-//     * @param executed エディタ起動中
-//     */
-//    public void setExecutedEditorActivity(boolean executed)
-//    {
-//        this.executedEditorActivity = executed;
-//    }
-//
-//    /**
-//     * エディタ起動中を返す.
-//     *
-//     * @return エディタ起動中
-//     */
-//    public boolean isExecutedEditorActivity()
-//    {
-//        return this.executedEditorActivity;
-//    }
+    // /**
+    // * エディタ起動中.
+    // */
+    // private boolean executedEditorActivity = false;
+    //
+    // /**
+    // * エディタ起動中を設定する.
+    // *
+    // * @param executed エディタ起動中
+    // */
+    // public void setExecutedEditorActivity(boolean executed)
+    // {
+    // this.executedEditorActivity = executed;
+    // }
+    //
+    // /**
+    // * エディタ起動中を返す.
+    // *
+    // * @return エディタ起動中
+    // */
+    // public boolean isExecutedEditorActivity()
+    // {
+    // return this.executedEditorActivity;
+    // }
 
     /**
      * エディタでメモを更新しているか?
