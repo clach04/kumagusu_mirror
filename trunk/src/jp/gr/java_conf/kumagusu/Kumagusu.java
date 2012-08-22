@@ -18,6 +18,7 @@ import jp.gr.java_conf.kumagusu.control.fragment.InputDialogListenerFolder;
 import jp.gr.java_conf.kumagusu.control.fragment.InputDialogListeners;
 import jp.gr.java_conf.kumagusu.control.fragment.ListDialogFragment;
 import jp.gr.java_conf.kumagusu.control.fragment.ListDialogListenerFolder;
+import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import jp.gr.java_conf.kumagusu.control.fragment.SelectFolderDialogFragment;
 import jp.gr.java_conf.kumagusu.control.fragment.SelectFolderDialogListenerFolder;
 import jp.gr.java_conf.kumagusu.control.fragment.SelectFolderDialogListeners;
@@ -29,7 +30,7 @@ import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask;
-import jp.gr.java_conf.kumagusu.worker.MemoChangePasswordTask;
+import jp.gr.java_conf.kumagusu.worker.UnificationTypeMemoTask;
 import jp.gr.java_conf.kumagusu.worker.MemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.MemoSearchTask;
 import android.content.DialogInterface;
@@ -79,9 +80,14 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private static final int MENU_ID_SORT_METHOD = (Menu.FIRST + 3);
 
     /**
+     * メニュー項目「メモ種別・パスワード統一」.
+     */
+    private static final int MENU_ID_MEMO_UNIFICATION_TYPE = (Menu.FIRST + 4);
+
+    /**
      * メニュー項目「設定」.
      */
-    private static final int MENU_ID_SETTING = (Menu.FIRST + 4);
+    private static final int MENU_ID_SETTING = (Menu.FIRST + 5);
 
     /**
      * メモを追加.
@@ -137,6 +143,16 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      * フォルダコントロールID「名称変更」.
      */
     private static final int FOLDER_CONTROL_ID_RENAME = 3;
+
+    /**
+     * メモ種別・パスワード統一コントロールID「暗号化」.
+     */
+    private static final int MEMO_UNIFICATION_TYPE_CONTROL_ENCRYPT = 0;
+
+    /**
+     * メモ種別・パスワード統一コントロールID「複合化」.
+     */
+    private static final int MEMO_UNIFICATION_TYPE_CONTROL_DECRYPT = 1;
 
     /**
      * リスト.
@@ -261,6 +277,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      * リストダイアログID「メモリスト操作」.
      */
     private static final int DIALOG_ID_LIST_MEMO_LIST_CONTROL = 104;
+
+    /**
+     * リストダイアログID「メモ種別・パスワード統一」.
+     */
+    private static final int DIALOG_ID_LIST_MEMO_UNIFICATION_TYPE = 105;
 
     /**
      * 入力ダイアログID「メモ検索条件」.
@@ -680,6 +701,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         actionMemoSortMedhod.setIcon(R.drawable.memo_sort);
         ActivityCompat.setShowAsAction4ActionBar(actionMemoSortMedhod);
 
+        // メニュー項目「メモ種別・パスワード統一」
+        MenuItem actionMemoUnificationType = menu.add(Menu.NONE, MENU_ID_MEMO_UNIFICATION_TYPE, Menu.NONE,
+                R.string.memo_unification_type_title);
+        actionMemoUnificationType.setIcon(R.drawable.memo_unification_type);
+        ActivityCompat.setShowAsAction4ActionBar(actionMemoUnificationType);
+
         // メニュー項目「設定」
         MenuItem actionItemSetting = menu.add(Menu.NONE, MENU_ID_SETTING, Menu.NONE, R.string.ui_setting);
         actionItemSetting.setIcon(R.drawable.setting);
@@ -702,6 +729,13 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             Intent prefIntent = new Intent(Kumagusu.this, MainPreferenceActivity.class);
 
             startActivity(prefIntent);
+            break;
+
+        case MENU_ID_MEMO_UNIFICATION_TYPE: // メモ種別・パスワード統一
+            ListDialogFragment.newInstance(DIALOG_ID_LIST_MEMO_UNIFICATION_TYPE, R.drawable.memo_unification_type,
+                    R.string.memo_unification_type_title, 0,
+                    getResources().getStringArray(R.array.memo_unification_type_entries)).show(
+                    getSupportFragmentManager(), "");
             break;
 
         case MENU_ID_SORT_METHOD: // 並び替え方法
@@ -1126,12 +1160,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      *
      * @param dstMemoType 変換先のメモ種別
      */
-    private void changePasswordAllMemoFile(final MemoType dstMemoType)
+    private void unificationTypeAllMemo(final MemoType dstMemoType)
     {
         switch (dstMemoType)
         {
         case Text:
-            changePasswordAllMemoFileCommon(dstMemoType);
+            unificationTypeAllMemoCommon(dstMemoType);
 
             break;
 
@@ -1146,7 +1180,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 @Override
                 public void onClick(DialogInterface d, int which)
                 {
-                    changePasswordAllMemoFileCommon(dstMemoType);
+                    unificationTypeAllMemoCommon(dstMemoType);
                 }
             }, new DialogInterface.OnClickListener()
             {
@@ -1166,15 +1200,29 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * カレントフォルダ以下のすべてのメモのパスワードを再設定する（共通処理）.
+     *
      * @param dstMemoType 変換先のメモ種別
      */
-    private void changePasswordAllMemoFileCommon(final MemoType dstMemoType)
+    private void unificationTypeAllMemoCommon(final MemoType dstMemoType)
     {
         // メモを検索
         if (MainApplication.getInstance(Kumagusu.this).getCurrentMemoFolder() != null)
         {
-            MemoChangePasswordTask targetMemoSearchTask = new MemoChangePasswordTask(Kumagusu.this, MainApplication
-                    .getInstance(Kumagusu.this).getCurrentMemoFolder(), Kumagusu.this.memoBuilder,
+            final ProgressDialogFragment progressDialog;
+
+            if (dstMemoType == MemoType.Secret1)
+            {
+                progressDialog = ProgressDialogFragment.newInstance(R.drawable.memo_unification_type,
+                        R.string.memo_unification_type_encrypt_title, 0);
+            }
+            else
+            {
+                progressDialog = ProgressDialogFragment.newInstance(R.drawable.memo_unification_type,
+                        R.string.memo_unification_type_decrypt_title, 0);
+            }
+
+            UnificationTypeMemoTask task = new UnificationTypeMemoTask(Kumagusu.this, MainApplication.getInstance(
+                    Kumagusu.this).getCurrentMemoFolder(), Kumagusu.this.memoBuilder, progressDialog,
                     new AbstractMemoCreateTask.OnFindMemoFileListener()
                     {
                         @Override
@@ -1188,12 +1236,14 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                     continue;
                                 }
 
+                                progressDialog.setMessage(memo.getName());
+
                                 changeMemoType((MemoFile) memo, dstMemoType, false);
                             }
                         }
                     });
 
-            targetMemoSearchTask.execute();
+            task.execute();
         }
     }
 
@@ -1409,6 +1459,28 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             {
                 int[] memoSortMethodValues = getResources().getIntArray(R.array.memo_sort_method_kind_values);
                 setMemoSortMethod(memoSortMethodValues[which]);
+            }
+        }));
+
+        // メモ種別・パスワード統一
+        putListDialogListeners(DIALOG_ID_LIST_MEMO_UNIFICATION_TYPE, new DialogListeners(new OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                switch (which)
+                {
+                case MEMO_UNIFICATION_TYPE_CONTROL_ENCRYPT: // 暗号化
+                    unificationTypeAllMemo(MemoType.Secret1);
+                    break;
+
+                case MEMO_UNIFICATION_TYPE_CONTROL_DECRYPT: // 復号化
+                    unificationTypeAllMemo(MemoType.Text);
+                    break;
+
+                default:
+                    break;
+                }
             }
         }));
 

@@ -166,7 +166,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     }
 
     @Override
-    protected final void onPreExecute()
+    protected void onPreExecute()
     {
         Log.d("AbstractMemoCreateTask", "*** START onPreExecute()");
 
@@ -175,7 +175,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     }
 
     @Override
-    protected final void onPostExecute(Boolean result)
+    protected void onPostExecute(Boolean result)
     {
         Log.d("AbstractMemoCreateTask", "*** START onPostExecute()");
 
@@ -189,7 +189,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     }
 
     @Override
-    protected final void onCancelled()
+    protected void onCancelled()
     {
         Log.d("AbstractMemoCreateTask", "*** START onCancelled()");
 
