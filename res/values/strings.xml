@@ -118,9 +118,9 @@
     <string name="memo_sort_method_dialog_title">Sort conditions</string>
 
     <!-- メモのパスワード統一処理 -->
-    <string name="memo_unification_type_title">Unification type and password</string>
-    <string name="memo_unification_type_encrypt_title">Encrypt a note(same password).</string>
-    <string name="memo_unification_type_decrypt_title">Decrypt a note.</string>
+    <string name="memo_unification_type_title">Unification note type</string>
+    <string name="memo_unification_type_encrypt_title">Encryption text note(Unification password).</string>
+    <string name="memo_unification_type_decrypt_title">Plain text note.</string>
 
     <!--
     ******************************************************************

@@ -118,9 +118,9 @@
     <string name="memo_sort_method_dialog_title">並び替え方法</string>
 
     <!-- メモのパスワード統一処理 -->
-    <string name="memo_unification_type_title">メモ種別・パスワード統一</string>
-    <string name="memo_unification_type_encrypt_title">メモを同じパスワードで暗号化しています.</string>
-    <string name="memo_unification_type_decrypt_title">メモを復号化しています.</string>
+    <string name="memo_unification_type_title">表示フォルダ以下のメモ種別を統一</string>
+    <string name="memo_unification_type_encrypt_title">暗号メモ（同パスワード）で統一</string>
+    <string name="memo_unification_type_decrypt_title">通常メモで統一</string>
 
     <!--
     ******************************************************************
