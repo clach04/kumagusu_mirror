@@ -109,7 +109,15 @@ public final class SelectFolderDialogFragment extends DialogFragment
         int iconId = getArguments().getInt("iconId");
         int titleId = getArguments().getInt("titleId");
         String chrootPath = getArguments().getString("chrootPath");
-        this.currentFolderPath = getArguments().getString("currentFolderPath");
+
+        if ((savedInstanceState != null) && (savedInstanceState.containsKey("currentFolderPath")))
+        {
+            this.currentFolderPath = savedInstanceState.getString("currentFolderPath");
+        }
+        else
+        {
+            this.currentFolderPath = getArguments().getString("currentFolderPath");
+        }
 
         this.rootFolderFile = new File((chrootPath != null) ? chrootPath : "/");
 
@@ -227,6 +235,15 @@ public final class SelectFolderDialogFragment extends DialogFragment
         Dialog dialog = alertDialogBuilder.create();
 
         return dialog;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle args)
+    {
+        // カレントフォルダ保存
+        args.putString("currentFolderPath", this.currentFolderPath);
+
+        super.onSaveInstanceState(args);
     }
 
     /**
