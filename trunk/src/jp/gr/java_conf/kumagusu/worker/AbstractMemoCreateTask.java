@@ -69,9 +69,14 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     private MemoBuilder memoBuilder;
 
     /**
-     * メモファイルを発見したときの処理.
+     * 発見したメモファイルを受け取るリスナ.
      */
-    private OnFindMemoFileListener onFindMemoFileListener;
+    private OnFindMemoFileListener onFindMemoFileListener = null;
+
+    /**
+     * メモ作成処理の状態変更を受け取るのリスナ.
+     */
+    private OnTaskStateListener onTaskStateListener = null;
 
     /**
      * 同期用オブジェクト.
@@ -133,13 +138,16 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
      *
      * @param act アクティビティ
      * @param mBuilder Memoビルダ
-     * @param listener メモファイルを発見したときの処理
+     * @param listener 発見したメモファイルを受け取るリスナ
+     * @param stateListener メモ作成処理の状態変更を受け取るのリスナ
      */
-    public AbstractMemoCreateTask(Activity act, MemoBuilder mBuilder, OnFindMemoFileListener listener)
+    public AbstractMemoCreateTask(Activity act, MemoBuilder mBuilder, OnFindMemoFileListener listener,
+            OnTaskStateListener stateListener)
     {
         this(act, MemoListViewMode.NONE, mBuilder, null, null, null);
 
         this.onFindMemoFileListener = listener;
+        this.onTaskStateListener = stateListener;
     }
 
     /**
@@ -166,18 +174,30 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     }
 
     @Override
-    protected void onPreExecute()
+    protected final void onPreExecute()
     {
         Log.d("AbstractMemoCreateTask", "*** START onPreExecute()");
+
+        // リスナ呼び出し
+        if (this.onTaskStateListener != null)
+        {
+            this.onTaskStateListener.onChangeState(TaskState.PreExecute);
+        }
 
         // タイトル設定
         setMainTitleText(activityTitleStartTask);
     }
 
     @Override
-    protected void onPostExecute(Boolean result)
+    protected final void onPostExecute(Boolean result)
     {
         Log.d("AbstractMemoCreateTask", "*** START onPostExecute()");
+
+        // リスナ呼び出し
+        if (this.onTaskStateListener != null)
+        {
+            this.onTaskStateListener.onChangeState(TaskState.PostExecute);
+        }
 
         setMainTitleText(activityTitleEndTask);
 
@@ -189,9 +209,15 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     }
 
     @Override
-    protected void onCancelled()
+    protected final void onCancelled()
     {
         Log.d("AbstractMemoCreateTask", "*** START onCancelled()");
+
+        // リスナ呼び出し
+        if (this.onTaskStateListener != null)
+        {
+            this.onTaskStateListener.onChangeState(TaskState.Cancel);
+        }
 
         setMainTitleText(activityTitleEndTask);
 
@@ -470,7 +496,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     }
 
     /**
-     * 検索条件に一致するメモを発見したときの処理.
+     * 発見したメモファイルを受け取るリスナ.
      *
      * @author tarshi
      *
@@ -483,5 +509,43 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
          * @param mList メモファイル/メモフォルダ
          */
         void onFind(List<IMemo> mList);
+    }
+
+    /**
+     * メモ作成処理の状態.
+     *
+     * @author tarshi
+     *
+     */
+    public enum TaskState
+    {
+        /**
+         * 実行前.
+         */
+        PreExecute,
+        /**
+         * 実行後.
+         */
+        PostExecute,
+        /**
+         * キャンセル.
+         */
+        Cancel,
+    }
+
+    /**
+     * メモ作成処理の状態変更を受け取るのリスナ.
+     *
+     * @author tarshi
+     *
+     */
+    public interface OnTaskStateListener
+    {
+        /**
+         * 状態変更があったとき呼び出される.
+         *
+         * @param state メモ作成処理の状態
+         */
+        void onChangeState(TaskState state);
     }
 }
