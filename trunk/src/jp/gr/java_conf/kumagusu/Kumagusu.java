@@ -1234,19 +1234,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // メモを検索
         if (MainApplication.getInstance(Kumagusu.this).getCurrentMemoFolder() != null)
         {
-            final ProgressDialogFragment progressDialog;
-
-            if (dstMemoType == MemoType.Secret1)
-            {
-                progressDialog = ProgressDialogFragment.newInstance(R.drawable.memo_unification_type,
-                        R.string.memo_unification_type_encrypt_title, 0);
-            }
-            else
-            {
-                progressDialog = ProgressDialogFragment.newInstance(R.drawable.memo_unification_type,
-                        R.string.memo_unification_type_decrypt_title, 0);
-            }
-
+            // メモ種別統一Task
             UnificationTypeMemoTask task = new UnificationTypeMemoTask(Kumagusu.this, MainApplication.getInstance(
                     Kumagusu.this).getCurrentMemoFolder(), Kumagusu.this.memoBuilder,
                     new AbstractMemoCreateTask.OnFindMemoFileListener()
@@ -1266,7 +1254,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                     continue;
                                 }
 
-                                progressDialog.setMessage(memo.getName());
+                                ProgressDialogFragment progressDialog = MainApplication.getInstance(Kumagusu.this)
+                                        .getProgressDialog();
+                                if (progressDialog != null)
+                                {
+                                    progressDialog.setMessage(memo.getName());
+                                }
 
                                 changeMemoType((MemoFile) memo, dstMemoType, false, false);
                             }
@@ -1279,8 +1272,19 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                             switch (state)
                             {
                             case PreExecute:
-                                // プログレスダイアログ表示
-                                progressDialog.show(getSupportFragmentManager(), "");
+                                // プログレスダイアログを生成・表示
+                                int titleId;
+                                if (dstMemoType == MemoType.Secret1)
+                                {
+                                    titleId = R.string.memo_unification_type_encrypt_title;
+                                }
+                                else
+                                {
+                                    titleId = R.string.memo_unification_type_decrypt_title;
+                                }
+
+                                ProgressDialogFragment.newInstance(R.drawable.memo_unification_type, titleId, 0).show(
+                                        getSupportFragmentManager(), "");
                                 break;
 
                             case PostExecute:
@@ -1289,7 +1293,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                 refreshMemoList();
 
                                 // プログレスダイアログ消去
-                                progressDialog.dismiss();
+                                ProgressDialogFragment progressDialog = MainApplication.getInstance(Kumagusu.this)
+                                        .getProgressDialog();
+                                if (progressDialog != null)
+                                {
+                                    progressDialog.dismiss();
+                                }
                                 break;
 
                             default:

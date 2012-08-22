@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import jp.gr.java_conf.kumagusu.commons.Timer;
+import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import android.app.Activity;
 import android.app.Application;
 
@@ -15,6 +16,11 @@ import android.app.Application;
  */
 public final class MainApplication extends Application
 {
+    /**
+     * ロックオブジェクト.
+     */
+    private Object lockObject = new Object();
+
     /**
      * アクティビティ.
      */
@@ -182,30 +188,36 @@ public final class MainApplication extends Application
         return (this.oldStyleDialogCounter > 0);
     }
 
-    // /**
-    // * エディタ起動中.
-    // */
-    // private boolean executedEditorActivity = false;
-    //
-    // /**
-    // * エディタ起動中を設定する.
-    // *
-    // * @param executed エディタ起動中
-    // */
-    // public void setExecutedEditorActivity(boolean executed)
-    // {
-    // this.executedEditorActivity = executed;
-    // }
-    //
-    // /**
-    // * エディタ起動中を返す.
-    // *
-    // * @return エディタ起動中
-    // */
-    // public boolean isExecutedEditorActivity()
-    // {
-    // return this.executedEditorActivity;
-    // }
+    /**
+     * 表示中プログレスダイアログ.
+     */
+    private ProgressDialogFragment progressDialog = null;
+
+    /**
+     * 表示中プログレスダイアログを返す.
+     *
+     * @return 表示中プログレスダイアログ
+     */
+    public ProgressDialogFragment getProgressDialog()
+    {
+        synchronized (this.lockObject)
+        {
+            return this.progressDialog;
+        }
+    }
+
+    /**
+     * 表示中プログレスダイアログを設定する.
+     *
+     * @param dialog 表示中プログレスダイアログ
+     */
+    public void setProgressDialog(ProgressDialogFragment dialog)
+    {
+        synchronized (lockObject)
+        {
+            this.progressDialog = dialog;
+        }
+    }
 
     /**
      * エディタでメモを更新しているか?
