@@ -5,6 +5,9 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * プログレスダイアログ.
@@ -57,6 +60,7 @@ public final class ProgressDialogFragment extends DialogFragment
         this.progressDialog = new ProgressDialog(getActivity());
         this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         this.progressDialog.setCancelable(cancelable); // キャンセル可否
+        this.setCancelable(cancelable);
 
         if (iconId != 0)
         {
@@ -80,12 +84,48 @@ public final class ProgressDialogFragment extends DialogFragment
     }
 
     @Override
+    public void onActivityCreated(Bundle args)
+    {
+        // 表示中プログレスダイアログを保存
+        MainApplication.getInstance(getActivity()).setProgressDialog(this);
+
+        super.onActivityCreated(args);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        // 表示中プログレスダイアログを保存
+        MainApplication.getInstance(getActivity()).setProgressDialog(this);
+
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
+        // 表示中プログレスダイアログを保存
+        MainApplication.getInstance(getActivity()).setProgressDialog(this);
+
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle args)
+    {
+        // 表示中プログレスダイアログをクリア
+        // MainApplication.getInstance(getActivity()).setProgressDialog(null);
+
+        super.onSaveInstanceState(args);
+    }
+
+    @Override
+    public void onDestroy()
     {
         // 表示中プログレスダイアログをクリア
         MainApplication.getInstance(getActivity()).setProgressDialog(null);
 
-        super.onSaveInstanceState(args);
+        super.onDestroy();
     }
 
     /**
