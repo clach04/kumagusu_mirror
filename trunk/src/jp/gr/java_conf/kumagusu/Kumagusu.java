@@ -1281,8 +1281,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                     titleId = R.string.unification_memo_type_decrypt_title;
                                 }
 
-                                ProgressDialogFragment.newInstance(R.drawable.unification_memo_type, titleId, 0).show(
-                                        getSupportFragmentManager(), "");
+                                ProgressDialogFragment.newInstance(R.drawable.unification_memo_type, titleId, 0, false)
+                                        .show(getSupportFragmentManager(), "");
                                 break;
 
                             case PostExecute:
@@ -1291,7 +1291,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                         Kumagusu.this.passwordOfUnificationMemoType);
 
                                 // メモ種別・パスワード統一サービス起動
-                                unificationMemoTypeStartService(dstMemoType, Kumagusu.this.passwordOfUnificationMemoType);
+                                unificationMemoTypeStartService(dstMemoType,
+                                        Kumagusu.this.passwordOfUnificationMemoType);
                                 break;
 
                             case Cancel:
