@@ -25,9 +25,10 @@ public final class ProgressDialogFragment extends DialogFragment
      * @param iconId アイコンID
      * @param titleId タイトルID
      * @param messageId メッセージID
+     * @param cancelable キャンセル可能のときtrue
      * @return ダイアログ
      */
-    public static ProgressDialogFragment newInstance(int iconId, int titleId, int messageId)
+    public static ProgressDialogFragment newInstance(int iconId, int titleId, int messageId, boolean cancelable)
     {
         ProgressDialogFragment frag = new ProgressDialogFragment();
 
@@ -36,6 +37,7 @@ public final class ProgressDialogFragment extends DialogFragment
         args.putInt("iconId", iconId);
         args.putInt("titleId", titleId);
         args.putInt("messageId", messageId);
+        args.putBoolean("cancelable", cancelable);
 
         frag.setArguments(args);
 
@@ -49,11 +51,12 @@ public final class ProgressDialogFragment extends DialogFragment
         int iconId = getArguments().getInt("iconId");
         int titleId = getArguments().getInt("titleId");
         int messageId = getArguments().getInt("messageId");
+        boolean cancelable = getArguments().getBoolean("cancelable");
 
         // ダイアログ生成
         this.progressDialog = new ProgressDialog(getActivity());
         this.progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        this.progressDialog.setCancelable(true);
+        this.progressDialog.setCancelable(cancelable); // キャンセル可否
 
         if (iconId != 0)
         {
