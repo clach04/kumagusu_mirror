@@ -1295,10 +1295,14 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                         Kumagusu.this.passwordOfUnificationMemoType);
                                 break;
 
-                            case Cancel:
-                                break;
-
-                            default:
+                            default: // キャンセルなど
+                                // プログレスダイアログ消去
+                                ProgressDialogFragment progressDialog = MainApplication.getInstance(Kumagusu.this)
+                                        .getProgressDialog();
+                                if (progressDialog != null)
+                                {
+                                    progressDialog.dismiss();
+                                }
                                 break;
                             }
                         }
