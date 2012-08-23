@@ -48,6 +48,11 @@ public final class MemoFile extends AbstractMemo
     private String title = null;
 
     /**
+     * 入力済みパスワード.
+     */
+    private String[] passwords;
+
+    /**
      * 既存ファイルを使用する場合（表示時）のコンストラクタ.
      *
      * @param context コンテキスト
@@ -58,7 +63,25 @@ public final class MemoFile extends AbstractMemo
      */
     MemoFile(Context context, File memoFile, String encodingName, boolean titleLinkFg, MemoType type)
     {
+        this(context, memoFile, encodingName, titleLinkFg, type, MainApplication.getInstance((Activity) context)
+                .getPasswordList().toArray(new String[0]));
+    }
+
+    /**
+     * 既存ファイルを使用する場合（表示時）のコンストラクタ.
+     *
+     * @param context コンテキスト
+     * @param memoFile メモのFileオブジェクト
+     * @param encodingName エンコーディング名
+     * @param titleLinkFg ファイルの一行目とタイトルを連動するか
+     * @param type メモの種別
+     * @param passwds 入力済みパスワード
+     */
+    MemoFile(Context context, File memoFile, String encodingName, boolean titleLinkFg, MemoType type, String[] passwds)
+    {
         super(context, memoFile, encodingName, titleLinkFg, type);
+
+        this.passwords = passwds;
 
         if ((type != MemoType.Text) && (type != MemoType.Secret1) && (type != MemoType.Secret2)
                 && (type != MemoType.None))
@@ -131,8 +154,11 @@ public final class MemoFile extends AbstractMemo
         if ((this.getMemoType() == MemoType.Secret1) || (this.getMemoType() == MemoType.Secret2))
         {
             // 暗号化ファイルなら復号
-            for (String password : MainApplication.getInstance((Activity) getContext()).getPasswordList())
+            // ※パスワードは最後に入っているものが正しい可能性が高いため後ろから使用
+            for (int i = (this.passwords.length - 1); i >= 0; i--)
             {
+                String password = this.passwords[i];
+
                 strData = decode(password, buffer);
 
                 if (strData != null)

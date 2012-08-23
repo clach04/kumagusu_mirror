@@ -4,12 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
-import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask.OnTaskStateListener;
 import android.app.Activity;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 /**
