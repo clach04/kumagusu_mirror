@@ -101,7 +101,7 @@ public final class MemoBuilder
      * @param passwds 入力済みパスワード
      * @return メモ
      */
-    private IMemo build(String fileOrFolderPath, MemoType type, String[] passwds)
+    public IMemo build(String fileOrFolderPath, MemoType type, String[] passwds)
     {
         File memoFileOrFolder = new File(fileOrFolderPath);
 

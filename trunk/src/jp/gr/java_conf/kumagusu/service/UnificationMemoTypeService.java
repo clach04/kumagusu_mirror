@@ -7,7 +7,6 @@ import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
-import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
@@ -101,7 +100,7 @@ public class UnificationMemoTypeService extends IntentService
             }
 
             // メモファイル生成ビルダ
-            this.memoBuilder = new MemoBuilder(getApplicationContext(), encodeName, memoTitleLink);
+            this.memoBuilder = new MemoBuilder(this.getBaseContext(), encodeName, memoTitleLink);
 
             // メモファイル変換
             findMemoFile(new File(currentFolder));
@@ -178,11 +177,9 @@ public class UnificationMemoTypeService extends IntentService
         // 元ファイル読み込み
         String srcMemoData = srcMemoFile.getText();
 
-        MemoBuilder mb = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
-                MainPreferenceActivity.isTitleLink(this));
-
         // メモを出力（更新日時は変更しない）
-        MemoFile dstMemoFile = (MemoFile) mb.build(srcMemoFile.getParent(), this.memoType);
+        MemoFile dstMemoFile = (MemoFile) this.memoBuilder.build(srcMemoFile.getParent(), this.memoType,
+                this.oldPasswords);
 
         if (dstMemoFile.setText(this.newPassword, srcMemoData, srcMemoFile.lastModified()))
         {

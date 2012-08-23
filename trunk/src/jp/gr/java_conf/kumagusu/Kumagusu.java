@@ -30,6 +30,7 @@ import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import jp.gr.java_conf.kumagusu.service.UnificationMemoTypeResponseReceiver;
+import jp.gr.java_conf.kumagusu.service.UnificationMemoTypeService;
 import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.UnificationTypeMemoTask;
 import jp.gr.java_conf.kumagusu.worker.MemoCreateTask;
@@ -1197,6 +1198,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private void unificationMemoTypeAllMemo(final MemoType dstMemoType)
     {
+        Log.d("Kumagusu", "*** START unificationMemoTypeAllMemo()");
+
         switch (dstMemoType)
         {
         case Text:
@@ -1244,6 +1247,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private void unificationMemoTypeAllMemoCommon(final MemoType dstMemoType)
     {
+        Log.d("Kumagusu", "*** START unificationMemoTypeAllMemoCommon()");
+
         // メモを検索
         if (MainApplication.getInstance(Kumagusu.this).getCurrentMemoFolder() != null)
         {
@@ -1307,6 +1312,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private void unificationMemoTypeRegisterReceiver()
     {
+        Log.d("Kumagusu", "*** START unificationMemoTypeRegisterReceiver()");
+
         IntentFilter filter = new IntentFilter(UnificationMemoTypeResponseReceiver.ACTION_RESPONSE);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
 
@@ -1355,6 +1362,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private void unificationMemoTypeUnregisterReceiver()
     {
+        Log.d("Kumagusu", "*** START unificationMemoTypeUnregisterReceiver()");
+
         unregisterReceiver(this.unificationMemoTypeResponseReceiver);
     }
 
@@ -1366,7 +1375,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private void unificationMemoTypeStartService(MemoType dstMemoType, String newPassword)
     {
-        Intent intent = new Intent(this, UnificationMemoTypeResponseReceiver.class);
+        Intent intent = new Intent(this, UnificationMemoTypeService.class);
 
         intent.putExtra("currentFolder", MainApplication.getInstance(this).getCurrentMemoFolder());
         intent.putExtra("oldPasswords", MainApplication.getInstance(this).getPasswordList().toArray(new String[0]));
