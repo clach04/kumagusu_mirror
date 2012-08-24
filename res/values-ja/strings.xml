@@ -120,6 +120,8 @@
 
     <!-- メモのパスワード統一処理 -->
     <string name="unification_memo_type_title">メモ種別統一</string>
+    <string name="unification_memo_type_confirm_start">メモ種別を統一します.\n以下の順序でパスワードが求められます。\n(1)既存メモのパスワード(暗号メモのとき)\n(2)新パスワード(暗号メモのとき)</string>
+    <string name="unification_memo_type_confirm_cancel">メモ種別統一処理が中断されました.</string>
     <string name="unification_memo_type_verify_memo_message">表示フォルダ内のメモが読込可能か確認しています.</string>
     <string name="unification_memo_type_encrypt_title">メモ種別統一 - 暗号メモ(同ﾊﾟｽﾜｰﾄﾞ)</string>
     <string name="unification_memo_type_decrypt_title">メモ種別統一 - 通常メモ</string>
