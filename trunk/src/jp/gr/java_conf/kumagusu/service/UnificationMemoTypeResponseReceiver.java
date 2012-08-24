@@ -97,7 +97,7 @@ public class UnificationMemoTypeResponseReceiver extends BroadcastReceiver
         /**
          * サービス終了通知を受信する.
          *
-         * @param サービス終了状態（true＝正常）
+         * @param result サービス終了状態（true＝正常）
          */
         void onFinish(boolean result);
     }

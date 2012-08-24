@@ -10,12 +10,11 @@ import android.app.Activity;
 import android.util.Log;
 
 /**
- * メモ種別（パスワード）統一処理.
+ * メモ種別（パスワード）統一で、パスワード未入力のファイルを探す処理.
  *
  * @author tarshi
- *
  */
-public final class UnificationTypeMemoTask extends AbstractMemoCreateTask
+public final class UnificationMemoTypeTask extends AbstractMemoCreateTask
 {
     /**
      * 検索フォルダ.
@@ -23,7 +22,7 @@ public final class UnificationTypeMemoTask extends AbstractMemoCreateTask
     private String baseFolder;
 
     /**
-     * メモ種別（パスワード）統一処理を初期化する.
+     * コンストラクタ.
      *
      * @param act アクティビティー
      * @param bFolder 検索フォルダ
@@ -31,7 +30,7 @@ public final class UnificationTypeMemoTask extends AbstractMemoCreateTask
      * @param listener メモ発見時の処理
      * @param stateListener メモ作成処理の状態変更を受け取るのリスナ
      */
-    public UnificationTypeMemoTask(Activity act, String bFolder, MemoBuilder mBuilder, OnFindMemoFileListener listener,
+    public UnificationMemoTypeTask(Activity act, String bFolder, MemoBuilder mBuilder, OnFindMemoFileListener listener,
             OnTaskStateListener stateListener)
     {
         super(act, mBuilder, listener, stateListener);
@@ -42,7 +41,7 @@ public final class UnificationTypeMemoTask extends AbstractMemoCreateTask
     @Override
     protected Boolean doInBackground(Void... params)
     {
-        Log.d("UnificationTypeMemoTask", "*** START doInBackground()");
+        Log.d("UnificationMemoTypeTask", "*** START doInBackground()");
 
         // メモファイルの検索処理
         findMemoFile(new File(this.baseFolder));
@@ -51,7 +50,7 @@ public final class UnificationTypeMemoTask extends AbstractMemoCreateTask
     }
 
     /**
-     * 指定検索ワードを含むメモファイルを検索する.
+     * メモファイルを検索する.
      *
      * @param targetFolderFile 検索フォルダ
      */
