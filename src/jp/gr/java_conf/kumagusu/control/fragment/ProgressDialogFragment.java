@@ -5,9 +5,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.util.Log;
 
 /**
  * プログレスダイアログ.
@@ -48,8 +46,21 @@ public final class ProgressDialogFragment extends DialogFragment
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        Log.d("ProgressDialogFragment", "*** Start onCreate()");
+
+        // 表示中プログレスダイアログを保存
+        MainApplication.getInstance(getActivity()).setProgressDialog(this);
+
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
+        Log.d("ProgressDialogFragment", "*** Start onCreateDialog()");
+
         // バンドル変数取得
         int iconId = getArguments().getInt("iconId");
         int titleId = getArguments().getInt("titleId");
@@ -77,51 +88,29 @@ public final class ProgressDialogFragment extends DialogFragment
             this.progressDialog.setMessage(getString(messageId));
         }
 
-        // 表示中プログレスダイアログを保存
-        MainApplication.getInstance(getActivity()).setProgressDialog(this);
-
         return this.progressDialog;
     }
 
     @Override
-    public void onActivityCreated(Bundle args)
+    public void onResume()
     {
-        // 表示中プログレスダイアログを保存
-        MainApplication.getInstance(getActivity()).setProgressDialog(this);
+        Log.d("ProgressDialogFragment", "*** Start onResume()");
 
-        super.onActivityCreated(args);
-    }
+        super.onResume();
 
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        // 表示中プログレスダイアログを保存
-        MainApplication.getInstance(getActivity()).setProgressDialog(this);
-
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
-        // 表示中プログレスダイアログを保存
-        MainApplication.getInstance(getActivity()).setProgressDialog(this);
-
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle args)
-    {
-        // 表示中プログレスダイアログをクリア
-        // MainApplication.getInstance(getActivity()).setProgressDialog(null);
-
-        super.onSaveInstanceState(args);
+        // 非表示中ならダイアログ消去
+        if (!MainApplication.getInstance(getActivity()).continueDisplayingProgressDialog(this))
+        {
+            // 表示中断
+            return;
+        }
     }
 
     @Override
     public void onDestroy()
     {
+        Log.d("ProgressDialogFragment", "*** Start onDestroy()");
+
         // 表示中プログレスダイアログをクリア
         MainApplication.getInstance(getActivity()).setProgressDialog(null);
 

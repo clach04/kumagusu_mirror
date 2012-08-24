@@ -152,7 +152,7 @@ public final class Utilities
 
         // パスワード入力（１回目）
         final InputDialog dialog = new InputDialog(act);
-        dialog.showDialog(act.getResources().getString(R.string.ui_td_input_password), InputType.TYPE_CLASS_TEXT
+        dialog.showDialog(act.getResources().getString(R.string.ui_td_input_new_password), InputType.TYPE_CLASS_TEXT
                 | InputType.TYPE_TEXT_VARIATION_PASSWORD, new DialogInterface.OnClickListener()
         {
             @Override
@@ -171,7 +171,7 @@ public final class Utilities
                 }
 
                 // パスワード入力（２回目）
-                dialog.showDialog(act.getResources().getString(R.string.ui_td_reinput_password),
+                dialog.showDialog(act.getResources().getString(R.string.ui_td_reinput_new_password),
                         InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD,
                         new DialogInterface.OnClickListener()
                         {

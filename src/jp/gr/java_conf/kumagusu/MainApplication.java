@@ -8,6 +8,7 @@ import jp.gr.java_conf.kumagusu.commons.Timer;
 import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import android.app.Activity;
 import android.app.Application;
+import android.support.v4.app.FragmentManager;
 
 /**
  * Applicationクラス.
@@ -189,6 +190,63 @@ public final class MainApplication extends Application
     }
 
     /**
+     * プログレスダイアログが表示状態（trueなら表示中）.
+     */
+    private boolean displayingProgressDialog = false;
+
+    /**
+     * プログレスダイアログの表示状態を返す.
+     *
+     * @param dialog 表示中のダイアログ
+     * @return プログレスダイアログの表示状態
+     */
+    public boolean continueDisplayingProgressDialog(ProgressDialogFragment dialog)
+    {
+        synchronized (this.lockObject)
+        {
+            if (!this.displayingProgressDialog)
+            {
+                dialog.dismiss();
+            }
+
+            return this.displayingProgressDialog;
+        }
+    }
+
+    /**
+     * プログレスダイアログを表示する.
+     *
+     * @param iconId アイコンID
+     * @param titleId タイトルID
+     * @param messageId メッセージID
+     * @param cancelable キャンセル可否（trueのとき可）
+     * @param manager FragmentManager
+     */
+    public void showProgressDialog(int iconId, int titleId, int messageId, boolean cancelable, FragmentManager manager)
+    {
+        synchronized (this.lockObject)
+        {
+            ProgressDialogFragment.newInstance(iconId, titleId, messageId, cancelable).show(manager, "");
+            this.displayingProgressDialog = true;
+        }
+    }
+
+    /**
+     * プログレスダイアログを消去する.
+     */
+    public void dismissProgressDialog()
+    {
+        synchronized (this.lockObject)
+        {
+            if (this.progressDialog != null)
+            {
+                this.displayingProgressDialog = false;
+                this.progressDialog.dismiss();
+            }
+        }
+    }
+
+    /**
      * 表示中プログレスダイアログ.
      */
     private ProgressDialogFragment progressDialog = null;
@@ -215,6 +273,10 @@ public final class MainApplication extends Application
     {
         synchronized (lockObject)
         {
+            // すでに表示中のダイアログがあれば消去
+            dismissProgressDialog();
+
+            // 保存
             this.progressDialog = dialog;
         }
     }

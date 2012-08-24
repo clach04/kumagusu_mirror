@@ -64,7 +64,8 @@
     <string name="ui_no">No</string>
     <string name="ui_cancel">Cancel</string>
     <string name="ui_td_input_password">Password</string>
-    <string name="ui_td_reinput_password">Password (Confirm)</string>
+    <string name="ui_td_input_new_password">New password</string>
+    <string name="ui_td_reinput_new_password">New password (Confirm)</string>
     <string name="ui_td_input_password_empty">Password has not been entered.</string>
     <string name="ui_td_input_password_incorrect">Password do not match.</string>
     <string name="ui_search">Search</string>
@@ -119,8 +120,9 @@
 
     <!-- メモのパスワード統一処理 -->
     <string name="unification_memo_type_title">Unification note type</string>
-    <string name="unification_memo_type_encrypt_title">Encryption text note(Unification password).</string>
-    <string name="unification_memo_type_decrypt_title">Plain text note.</string>
+    <string name="unification_memo_type_verify_memo_message">To verify a note under current folder.</string>
+    <string name="unification_memo_type_encrypt_title">Unification note type - Crypto(same password)</string>
+    <string name="unification_memo_type_decrypt_title">Unification note type - Plain text</string>
 
     <!--
     ******************************************************************
