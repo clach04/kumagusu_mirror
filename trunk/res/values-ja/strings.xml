@@ -64,7 +64,8 @@
     <string name="ui_no">いいえ</string>
     <string name="ui_cancel">キャンセル</string>
     <string name="ui_td_input_password">パスワード</string>
-    <string name="ui_td_reinput_password">パスワード（確認）</string>
+    <string name="ui_td_input_new_password">新しいパスワード</string>
+    <string name="ui_td_reinput_new_password">新しいパスワード (確認)</string>
     <string name="ui_td_input_password_empty">パスワードが入力されていません.</string>
     <string name="ui_td_input_password_incorrect">パスワードが一致しません.</string>
     <string name="ui_search">検索</string>
@@ -118,9 +119,10 @@
     <string name="memo_sort_method_dialog_title">並び替え方法</string>
 
     <!-- メモのパスワード統一処理 -->
-    <string name="unification_memo_type_title">表示フォルダ以下のメモ種別を統一</string>
-    <string name="unification_memo_type_encrypt_title">暗号メモ（同パスワード）で統一</string>
-    <string name="unification_memo_type_decrypt_title">通常メモで統一</string>
+    <string name="unification_memo_type_title">メモ種別統一</string>
+    <string name="unification_memo_type_verify_memo_message">表示フォルダ内のメモが読込可能か確認しています.</string>
+    <string name="unification_memo_type_encrypt_title">メモ種別統一 - 暗号メモ(同ﾊﾟｽﾜｰﾄﾞ)</string>
+    <string name="unification_memo_type_decrypt_title">メモ種別統一 - 通常メモ</string>
 
     <!--
     ******************************************************************

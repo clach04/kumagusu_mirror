@@ -118,9 +118,9 @@
 
     <!-- メモ種別・パスワード統一 -->
     <string-array name="unification_memo_type_entries">
-        <item>@string/unification_memo_type_encrypt_title</item>
-        <item>@string/unification_memo_type_decrypt_title</item>
-    </string-array>
+        <item>暗号メモ（同パスワード）に統一</item>
+        <item>通常メモに統一</item>
+        </string-array>
 
     <!-- ファイル操作ダイアログのエントリ -->
     <string-array name="memo_file_control_dialog_entries_4_text">

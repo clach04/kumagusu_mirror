@@ -644,9 +644,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // 選択中メモファイルパス
         outState.putString("selectedMemoFilePath", this.selectedMemoFilePath);
-
-        // メモ種別・パスワード統一処理用のパスワード
-        outState.putString("passwordOfUnificationType", this.passwordOfUnificationMemoType);
     }
 
     @Override
@@ -658,12 +655,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         if (savedInstanceState.containsKey("selectedMemoFilePath"))
         {
             this.selectedMemoFilePath = savedInstanceState.getString("selectedMemoFilePath");
-        }
-
-        // メモ種別・パスワード統一処理用のパスワード
-        if (savedInstanceState.containsKey("passwordOfUnificationType"))
-        {
-            this.passwordOfUnificationMemoType = savedInstanceState.getString("passwordOfUnificationType");
         }
 
         super.onRestoreInstanceState(savedInstanceState);
@@ -1187,11 +1178,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     /**
-     * メモ種別・パスワード統一処理で使用するパスワード.
-     */
-    private String passwordOfUnificationMemoType;
-
-    /**
      * カレントフォルダ以下のすべてのメモのパスワードを再設定する.
      *
      * @param dstMemoType 変換先のメモ種別
@@ -1200,59 +1186,10 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     {
         Log.d("Kumagusu", "*** START unificationMemoTypeAllMemo()");
 
-        switch (dstMemoType)
-        {
-        case Text:
-            unificationMemoTypeAllMemoCommon(dstMemoType);
-
-            break;
-
-        case Secret1:
-            // 新しいパスワードを入力
-            // パスワードを入力し、暗号化ファイル保存
-            Utilities.inputPassword(this, new DialogInterface.OnClickListener()
-            {
-                /**
-                 * 入力パスワードが有効時を処理する.
-                 */
-                @Override
-                public void onClick(DialogInterface d, int which)
-                {
-                    // 途中で最新パスワードが変更されることがあるため、入力パスワードを保管
-                    Kumagusu.this.passwordOfUnificationMemoType = MainApplication.getInstance(Kumagusu.this)
-                            .getLastCorrectPassword();
-
-                    unificationMemoTypeAllMemoCommon(dstMemoType);
-                }
-            }, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface d, int which)
-                {
-                    // キャンセル処理なし
-                }
-            });
-
-            break;
-
-        default:
-            break;
-        }
-    }
-
-    /**
-     * カレントフォルダ以下のすべてのメモのパスワードを再設定する（共通処理）.
-     *
-     * @param dstMemoType 変換先のメモ種別
-     */
-    private void unificationMemoTypeAllMemoCommon(final MemoType dstMemoType)
-    {
-        Log.d("Kumagusu", "*** START unificationMemoTypeAllMemoCommon()");
-
         // メモを検索
         if (MainApplication.getInstance(Kumagusu.this).getCurrentMemoFolder() != null)
         {
-            // メモ種別統一Task
+            // カレントフォルダ内のメモを確認
             UnificationTypeMemoTask task = new UnificationTypeMemoTask(Kumagusu.this, MainApplication.getInstance(
                     Kumagusu.this).getCurrentMemoFolder(), Kumagusu.this.memoBuilder,
                     new AbstractMemoCreateTask.OnFindMemoFileListener()
@@ -1271,38 +1208,60 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                             {
                             case PreExecute:
                                 // プログレスダイアログを生成・表示
-                                int titleId;
-                                if (dstMemoType == MemoType.Secret1)
-                                {
-                                    titleId = R.string.unification_memo_type_encrypt_title;
-                                }
-                                else
-                                {
-                                    titleId = R.string.unification_memo_type_decrypt_title;
-                                }
+                                MainApplication.getInstance(Kumagusu.this).showProgressDialog(
+                                        R.drawable.unification_memo_type,
+                                        getUnificationMemoTypeProgresDialogTitleId(dstMemoType),
+                                        R.string.unification_memo_type_verify_memo_message, false,
+                                        getSupportFragmentManager());
 
-                                ProgressDialogFragment.newInstance(R.drawable.unification_memo_type, titleId, 0, false)
-                                        .show(getSupportFragmentManager(), "");
                                 break;
 
                             case PostExecute:
-                                // 保管パスワードを再設定
-                                MainApplication.getInstance(Kumagusu.this).setLastCorrectPassword(
-                                        Kumagusu.this.passwordOfUnificationMemoType);
+                                // プログレスダイアログ消去
+                                MainApplication.getInstance(Kumagusu.this).dismissProgressDialog();
 
-                                // メモ種別・パスワード統一サービス起動
-                                unificationMemoTypeStartService(dstMemoType,
-                                        Kumagusu.this.passwordOfUnificationMemoType);
+                                switch (dstMemoType)
+                                {
+                                case Text:
+                                    unificationMemoTypeAllMemoCommon(dstMemoType, null);
+                                    break;
+
+                                case Secret1:
+                                    // 新しいパスワードを入力
+                                    // パスワードを入力し、暗号化ファイル保存
+                                    Utilities.inputPassword(Kumagusu.this, new DialogInterface.OnClickListener()
+                                    {
+                                        /**
+                                         * 入力パスワードが有効時を処理する.
+                                         */
+                                        @Override
+                                        public void onClick(DialogInterface d, int which)
+                                        {
+                                            // 途中で最新パスワードが変更されることがあるため、入力パスワードを保管
+                                            String newPassword = MainApplication.getInstance(Kumagusu.this)
+                                                    .getLastCorrectPassword();
+
+                                            unificationMemoTypeAllMemoCommon(dstMemoType, newPassword);
+                                        }
+                                    }, new DialogInterface.OnClickListener()
+                                    {
+                                        @Override
+                                        public void onClick(DialogInterface d, int which)
+                                        {
+                                            // キャンセル処理なし
+                                        }
+                                    });
+                                    break;
+
+                                default:
+                                    break;
+                                }
+
                                 break;
 
                             default: // キャンセルなど
                                 // プログレスダイアログ消去
-                                ProgressDialogFragment progressDialog = MainApplication.getInstance(Kumagusu.this)
-                                        .getProgressDialog();
-                                if (progressDialog != null)
-                                {
-                                    progressDialog.dismiss();
-                                }
+                                MainApplication.getInstance(Kumagusu.this).dismissProgressDialog();
                                 break;
                             }
                         }
@@ -1310,6 +1269,45 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
             task.execute();
         }
+    }
+
+    /**
+     * カレントフォルダ以下のすべてのメモのパスワードを再設定する（共通処理）.
+     *
+     * @param dstMemoType 変換先のメモ種別
+     * @param newPassword 変換先メモのパスワード
+     */
+    private void unificationMemoTypeAllMemoCommon(final MemoType dstMemoType, String newPassword)
+    {
+        Log.d("Kumagusu", "*** START unificationMemoTypeAllMemoCommon()");
+
+        // プログレスダイアログ表示
+        MainApplication.getInstance(Kumagusu.this).showProgressDialog(R.drawable.unification_memo_type,
+                getUnificationMemoTypeProgresDialogTitleId(dstMemoType), 0, false, getSupportFragmentManager());
+
+        // メモ種別・パスワード統一サービス起動
+        unificationMemoTypeStartService(dstMemoType, newPassword);
+    }
+
+    /**
+     * メモ種別・パスワード統一プログレスダイアログのタイトルを取得する.
+     *
+     * @param dstMemoType 変換先のメモ種別
+     * @return タイトルのID
+     */
+    private int getUnificationMemoTypeProgresDialogTitleId(MemoType dstMemoType)
+    {
+        int titleId;
+        if (dstMemoType == MemoType.Secret1)
+        {
+            titleId = R.string.unification_memo_type_encrypt_title;
+        }
+        else
+        {
+            titleId = R.string.unification_memo_type_decrypt_title;
+        }
+
+        return titleId;
     }
 
     /**
@@ -1346,16 +1344,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     @Override
                     public void onFinish(boolean result)
                     {
+                        // プログレスダイアログ消去
+                        MainApplication.getInstance(Kumagusu.this).dismissProgressDialog();
+
                         // リスト表示を更新
                         refreshMemoList();
-
-                        // プログレスダイアログ消去
-                        ProgressDialogFragment progressDialog = MainApplication.getInstance(Kumagusu.this)
-                                .getProgressDialog();
-                        if (progressDialog != null)
-                        {
-                            progressDialog.dismiss();
-                        }
                     }
                 });
 

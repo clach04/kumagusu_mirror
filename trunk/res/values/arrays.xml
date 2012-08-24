@@ -118,8 +118,8 @@
 
     <!-- メモ種別・パスワード統一 -->
     <string-array name="unification_memo_type_entries">
-        <item>@string/unification_memo_type_encrypt_title</item>
-        <item>@string/unification_memo_type_decrypt_title</item>
+        <item>Unified crypto(same password) text</item>
+        <item>Unified plain text</item>
     </string-array>
 
     <!-- ファイル操作ダイアログのエントリ -->
