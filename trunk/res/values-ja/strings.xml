@@ -7,7 +7,6 @@
     ******************************************************************
     -->
 
-
     <!-- アプリ名 -->
     <string name="app_name">くまぐす</string>
 
@@ -120,11 +119,12 @@
 
     <!-- メモのパスワード統一処理 -->
     <string name="unification_memo_type_title">メモ種別統一</string>
-    <string name="unification_memo_type_confirm_start">メモ種別を統一します.\n以下の順序でパスワードが求められます。\n(1)既存メモのパスワード(暗号メモのとき)\n(2)新パスワード(暗号メモのとき)</string>
-    <string name="unification_memo_type_confirm_cancel">メモ種別統一処理が中断されました.</string>
-    <string name="unification_memo_type_verify_memo_message">表示フォルダ内のメモが読込可能か確認しています.</string>
-    <string name="unification_memo_type_encrypt_title">メモ種別統一 - 暗号メモ(同ﾊﾟｽﾜｰﾄﾞ)</string>
-    <string name="unification_memo_type_decrypt_title">メモ種別統一 - 通常メモ</string>
+    <string name="unification_memo_type_confirm_encrypt_start">表示フォルダ以下のメモを同じパスワードで暗号メモにします.\n\n下の順序でパスワードが求められます。\n(1)既存暗号メモの全パスワード\n(2)設定するパスワード</string>
+    <string name="unification_memo_type_confirm_decrypt_start">表示フォルダ以下のメモを平文メモにします.\n\n既存暗号メモの全パスワードが求められます。</string>
+    <string name="unification_memo_type_confirm_cancel">処理が中断されました.</string>
+    <string name="unification_memo_type_verify_memo_message">メモのパスワードを確認しています.</string>
+    <string name="unification_memo_type_encrypt_title">すべて暗号メモ(同パスワード)に変更</string>
+    <string name="unification_memo_type_decrypt_title">すべて平文メモに変更</string>
 
     <!--
     ******************************************************************
@@ -133,7 +133,7 @@
     -->
 
     <!-- メモファイル種別 -->
-    <string name="etc_memo_type_text">通常メモ</string>
+    <string name="etc_memo_type_text">平文メモ</string>
     <string name="etc_memo_type_secret1">暗号メモ</string>
     <string name="etc_memo_type_secret2">暗号メモ</string>
     <string name="etc_memo_type_folder">フォルダ</string>

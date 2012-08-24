@@ -118,8 +118,8 @@
 
     <!-- メモ種別・パスワード統一 -->
     <string-array name="unification_memo_type_entries">
-        <item>暗号メモ（同パスワード）に統一</item>
-        <item>通常メモに統一</item>
+        <item>すべて暗号メモ(同パスワード)に変更</item>
+        <item>すべて平文メモに変更</item>
         </string-array>
 
     <!-- ファイル操作ダイアログのエントリ -->

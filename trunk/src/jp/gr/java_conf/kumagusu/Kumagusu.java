@@ -1221,10 +1221,19 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             this.unificationMemoTypeDstMemoType = dstMemoType;
 
             // 開始確認
+            int messageId;
+            if (dstMemoType == MemoType.Secret1)
+            {
+                messageId = R.string.unification_memo_type_confirm_encrypt_start;
+            }
+            else
+            {
+                messageId = R.string.unification_memo_type_confirm_decrypt_start;
+            }
+
             ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_UNIFICATION_MEMO_TYPE_START,
                     R.drawable.unification_memo_type, getUnificationMemoTypeProgresDialogTitleId(dstMemoType),
-                    R.string.unification_memo_type_confirm_start, ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
-                    getSupportFragmentManager(), "");
+                    messageId, ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(getSupportFragmentManager(), "");
         }
     }
 

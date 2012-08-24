@@ -120,11 +120,12 @@
 
     <!-- メモのパスワード統一処理 -->
     <string name="unification_memo_type_title">Unification note type</string>
-    <string name="unification_memo_type_confirm_start">Note type is unified.\nA password is called for in order of the following.\n1) The password of the existing note (crypto note)\n2) New password (crypto note)</string>
+    <string name="unification_memo_type_confirm_encrypt_start">Encrypted with the same password all notes.</string>
+    <string name="unification_memo_type_confirm_decrypt_start">Decrypted all notes.</string>
     <string name="unification_memo_type_confirm_cancel">Note type unification processing was canceled.</string>
     <string name="unification_memo_type_verify_memo_message">To verify a note under current folder.</string>
-    <string name="unification_memo_type_encrypt_title">Unification note type - Crypto (same password)</string>
-    <string name="unification_memo_type_decrypt_title">Unification note type - Plain text</string>
+    <string name="unification_memo_type_encrypt_title">Encrypted with the same password all notes.</string>
+    <string name="unification_memo_type_decrypt_title">Decrypted all notes.</string>
 
     <!--
     ******************************************************************
