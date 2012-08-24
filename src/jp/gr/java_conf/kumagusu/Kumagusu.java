@@ -32,7 +32,7 @@ import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
 import jp.gr.java_conf.kumagusu.service.UnificationMemoTypeResponseReceiver;
 import jp.gr.java_conf.kumagusu.service.UnificationMemoTypeService;
 import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask;
-import jp.gr.java_conf.kumagusu.worker.UnificationTypeMemoTask;
+import jp.gr.java_conf.kumagusu.worker.UnificationMemoTypeTask;
 import jp.gr.java_conf.kumagusu.worker.MemoCreateTask;
 import jp.gr.java_conf.kumagusu.worker.MemoSearchTask;
 import jp.gr.java_conf.kumagusu.worker.AbstractMemoCreateTask.TaskState;
@@ -366,6 +366,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      * メモ種別・パスワード統一サービスの通知Receiver.
      */
     private UnificationMemoTypeResponseReceiver unificationMemoTypeResponseReceiver;
+
+    /**
+     * メモ種別・パスワード統一で、統一先のメモ種別.
+     */
+    private MemoType unificationMemoTypeDstMemoType = MemoType.None;
 
     /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
@@ -1202,11 +1207,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     /**
-     * メモ種別・パスワード統一で、統一先のメモ種別.
-     */
-    private MemoType unificationMemoTypeDstMemoType = MemoType.None;
-
-    /**
      * カレントフォルダ以下のすべてのメモのパスワードを再設定する.
      *
      * @param dstMemoType 変換先のメモ種別
@@ -1434,7 +1434,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                         final MemoType dstMemoType = Kumagusu.this.unificationMemoTypeDstMemoType;
 
                         // カレントフォルダ内のメモを確認
-                        UnificationTypeMemoTask task = new UnificationTypeMemoTask(Kumagusu.this, MainApplication
+                        UnificationMemoTypeTask task = new UnificationMemoTypeTask(Kumagusu.this, MainApplication
                                 .getInstance(Kumagusu.this).getCurrentMemoFolder(), Kumagusu.this.memoBuilder,
                                 new AbstractMemoCreateTask.OnFindMemoFileListener()
                                 {
