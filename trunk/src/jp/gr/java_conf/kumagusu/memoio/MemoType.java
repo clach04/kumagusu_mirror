@@ -54,6 +54,7 @@ public enum MemoType
 
     /**
      * メモ種別を初期化する.
+     *
      * @param tName メモ種別名称
      * @param tNumber メモ種別ID
      * @param ext メモ拡張子
@@ -67,6 +68,7 @@ public enum MemoType
 
     /**
      * メモ種別名称を返す.
+     *
      * @return メモ種別名称
      */
     public String getTypeName()
@@ -76,6 +78,7 @@ public enum MemoType
 
     /**
      * メモ種別IDを返す.
+     *
      * @return メモ種別ID
      */
     public int getTypeId()
@@ -84,7 +87,27 @@ public enum MemoType
     }
 
     /**
+     * メモ種別IDからメモ種別（Enum値）を取得する.
+     *
+     * @param id メモ種別ID
+     * @return メモ種別
+     */
+    public static MemoType getMemoType(int id)
+    {
+        for (MemoType type : values())
+        {
+            if (type.getTypeId() == id)
+            {
+                return type;
+            }
+        }
+
+        return MemoType.None;
+    }
+
+    /**
      * メモ拡張子を返す.
+     *
      * @return メモ拡張子
      */
     public String getFileExt()

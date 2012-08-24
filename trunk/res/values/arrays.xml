@@ -118,7 +118,7 @@
 
     <!-- メモ種別・パスワード統一 -->
     <string-array name="unification_memo_type_entries">
-        <item>Unified crypto(same password) text</item>
+        <item>Unified crypto (same password) text</item>
         <item>Unified plain text</item>
     </string-array>
 
@@ -134,7 +134,7 @@
         <item>Move</item>
         <item>Delete</item>
         <item>Encrypt</item>
-        <item>Encrypt(new password)</item>
+        <item>Encrypt (new password)</item>
     </string-array>
     <string-array name="memo_file_control_dialog_entries_4_secret">
         <item>Copy</item>
