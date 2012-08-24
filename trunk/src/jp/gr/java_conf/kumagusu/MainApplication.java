@@ -274,7 +274,10 @@ public final class MainApplication extends Application
         synchronized (lockObject)
         {
             // すでに表示中のダイアログがあれば消去
-            dismissProgressDialog();
+            if (dialog != null)
+            {
+                dismissProgressDialog();
+            }
 
             // 保存
             this.progressDialog = dialog;
