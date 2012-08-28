@@ -226,7 +226,12 @@ public final class MainApplication extends Application
     {
         synchronized (this.lockObject)
         {
-            ProgressDialogFragment.newInstance(iconId, titleId, messageId, cancelable).show(manager, "");
+            dismissProgressDialog();
+
+            ProgressDialogFragment dialog = ProgressDialogFragment.newInstance(iconId, titleId, messageId, cancelable);
+            dialog.show(manager, "");
+
+            this.progressDialog = dialog;
             this.displayingProgressDialog = true;
         }
     }
@@ -238,11 +243,15 @@ public final class MainApplication extends Application
     {
         synchronized (this.lockObject)
         {
-            if (this.progressDialog != null)
+            ProgressDialogFragment dialog = getProgressDialog();
+
+            if (dialog != null)
             {
-                this.displayingProgressDialog = false;
-                this.progressDialog.dismiss();
+                dialog.dismiss();
             }
+
+            this.displayingProgressDialog = false;
+            setProgressDialog(null);
         }
     }
 
@@ -260,7 +269,17 @@ public final class MainApplication extends Application
     {
         synchronized (this.lockObject)
         {
-            return this.progressDialog;
+            ProgressDialogFragment resultDialog = null;
+
+            if (this.progressDialog != null)
+            {
+                if ((!this.progressDialog.isDetached()) && (!this.progressDialog.isRemoving()))
+                {
+                    resultDialog = this.progressDialog;
+                }
+            }
+
+            return resultDialog;
         }
     }
 
@@ -269,7 +288,7 @@ public final class MainApplication extends Application
      *
      * @param dialog 表示中プログレスダイアログ
      */
-    public void setProgressDialog(ProgressDialogFragment dialog)
+    private void setProgressDialog(ProgressDialogFragment dialog)
     {
         synchronized (lockObject)
         {

@@ -1295,6 +1295,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                         // プログレスダイアログにファイル名を出力
                         ProgressDialogFragment progressDialog = MainApplication.getInstance(Kumagusu.this)
                                 .getProgressDialog();
+
                         if (progressDialog != null)
                         {
                             progressDialog.setMessage(memoFileName);

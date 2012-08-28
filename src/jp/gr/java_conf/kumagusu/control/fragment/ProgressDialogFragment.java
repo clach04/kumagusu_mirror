@@ -46,17 +46,6 @@ public final class ProgressDialogFragment extends DialogFragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        Log.d("ProgressDialogFragment", "*** Start onCreate()");
-
-        // 表示中プログレスダイアログを保存
-        MainApplication.getInstance(getActivity()).setProgressDialog(this);
-
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         Log.d("ProgressDialogFragment", "*** Start onCreateDialog()");
@@ -101,7 +90,7 @@ public final class ProgressDialogFragment extends DialogFragment
         // 非表示中ならダイアログ消去
         if (!MainApplication.getInstance(getActivity()).continueDisplayingProgressDialog(this))
         {
-            // 表示中断
+            // 表示中断（消去はcontinueDisplayingProgressDialogで実施）
             return;
         }
     }
@@ -110,9 +99,6 @@ public final class ProgressDialogFragment extends DialogFragment
     public void onDestroy()
     {
         Log.d("ProgressDialogFragment", "*** Start onDestroy()");
-
-        // 表示中プログレスダイアログをクリア
-        MainApplication.getInstance(getActivity()).setProgressDialog(null);
 
         super.onDestroy();
     }
