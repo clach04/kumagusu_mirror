@@ -114,6 +114,16 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     private String activityTitleEndTask = "";
 
     /**
+     * 実行中.
+     */
+    private boolean running = false;
+
+    /**
+     * キャンセル確認ウェイト時間.
+     */
+    private static final int CANCEL_WAIT_TIMEOUT = 100;
+
+    /**
      * アクティビティのタイトル（タスク開始時）を設定する.
      *
      * @param activityTitleInit アクティビティのタイトル（タスク開始時）
@@ -178,6 +188,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     {
         Log.d("AbstractMemoCreateTask", "*** START onPreExecute()");
 
+        this.running = true;
+
         // リスナ呼び出し
         if (this.onTaskStateListener != null)
         {
@@ -206,6 +218,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             this.inputPasswordDialog.dismissDialog();
             this.inputPasswordDialog = null;
         }
+
+        this.running = false;
     }
 
     @Override
@@ -226,6 +240,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             this.inputPasswordDialog.dismissDialog();
             this.inputPasswordDialog = null;
         }
+
+        this.running = false;
     }
 
     @Override
@@ -427,6 +443,18 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             this.inputPasswordDialog = null;
         }
         super.cancel(mayInterruptIfRunning);
+
+        while (this.running)
+        {
+            try
+            {
+                Thread.sleep(CANCEL_WAIT_TIMEOUT);
+            }
+            catch (InterruptedException e)
+            {
+                Log.w("AbstractMemoCreateTask", "Cancel wait error", e);
+            }
+        }
     }
 
     /**
