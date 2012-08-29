@@ -296,12 +296,19 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
                                 AbstractMemoCreateTask.this.memoList.addAll(mList);
                                 AbstractMemoCreateTask.this.memoListAdapter = new MemoListAdapter(
                                         AbstractMemoCreateTask.this.activity, AbstractMemoCreateTask.this.memoList);
-                                AbstractMemoCreateTask.this.targetListView.setAdapter(memoListAdapter);
+                                AbstractMemoCreateTask.this.targetListView
+                                        .setAdapter(AbstractMemoCreateTask.this.memoListAdapter);
                             }
                             else
                             {
                                 for (IMemo memo : mList)
                                 {
+                                    if (isCancelled())
+                                    {
+                                        AbstractMemoCreateTask.this.memoListAdapter.clear();
+                                        break;
+                                    }
+
                                     AbstractMemoCreateTask.this.memoListAdapter.add(memo);
                                 }
                             }
