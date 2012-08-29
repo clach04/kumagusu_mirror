@@ -181,7 +181,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     /**
      * カレントディレクトリのファイル.
      */
-    private LinkedList<File> mCurrentFolderFileQueue = new LinkedList<File>();
+    private LinkedList<File> mCurrentFolderFileQueue = null;
 
     /**
      * メモ作成ワーカースレッド.
@@ -387,6 +387,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         Log.d("Kumagusu", "*** START onCreate()");
 
+        // 最新Activity保存
+        MainApplication.getInstance(this).setCurrentActivity(this);
+
         // パラメータ取得
         getParameter();
 
@@ -554,12 +557,15 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     @Override
     protected void onResume()
     {
-        super.onResume();
-
         Log.d("Kumagusu", "*** START onResume()");
+
+        super.onResume();
 
         // パラメータ取得
         getParameter();
+
+        // 最新Activity保存
+        MainApplication.getInstance(this).setCurrentActivity(this);
 
         // タイムアウトの確認
         Timer timer = MainApplication.getInstance(this).getPasswordTimer();
@@ -607,9 +613,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     @Override
     protected void onPause()
     {
-        super.onPause();
-
         Log.d("Kumagusu", "*** START onPause()");
+
+        super.onPause();
 
         // 画面回転による終了か？
         int changingConf = getChangingConfigurations();
@@ -628,17 +634,17 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     @Override
     protected void onStop()
     {
-        super.onStop();
-
         Log.d("Kumagusu", "*** START onStop()");
+
+        super.onStop();
     }
 
     @Override
     protected void onDestroy()
     {
-        super.onDestroy();
-
         Log.d("Kumagusu", "*** START onDestroy()");
+
+        super.onDestroy();
 
         // ワーカスレッド破棄
         if (this.memoCreator != null)
@@ -889,7 +895,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // メモリスト生成処理をキャンセル
         if (this.memoCreator != null)
         {
-            this.memoCreator.cancel(true);
+            this.memoCreator.cancelTask(true);
             this.memoCreator = null;
         }
 
@@ -904,7 +910,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             adapter.clear();
         }
 
-        this.mCurrentFolderFileQueue.clear();
+        this.mCurrentFolderFileQueue = null;
     }
 
     /**
@@ -937,6 +943,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private void memoFolderView()
     {
+        this.mCurrentFolderFileQueue = new LinkedList<File>();
+
         for (File f : getFileList(MainApplication.getInstance(this).getCurrentMemoFolder()))
         {
             this.mCurrentFolderFileQueue.add(f);
@@ -994,6 +1002,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         {
             currentFolderfile.mkdirs();
         }
+
+        // カレントフォルダ内ファイルリストをクリア
+        this.mCurrentFolderMemoFileList.clear();
 
         // 親フォルダへの移動手段を設定（最上位以外）
         if (!targetFolder.equals(MainPreferenceActivity.getMemoLocation(this)))
@@ -1249,7 +1260,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // プログレスダイアログ表示
         MainApplication.getInstance(Kumagusu.this).showProgressDialog(R.drawable.unification_memo_type,
-                getUnificationMemoTypeProgresDialogTitleId(dstMemoType), 0, false, getSupportFragmentManager());
+                getUnificationMemoTypeProgresDialogTitleId(dstMemoType), 0, false);
 
         // メモ種別・パスワード統一サービス起動
         unificationMemoTypeStartService(dstMemoType, newPassword);
@@ -1456,9 +1467,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                             MainApplication.getInstance(Kumagusu.this).showProgressDialog(
                                                     R.drawable.unification_memo_type,
                                                     getUnificationMemoTypeProgresDialogTitleId(dstMemoType),
-                                                    R.string.unification_memo_type_verify_memo_message, false,
-                                                    getSupportFragmentManager());
-
+                                                    R.string.unification_memo_type_verify_memo_message, false);
                                             break;
 
                                         case PostExecute:

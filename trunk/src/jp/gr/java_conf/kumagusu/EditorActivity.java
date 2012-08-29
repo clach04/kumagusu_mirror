@@ -223,6 +223,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
 
         Log.d("EditorActivity", "*** START onCreate()");
 
+        // 最新Activity保存
+        MainApplication.getInstance(this).setCurrentActivity(this);
+
         // ダイアログのリスナを生成
         initDialogListener();
 
@@ -388,6 +391,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         Log.d("EditorActivity", "*** START onResume()");
 
         super.onResume();
+
+        // 最新Activity保存
+        MainApplication.getInstance(this).setCurrentActivity(this);
 
         // タイムアウト？
         if (isPasswordTimeout())

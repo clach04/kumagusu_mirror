@@ -1,6 +1,7 @@
 package jp.gr.java_conf.kumagusu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
@@ -8,7 +9,7 @@ import jp.gr.java_conf.kumagusu.commons.Timer;
 import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import android.app.Activity;
 import android.app.Application;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 /**
@@ -18,16 +19,6 @@ import android.util.Log;
  */
 public final class MainApplication extends Application
 {
-    /**
-     * ロックオブジェクト.
-     */
-    private Object lockObject = new Object();
-
-    /**
-     * アクティビティ.
-     */
-    private Activity activity;
-
     @Override
     public void onCreate()
     {
@@ -43,9 +34,33 @@ public final class MainApplication extends Application
     public static MainApplication getInstance(Activity act)
     {
         MainApplication application = (MainApplication) act.getApplication();
-        application.activity = act;
 
         return application;
+    }
+
+    /**
+     * 最新のアクティビティ.
+     */
+    public FragmentActivity currentActivity = null;
+
+    /**
+     * 最新のアクティビティを返す.
+     *
+     * @return 最新のアクティビティ
+     */
+    public FragmentActivity getCurrentActivity()
+    {
+        return this.currentActivity;
+    }
+
+    /**
+     * 最新のアクティビティを設定する.
+     *
+     * @param act 最新のアクティビティ
+     */
+    public void setCurrentActivity(FragmentActivity act)
+    {
+        this.currentActivity = act;
     }
 
     /**
@@ -151,7 +166,7 @@ public final class MainApplication extends Application
     {
         if (this.passwordTimer == null)
         {
-            this.passwordTimer = new Timer(this.activity);
+            this.passwordTimer = new Timer(this.currentActivity);
         }
 
         return this.passwordTimer;
@@ -203,7 +218,7 @@ public final class MainApplication extends Application
      */
     public boolean continueDisplayingProgressDialog(ProgressDialogFragment dialog)
     {
-        synchronized (this.lockObject)
+        synchronized (getLockObject("ProgressDialog"))
         {
             if (!this.displayingProgressDialog)
             {
@@ -221,16 +236,15 @@ public final class MainApplication extends Application
      * @param titleId タイトルID
      * @param messageId メッセージID
      * @param cancelable キャンセル可否（trueのとき可）
-     * @param manager FragmentManager
      */
-    public void showProgressDialog(int iconId, int titleId, int messageId, boolean cancelable, FragmentManager manager)
+    public void showProgressDialog(int iconId, int titleId, int messageId, boolean cancelable)
     {
-        synchronized (this.lockObject)
+        synchronized (getLockObject("ProgressDialog"))
         {
             dismissProgressDialog();
 
             ProgressDialogFragment dialog = ProgressDialogFragment.newInstance(iconId, titleId, messageId, cancelable);
-            dialog.show(manager, "");
+            dialog.show(this.currentActivity.getSupportFragmentManager(), "");
 
             this.displayingProgressDialog = true;
         }
@@ -241,7 +255,7 @@ public final class MainApplication extends Application
      */
     public void dismissProgressDialog()
     {
-        synchronized (this.lockObject)
+        synchronized (getLockObject("ProgressDialog"))
         {
             ProgressDialogFragment dialog = getProgressDialog();
 
@@ -273,7 +287,7 @@ public final class MainApplication extends Application
      */
     public ProgressDialogFragment getProgressDialog()
     {
-        synchronized (this.lockObject)
+        synchronized (getLockObject("ProgressDialog"))
         {
             ProgressDialogFragment resultDialog = null;
 
@@ -296,7 +310,7 @@ public final class MainApplication extends Application
      */
     public void setProgressDialog(ProgressDialogFragment dialog)
     {
-        synchronized (lockObject)
+        synchronized (getLockObject("ProgressDialog"))
         {
             // すでに表示中のダイアログがあれば消去
             ProgressDialogFragment oldDialog = getProgressDialog();
@@ -309,6 +323,30 @@ public final class MainApplication extends Application
             // 保存
             this.progressDialog = dialog;
         }
+    }
+
+    /**
+     * ロックオブジェクト.
+     */
+    private HashMap<String, Object> lockObjects = new HashMap<String, Object>();
+
+    /**
+     * ロックオブジェクトを取得する.
+     *
+     * @param name ロックオブジェクト名
+     * @return ロックオブジェクト
+     */
+    public Object getLockObject(String name)
+    {
+        Object obj = this.lockObjects.get(name);
+
+        if (obj == null)
+        {
+            obj = new Object();
+            this.lockObjects.put(name, obj);
+        }
+
+        return obj;
     }
 
     /**
