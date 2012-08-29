@@ -21,6 +21,11 @@ public final class ProgressDialogFragment extends DialogFragment
     private ProgressDialog progressDialog;
 
     /**
+     * メッセージ.
+     */
+    private CharSequence message = null;
+
+    /**
      * 入力ダイアログを生成する.
      *
      * @param iconId アイコンID
@@ -46,6 +51,17 @@ public final class ProgressDialogFragment extends DialogFragment
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        Log.d("ProgressDialogFragment", "*** Start onCreate()");
+
+        // 表示中プログレスダイアログを保存
+        MainApplication.getInstance(getActivity()).setProgressDialog(this);
+
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         Log.d("ProgressDialogFragment", "*** Start onCreateDialog()");
@@ -62,19 +78,34 @@ public final class ProgressDialogFragment extends DialogFragment
         this.progressDialog.setCancelable(cancelable); // キャンセル可否
         this.setCancelable(cancelable);
 
+        // アイコン設定
         if (iconId != 0)
         {
             this.progressDialog.setIcon(iconId);
         }
 
+        // タイトル設定
         if (titleId != 0)
         {
             this.progressDialog.setTitle(titleId);
         }
 
-        if (messageId != 0)
+        // メッセージ設定（保存メッセージを優先）
+        CharSequence msg = null;
+
+        if ((savedInstanceState != null) && (savedInstanceState.containsKey("message")))
         {
-            this.progressDialog.setMessage(getString(messageId));
+            msg = savedInstanceState.getCharSequence("message");
+        }
+
+        if ((msg == null) && (messageId != 0))
+        {
+            msg = getString(messageId);
+        }
+
+        if (msg != null)
+        {
+            setMessage(msg);
         }
 
         return this.progressDialog;
@@ -100,16 +131,33 @@ public final class ProgressDialogFragment extends DialogFragment
     {
         Log.d("ProgressDialogFragment", "*** Start onDestroy()");
 
+        // 表示中プログレスダイアログをクリア
+        MainApplication.getInstance(getActivity()).setProgressDialog(null);
+
         super.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle args)
+    {
+        Log.d("ProgressDialogFragment", "*** Start onSaveInstanceState()");
+
+        if (this.message != null)
+        {
+            args.putCharSequence("message", this.message);
+        }
+
+        super.onSaveInstanceState(args);
     }
 
     /**
      * メッセージを設定する.
      *
-     * @param message メッセージ
+     * @param msg メッセージ
      */
-    public void setMessage(CharSequence message)
+    public void setMessage(CharSequence msg)
     {
-        this.progressDialog.setMessage(message);
+        this.message = msg;
+        this.progressDialog.setMessage(msg);
     }
 }
