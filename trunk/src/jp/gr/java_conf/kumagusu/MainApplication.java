@@ -9,6 +9,7 @@ import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import android.app.Activity;
 import android.app.Application;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
 /**
  * Applicationクラス.
@@ -231,7 +232,6 @@ public final class MainApplication extends Application
             ProgressDialogFragment dialog = ProgressDialogFragment.newInstance(iconId, titleId, messageId, cancelable);
             dialog.show(manager, "");
 
-            this.progressDialog = dialog;
             this.displayingProgressDialog = true;
         }
     }
@@ -247,11 +247,17 @@ public final class MainApplication extends Application
 
             if (dialog != null)
             {
-                dialog.dismiss();
+                try
+                {
+                    dialog.dismiss();
+                }
+                catch (Exception ex)
+                {
+                    Log.d("MainApplication", "Dialog dismiss error.", ex);
+                }
             }
 
             this.displayingProgressDialog = false;
-            setProgressDialog(null);
         }
     }
 
@@ -288,12 +294,14 @@ public final class MainApplication extends Application
      *
      * @param dialog 表示中プログレスダイアログ
      */
-    private void setProgressDialog(ProgressDialogFragment dialog)
+    public void setProgressDialog(ProgressDialogFragment dialog)
     {
         synchronized (lockObject)
         {
             // すでに表示中のダイアログがあれば消去
-            if (dialog != null)
+            ProgressDialogFragment oldDialog = getProgressDialog();
+
+            if ((dialog != null) && (oldDialog != null) && (!oldDialog.equals(dialog)))
             {
                 dismissProgressDialog();
             }
