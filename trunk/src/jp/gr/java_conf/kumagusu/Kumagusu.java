@@ -622,13 +622,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         super.onPause();
 
-        // ワーカスレッド破棄
-        if (this.memoCreator != null)
-        {
-            this.memoCreator.cancelTask(true);
-            this.memoCreator = null;
-        }
-
         // 画面回転による終了か？
         int changingConf = getChangingConfigurations();
         boolean changingOrientation = ((changingConf & ActivityInfo.CONFIG_ORIENTATION) != 0);
@@ -667,7 +660,21 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     {
         Log.d("Kumagusu", "*** START onSaveInstanceState()");
 
-        super.onSaveInstanceState(outState);
+        // ワーカスレッド破棄
+        if (this.memoCreator != null)
+        {
+            if (this.memoCreator.isBackgroundRunning())
+            {
+                this.memoCreator.cancelTask(true);
+
+                // リスト作成プログレスダイアログ消去
+                // ※AsyncTaskのリスナで消去しているが、onSaveInstanceState()の
+                // 後に実行され、再表示時に復活するため、ここで消去
+                MainApplication.getInstance(this).dismissProgressDialog();
+            }
+
+            this.memoCreator = null;
+        }
 
         // 選択中メモファイルパス
         outState.putString("selectedMemoFilePath", this.selectedMemoFilePath);
@@ -677,6 +684,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // メモ種別・パスワード統一ワーカスレッド起動中
         outState.putBoolean("unificationMemoTypeTaskExecute", this.unificationMemoTypeTaskExecute);
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -916,7 +925,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // メモリスト生成処理をキャンセル
         if (this.memoCreator != null)
         {
-            this.memoCreator.cancelTask(true);
+            if (this.memoCreator.isBackgroundRunning())
+            {
+                this.memoCreator.cancelTask(true);
+            }
+
             this.memoCreator = null;
         }
 
