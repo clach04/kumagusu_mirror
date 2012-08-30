@@ -189,6 +189,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private AbstractMemoCreateTask memoCreator = null;
 
     /**
+     * メモ種別・パスワード統一ワーカスレッド起動中.
+     */
+    private boolean unificationMemoTypeTaskExecute = false;
+
+    /**
      * リスト表示モード.
      */
     private MemoListViewMode memoListViewMode = MemoListViewMode.FOLDER_VIEW;
@@ -650,6 +655,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         if (this.memoCreator != null)
         {
             this.memoCreator.cancelTask(true);
+            this.memoCreator = null;
         }
 
         // サービスのReceiverを登録解除
@@ -668,6 +674,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // メモ種別・パスワード統一の統一先メモ種別
         outState.putInt("unificationMemoTypeDstMemoType", this.unificationMemoTypeDstMemoType.getTypeId());
+
+        // メモ種別・パスワード統一ワーカスレッド起動中
+        outState.putBoolean("unificationMemoTypeTaskExecute", this.unificationMemoTypeTaskExecute);
     }
 
     @Override
@@ -690,6 +699,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         else
         {
             this.unificationMemoTypeDstMemoType = MemoType.None;
+        }
+
+        // メモ種別・パスワード統一ワーカスレッド起動中
+        if (savedInstanceState.containsKey("unificationMemoTypeTaskExecute"))
+        {
+            this.unificationMemoTypeTaskExecute = savedInstanceState.getBoolean("unificationMemoTypeTaskExecute");
         }
 
         super.onRestoreInstanceState(savedInstanceState);
@@ -751,11 +766,14 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         actionMemoSortMedhod.setIcon(R.drawable.memo_sort);
         ActivityCompat.setShowAsAction4ActionBar(actionMemoSortMedhod);
 
-        // メニュー項目「メモ種別・パスワード統一」
-        MenuItem actionMemoUnificationType = menu.add(Menu.NONE, MENU_ID_MEMO_UNIFICATION_TYPE, Menu.NONE,
-                R.string.unification_memo_type_title);
-        actionMemoUnificationType.setIcon(R.drawable.unification_memo_type);
-        ActivityCompat.setShowAsAction4ActionBar(actionMemoUnificationType);
+        if (this.memoListViewMode == MemoListViewMode.FOLDER_VIEW)
+        {
+            // メニュー項目「メモ種別・パスワード統一」
+            MenuItem actionMemoUnificationType = menu.add(Menu.NONE, MENU_ID_MEMO_UNIFICATION_TYPE, Menu.NONE,
+                    R.string.unification_memo_type_title);
+            actionMemoUnificationType.setIcon(R.drawable.unification_memo_type);
+            ActivityCompat.setShowAsAction4ActionBar(actionMemoUnificationType);
+        }
 
         // メニュー項目「設定」
         MenuItem actionItemSetting = menu.add(Menu.NONE, MENU_ID_SETTING, Menu.NONE, R.string.ui_setting);
@@ -884,7 +902,10 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // ファイルリスト再生成
         clearMemoList();
-        createMemoList();
+        if (!this.unificationMemoTypeTaskExecute)
+        {
+            createMemoList();
+        }
     }
 
     /**
@@ -918,17 +939,23 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private void createMemoList()
     {
+        // 作成済みなら処理なし
+        if (this.memoCreator != null)
+        {
+            return;
+        }
+
         // ファイルリストを取得
         switch (this.memoListViewMode)
         {
         case FOLDER_VIEW: // フォルダ表示
             // フォルダ内のメモを表示
-            memoFolderView();
+            createMemoListFolderView();
             break;
 
         case SEARCH_VIEW: // メモ検索表示
             // 検索結果のメモを表示
-            memoSearchView(MainApplication.getInstance(this).getCurrentMemoFolder());
+            createMemoListSearchView(MainApplication.getInstance(this).getCurrentMemoFolder());
             break;
 
         default:
@@ -939,9 +966,46 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     /**
+     * メモリスト作成中のプログレスダイアログ.
+     */
+    private ProgressDialogFragment createMemoListProgressDialog = null;
+
+    /**
+     * メモリスト作成タスクの状態通知のリスナを返す.
+     *
+     * @return タスク状態通知のリスナ
+     */
+    private AbstractMemoCreateTask.OnTaskStateListener getCreateMemoListOnTaskStateListener()
+    {
+        return new AbstractMemoCreateTask.OnTaskStateListener()
+        {
+            @Override
+            public void onChangeState(TaskState state)
+            {
+                switch (state)
+                {
+                case PreExecute:
+                    // プログレスダイアログ表示
+                    Kumagusu.this.createMemoListProgressDialog = MainApplication.getInstance(Kumagusu.this)
+                            .showProgressDialog(R.drawable.icon, R.string.memo_list_create_progress_dialog_title,
+                                    R.string.memo_list_create_progress_dialog_message, false);
+                    break;
+
+                default:
+                    // プログレスダイアログ消去
+                    MainApplication.getInstance(Kumagusu.this).dismissProgressDialog(
+                            Kumagusu.this.createMemoListProgressDialog);
+                    Kumagusu.this.createMemoListProgressDialog = null;
+                    break;
+                }
+            }
+        };
+    }
+
+    /**
      * メモリストをフォルダ表示する.
      */
-    private void memoFolderView()
+    private void createMemoListFolderView()
     {
         this.mCurrentFolderFileQueue = new LinkedList<File>();
 
@@ -951,7 +1015,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         }
 
         this.memoCreator = new MemoCreateTask(this, this.memoListViewMode, this.mCurrentFolderFileQueue,
-                this.memoBuilder, this.mListView, this.mCurrentFolderMemoFileList, this.memoListComparator);
+                this.memoBuilder, this.mListView, this.mCurrentFolderMemoFileList, this.memoListComparator,
+                getCreateMemoListOnTaskStateListener());
+
         this.memoCreator.execute();
     }
 
@@ -960,7 +1026,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      *
      * @param searchFolder 検索フォルダ
      */
-    private void memoSearchView(String searchFolder)
+    private void createMemoListSearchView(String searchFolder)
     {
         // 検索結果リストのクローズ手段を設定
         Button closeButton = (Button) findViewById(R.id.close_button);
@@ -981,7 +1047,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         {
             this.memoCreator = new MemoSearchTask(this, this.memoListViewMode, MainApplication.getInstance(this)
                     .getCurrentMemoFolder(), this.memoBuilder, this.mListView, this.mCurrentFolderMemoFileList,
-                    this.memoListComparator, this.searchWords);
+                    this.memoListComparator, this.searchWords, getCreateMemoListOnTaskStateListener());
+
             this.memoCreator.execute();
         }
     }
@@ -1231,6 +1298,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         {
             this.unificationMemoTypeDstMemoType = dstMemoType;
 
+            // メモ種別・パスワード統一ワーカスレッド起動中
+            Kumagusu.this.unificationMemoTypeTaskExecute = true;
+
             // 開始確認
             int messageId;
             if (dstMemoType == MemoType.Secret1)
@@ -1324,6 +1394,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     {
                         // プログレスダイアログ消去
                         MainApplication.getInstance(Kumagusu.this).dismissProgressDialog();
+
+                        // メモ種別・パスワード統一ワーカスレッド起動中クリア
+                        Kumagusu.this.unificationMemoTypeTaskExecute = false;
 
                         // リスト表示を更新
                         refreshMemoList();
@@ -1501,15 +1574,25 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                                             }
                                                         }, new DialogInterface.OnClickListener()
                                                         {
+                                                            /**
+                                                             * キャンセルを処理する.
+                                                             */
                                                             @Override
                                                             public void onClick(DialogInterface d, int which)
                                                             {
-                                                                // キャンセル処理なし
+                                                                // メモ種別・パスワード統一ワーカスレッド起動中クリア
+                                                                // リストが無ければ更新実行
+                                                                Kumagusu.this.unificationMemoTypeTaskExecute = false;
+                                                                createMemoList();
                                                             }
                                                         });
                                                 break;
 
                                             default:
+                                                // メモ種別・パスワード統一ワーカスレッド起動中クリア
+                                                // リストが無ければ更新実行
+                                                Kumagusu.this.unificationMemoTypeTaskExecute = false;
+                                                createMemoList();
                                                 break;
                                             }
 
@@ -1527,6 +1610,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                                     R.string.unification_memo_type_confirm_cancel,
                                                     ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
                                                     getSupportFragmentManager(), "");
+
+                                            // メモ種別・パスワード統一ワーカスレッド起動中クリア
+                                            // リストが無ければ更新実行
+                                            Kumagusu.this.unificationMemoTypeTaskExecute = false;
+                                            createMemoList();
+
                                             break;
                                         }
                                     }
@@ -1536,10 +1625,16 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     }
                 }, new OnClickListener()
                 {
+                    /**
+                     * キャンセルを処理する.
+                     */
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        // キャンセルは無視
+                        // メモ種別・パスワード統一ワーカスレッド起動中クリア
+                        // リストが無ければ更新実行
+                        Kumagusu.this.unificationMemoTypeTaskExecute = false;
+                        createMemoList();
                     }
                 }));
 

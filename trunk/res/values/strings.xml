@@ -76,9 +76,9 @@
     <string name="ui_add">Add</string>
 
     <!-- メモリスト -->
-    <string name="memo_list_post_title_start">Updating List....</string>
-    <string name="memo_list_post_title_end"></string>
     <string name="memo_list_emply_message">Note does not exist</string>
+    <string name="memo_list_create_progress_dialog_title">Note list</string>
+    <string name="memo_list_create_progress_dialog_message">Updating list....</string>
 
     <!-- ファイル操作ダイアログ -->
     <string name="memo_file_control_dialog_title">Operation of Note</string>

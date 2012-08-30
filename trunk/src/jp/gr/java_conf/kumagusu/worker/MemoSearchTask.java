@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
-import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import android.app.Activity;
@@ -41,14 +40,13 @@ public final class MemoSearchTask extends AbstractMemoCreateTask
      * @param mList メモリスト
      * @param comparator メモリストのソート処理
      * @param sWords 検索ワード
+     * @param taskStateListener メモ作成処理の状態変更を受け取るのリスナ
      */
     public MemoSearchTask(Activity act, MemoListViewMode viewMode, String bFolder, MemoBuilder mBuilder,
-            ListView lView, List<IMemo> mList, Comparator<IMemo> comparator, String sWords)
+            ListView lView, List<IMemo> mList, Comparator<IMemo> comparator, String sWords,
+            OnTaskStateListener taskStateListener)
     {
-        super(act, viewMode, mBuilder, lView, mList, comparator);
-
-        setActivityTitleStartTask(getActivity().getResources().getString(R.string.search_memo_list_post_title_start));
-        setActivityTitleEndTask(getActivity().getResources().getString(R.string.search_memo_list_post_title_end));
+        super(act, viewMode, mBuilder, lView, mList, comparator, taskStateListener);
 
         this.baseFolder = bFolder;
         this.searchLowerCaseWords = sWords.toLowerCase();
@@ -57,10 +55,18 @@ public final class MemoSearchTask extends AbstractMemoCreateTask
     @Override
     protected Boolean doInBackground(Void... params)
     {
-        // メモファイルの検索処理
-        findMemoFile(new File(this.baseFolder));
+        try
+        {
+            // メモファイルの検索処理
+            findMemoFile(new File(this.baseFolder));
 
-        return true;
+            return true;
+        }
+        finally
+        {
+            // スレッド終了を通知
+            setBackgroundEnd();
+        }
     }
 
     /**
