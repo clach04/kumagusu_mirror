@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
-import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import android.app.Activity;
@@ -36,14 +35,13 @@ public final class MemoCreateTask extends AbstractMemoCreateTask
      * @param lView ListView
      * @param mList メモリスト
      * @param comparator メモリストのソート処理
+     * @param taskStateListener メモ作成処理の状態変更を受け取るのリスナ
      */
     public MemoCreateTask(Activity act, MemoListViewMode viewMode, LinkedList<File> fQueue, MemoBuilder mBuilder,
-            ListView lView, List<IMemo> mList, Comparator<IMemo> comparator)
+            ListView lView, List<IMemo> mList, Comparator<IMemo> comparator,
+            OnTaskStateListener taskStateListener)
     {
-        super(act, viewMode, mBuilder, lView, mList, comparator);
-
-        setActivityTitleStartTask(getActivity().getResources().getString(R.string.memo_list_post_title_start));
-        setActivityTitleEndTask(getActivity().getResources().getString(R.string.memo_list_post_title_end));
+        super(act, viewMode, mBuilder, lView, mList, comparator, taskStateListener);
 
         this.fileQueue = fQueue;
     }
@@ -52,15 +50,32 @@ public final class MemoCreateTask extends AbstractMemoCreateTask
     @Override
     protected Boolean doInBackground(Void... params)
     {
-        List<IMemo> iMemoList = new ArrayList<IMemo>();
-
-        while (this.fileQueue.size() > 0)
+        try
         {
-            File f = this.fileQueue.peek();
+            List<IMemo> iMemoList = new ArrayList<IMemo>();
 
-            if (f == null)
+            while (this.fileQueue.size() > 0)
             {
-                break;
+                File f = this.fileQueue.peek();
+
+                if (f == null)
+                {
+                    break;
+                }
+
+                // キャンセルなら終了
+                if (isCancelled())
+                {
+                    return false;
+                }
+
+                if (!decryptMemoFile(f, iMemoList, null))
+                {
+                    continue;
+                }
+
+                // キューの最古Fileを削除
+                this.fileQueue.remove();
             }
 
             // キャンセルなら終了
@@ -69,24 +84,15 @@ public final class MemoCreateTask extends AbstractMemoCreateTask
                 return false;
             }
 
-            if (!decryptMemoFile(f, iMemoList, null))
-            {
-                continue;
-            }
+            // UIスレッドにMemoをPOST
+            publishProgress(iMemoList);
 
-            // キューの最古Fileを削除
-            this.fileQueue.remove();
+            return true;
         }
-
-        // キャンセルなら終了
-        if (isCancelled())
+        finally
         {
-            return false;
+            // スレッド終了を通知
+            setBackgroundEnd();
         }
-
-        // UIスレッドにMemoをPOST
-        publishProgress(iMemoList);
-
-        return true;
     }
 }

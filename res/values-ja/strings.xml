@@ -75,9 +75,9 @@
     <string name="ui_add">追加</string>
 
     <!-- メモリスト -->
-    <string name="memo_list_post_title_start">更新中....</string>
-    <string name="memo_list_post_title_end"></string>
     <string name="memo_list_emply_message">表示できるメモがありません.</string>
+    <string name="memo_list_create_progress_dialog_title">メモリスト</string>
+    <string name="memo_list_create_progress_dialog_message">更新中....</string>
 
     <!-- ファイル操作ダイアログ -->
     <string name="memo_file_control_dialog_title">メモの操作</string>

@@ -41,7 +41,7 @@ public final class MainApplication extends Application
     /**
      * 最新のアクティビティ.
      */
-    public FragmentActivity currentActivity = null;
+    private FragmentActivity currentActivity = null;
 
     /**
      * 最新のアクティビティを返す.
@@ -236,8 +236,9 @@ public final class MainApplication extends Application
      * @param titleId タイトルID
      * @param messageId メッセージID
      * @param cancelable キャンセル可否（trueのとき可）
+     * @return プログレスダイアログ
      */
-    public void showProgressDialog(int iconId, int titleId, int messageId, boolean cancelable)
+    public ProgressDialogFragment showProgressDialog(int iconId, int titleId, int messageId, boolean cancelable)
     {
         synchronized (getLockObject("ProgressDialog"))
         {
@@ -247,6 +248,8 @@ public final class MainApplication extends Application
             dialog.show(this.currentActivity.getSupportFragmentManager(), "");
 
             this.displayingProgressDialog = true;
+
+            return dialog;
         }
     }
 
@@ -255,11 +258,21 @@ public final class MainApplication extends Application
      */
     public void dismissProgressDialog()
     {
+        dismissProgressDialog(null);
+    }
+
+    /**
+     * プログレスダイアログを消去する.
+     *
+     * @param targetDialog 消去対象のプログレスダイアログ
+     */
+    public void dismissProgressDialog(ProgressDialogFragment targetDialog)
+    {
         synchronized (getLockObject("ProgressDialog"))
         {
             ProgressDialogFragment dialog = getProgressDialog();
 
-            if (dialog != null)
+            if ((dialog != null) && ((targetDialog == null) || (targetDialog.equals(dialog))))
             {
                 try
                 {
@@ -269,9 +282,9 @@ public final class MainApplication extends Application
                 {
                     Log.d("MainApplication", "Dialog dismiss error.", ex);
                 }
-            }
 
-            this.displayingProgressDialog = false;
+                this.displayingProgressDialog = false;
+            }
         }
     }
 

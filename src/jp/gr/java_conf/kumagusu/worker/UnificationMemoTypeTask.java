@@ -27,13 +27,13 @@ public final class UnificationMemoTypeTask extends AbstractMemoCreateTask
      * @param act アクティビティー
      * @param bFolder 検索フォルダ
      * @param mBuilder Memoビルダ
-     * @param listener メモ発見時の処理
-     * @param stateListener メモ作成処理の状態変更を受け取るのリスナ
+     * @param findMemoFileListener メモ発見時の処理
+     * @param taskStateListener メモ作成処理の状態変更を受け取るのリスナ
      */
-    public UnificationMemoTypeTask(Activity act, String bFolder, MemoBuilder mBuilder, OnFindMemoFileListener listener,
-            OnTaskStateListener stateListener)
+    public UnificationMemoTypeTask(Activity act, String bFolder, MemoBuilder mBuilder,
+            OnFindMemoFileListener findMemoFileListener, OnTaskStateListener taskStateListener)
     {
-        super(act, mBuilder, listener, stateListener);
+        super(act, mBuilder, findMemoFileListener, taskStateListener);
 
         this.baseFolder = bFolder;
     }
@@ -41,12 +41,20 @@ public final class UnificationMemoTypeTask extends AbstractMemoCreateTask
     @Override
     protected Boolean doInBackground(Void... params)
     {
-        Log.d("UnificationMemoTypeTask", "*** START doInBackground()");
+        try
+        {
+            Log.d("UnificationMemoTypeTask", "*** START doInBackground()");
 
-        // メモファイルの検索処理
-        findMemoFile(new File(this.baseFolder));
+            // メモファイルの検索処理
+            findMemoFile(new File(this.baseFolder));
 
-        return true;
+            return true;
+        }
+        finally
+        {
+            // スレッド終了を通知
+            setBackgroundEnd();
+        }
     }
 
     /**

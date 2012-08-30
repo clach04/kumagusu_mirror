@@ -84,16 +84,6 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     private Object syncObject = new Object();
 
     /**
-     * 同期用オブジェクトを返す.
-     *
-     * @return 同期用オブジェクト
-     */
-    protected final Object getSyncObject()
-    {
-        return syncObject;
-    }
-
-    /**
      * メモリストのソート処理.
      */
     private Comparator<IMemo> memoListComparator;
@@ -104,19 +94,17 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     private InputDialog inputPasswordDialog = null;
 
     /**
-     * アクティビティのタイトル（タスク開始時）.
-     */
-    private String activityTitleStartTask = "";
-
-    /**
-     * アクティビティのタイトル（タスク終了時）.
-     */
-    private String activityTitleEndTask = "";
-
-    /**
      * 実行中.
      */
     private boolean running = false;
+
+    /**
+     * 実行中を設定する.
+     */
+    protected final void setBackgroundEnd()
+    {
+        this.running = false;
+    }
 
     /**
      * キャンセル確認ウェイト時間.
@@ -124,40 +112,19 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     private static final int CANCEL_WAIT_TIMEOUT = 100;
 
     /**
-     * アクティビティのタイトル（タスク開始時）を設定する.
-     *
-     * @param activityTitleInit アクティビティのタイトル（タスク開始時）
-     */
-    public final void setActivityTitleStartTask(String activityTitleInit)
-    {
-        this.activityTitleStartTask = activityTitleInit;
-    }
-
-    /**
-     * アクティビティのタイトル（Task終了時）を設定する.
-     *
-     * @param activityTitleStart アクティビティのタイトル（タスク終了時）
-     */
-    public final void setActivityTitleEndTask(String activityTitleStart)
-    {
-        this.activityTitleEndTask = activityTitleStart;
-    }
-
-    /**
      * メモ生成共通処理を初期化する.
      *
      * @param act アクティビティ
      * @param mBuilder Memoビルダ
-     * @param listener 発見したメモファイルを受け取るリスナ
-     * @param stateListener メモ作成処理の状態変更を受け取るのリスナ
+     * @param findMemoFileListener 発見したメモファイルを受け取るリスナ
+     * @param taskStateListener メモ作成処理の状態変更を受け取るのリスナ
      */
-    public AbstractMemoCreateTask(Activity act, MemoBuilder mBuilder, OnFindMemoFileListener listener,
-            OnTaskStateListener stateListener)
+    public AbstractMemoCreateTask(Activity act, MemoBuilder mBuilder, OnFindMemoFileListener findMemoFileListener,
+            OnTaskStateListener taskStateListener)
     {
-        this(act, MemoListViewMode.NONE, mBuilder, null, null, null);
+        this(act, MemoListViewMode.NONE, mBuilder, null, null, null, taskStateListener);
 
-        this.onFindMemoFileListener = listener;
-        this.onTaskStateListener = stateListener;
+        this.onFindMemoFileListener = findMemoFileListener;
     }
 
     /**
@@ -169,9 +136,10 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
      * @param lView ListView
      * @param mList メモリスト
      * @param comparator メモリストのソート処理
+     * @param taskStateListener メモ作成処理の状態変更を受け取るのリスナ
      */
     public AbstractMemoCreateTask(Activity act, MemoListViewMode viewMode, MemoBuilder mBuilder, ListView lView,
-            List<IMemo> mList, Comparator<IMemo> comparator)
+            List<IMemo> mList, Comparator<IMemo> comparator, OnTaskStateListener taskStateListener)
     {
         this.activity = act;
         this.memoListViewMode = viewMode;
@@ -180,7 +148,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
         this.memoList = mList;
         this.memoListComparator = comparator;
 
-        this.onFindMemoFileListener = null;
+        this.onTaskStateListener = taskStateListener;
     }
 
     @Override
@@ -197,7 +165,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
         }
 
         // タイトル設定
-        setMainTitleText(activityTitleStartTask);
+        setMainTitleText();
     }
 
     @Override
@@ -211,15 +179,13 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             this.onTaskStateListener.onChangeState(TaskState.PostExecute);
         }
 
-        setMainTitleText(activityTitleEndTask);
+        setMainTitleText();
 
         if (this.inputPasswordDialog != null)
         {
             this.inputPasswordDialog.dismissDialog();
             this.inputPasswordDialog = null;
         }
-
-        this.running = false;
     }
 
     @Override
@@ -233,15 +199,13 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             this.onTaskStateListener.onChangeState(TaskState.Cancel);
         }
 
-        setMainTitleText(activityTitleEndTask);
+        setMainTitleText();
 
         if (this.inputPasswordDialog != null)
         {
             this.inputPasswordDialog.dismissDialog();
             this.inputPasswordDialog = null;
         }
-
-        this.running = false;
     }
 
     @Override
@@ -380,9 +344,9 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
                     // 待機
                     try
                     {
-                        synchronized (getSyncObject())
+                        synchronized (this.syncObject)
                         {
-                            getSyncObject().wait();
+                            this.syncObject.wait();
                         }
                     }
                     catch (InterruptedException ex)
@@ -493,10 +457,8 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
 
     /**
      * タイトルバーにタイトルを設定する.
-     *
-     * @param postTitleText 付加タイトル文字列
      */
-    private void setMainTitleText(String postTitleText)
+    private void setMainTitleText()
     {
         // リストViewが設定されている場合、アクティビティのタイトルを変更
         // ※画面処理でなければリストViewが設定されない。
@@ -517,13 +479,6 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             else
             {
                 titleBuilder.append("/");
-            }
-
-            // 付加タイトル文字列があれば付加
-            if (postTitleText != null)
-            {
-                titleBuilder.append(" ");
-                titleBuilder.append(postTitleText);
             }
 
             getActivity().setTitle(titleBuilder.toString());
