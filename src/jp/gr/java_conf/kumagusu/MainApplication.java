@@ -44,16 +44,6 @@ public final class MainApplication extends Application
     private FragmentActivity currentActivity = null;
 
     /**
-     * 最新のアクティビティを返す.
-     *
-     * @return 最新のアクティビティ
-     */
-    public FragmentActivity getCurrentActivity()
-    {
-        return this.currentActivity;
-    }
-
-    /**
      * 最新のアクティビティを設定する.
      *
      * @param act 最新のアクティビティ
@@ -244,10 +234,19 @@ public final class MainApplication extends Application
         {
             dismissProgressDialog();
 
-            ProgressDialogFragment dialog = ProgressDialogFragment.newInstance(iconId, titleId, messageId, cancelable);
-            dialog.show(this.currentActivity.getSupportFragmentManager(), "");
+            ProgressDialogFragment dialog = null;
 
-            this.displayingProgressDialog = true;
+            try
+            {
+                dialog = ProgressDialogFragment.newInstance(iconId, titleId, messageId, cancelable);
+                dialog.show(this.currentActivity.getSupportFragmentManager(), "");
+
+                this.displayingProgressDialog = true;
+            }
+            catch (Exception e)
+            {
+                Log.d("MainApplication", "Progress dialog show error", e);
+            }
 
             return dialog;
         }

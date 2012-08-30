@@ -99,6 +99,16 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     private boolean running = false;
 
     /**
+     * 実行中かを返す.
+     *
+     * @return 実行中ならtrue
+     */
+    public final boolean isBackgroundRunning()
+    {
+        return this.running;
+    }
+
+    /**
      * 実行中を設定する.
      */
     protected final void setBackgroundEnd()
