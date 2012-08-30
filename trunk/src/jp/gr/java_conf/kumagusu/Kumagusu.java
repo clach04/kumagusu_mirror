@@ -622,6 +622,13 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         super.onPause();
 
+        // ワーカスレッド破棄
+        if (this.memoCreator != null)
+        {
+            this.memoCreator.cancelTask(true);
+            this.memoCreator = null;
+        }
+
         // 画面回転による終了か？
         int changingConf = getChangingConfigurations();
         boolean changingOrientation = ((changingConf & ActivityInfo.CONFIG_ORIENTATION) != 0);
@@ -650,13 +657,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         Log.d("Kumagusu", "*** START onDestroy()");
 
         super.onDestroy();
-
-        // ワーカスレッド破棄
-        if (this.memoCreator != null)
-        {
-            this.memoCreator.cancelTask(true);
-            this.memoCreator = null;
-        }
 
         // サービスのReceiverを登録解除
         unificationMemoTypeUnregisterReceiver();
