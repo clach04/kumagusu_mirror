@@ -10,7 +10,6 @@ import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import android.app.Activity;
 import android.app.Application;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 
 /**
  * Applicationクラス.
@@ -42,6 +41,16 @@ public final class MainApplication extends Application
      * 最新のアクティビティ.
      */
     private FragmentActivity currentActivity = null;
+
+    /**
+     * 最新のアクティビティを返す.
+     *
+     * @return 最新のアクティビティ
+     */
+    public FragmentActivity getCurrentActivity()
+    {
+        return this.currentActivity;
+    }
 
     /**
      * 最新のアクティビティを設定する.
@@ -196,95 +205,18 @@ public final class MainApplication extends Application
     }
 
     /**
-     * プログレスダイアログが表示状態（trueなら表示中）.
+     * プログレスダイアログID.
      */
-    private boolean displayingProgressDialog = false;
+    private int progresDialogId = 0;
 
     /**
-     * プログレスダイアログの表示状態を返す.
+     * プログレスダイアログIDを返す.
      *
-     * @param dialog 表示中のダイアログ
-     * @return プログレスダイアログの表示状態
+     * @return プログレスダイアログID
      */
-    public boolean continueDisplayingProgressDialog(ProgressDialogFragment dialog)
+    public int getProgresDialogId()
     {
-        synchronized (getLockObject("ProgressDialog"))
-        {
-            if (!this.displayingProgressDialog)
-            {
-                dialog.dismiss();
-            }
-
-            return this.displayingProgressDialog;
-        }
-    }
-
-    /**
-     * プログレスダイアログを表示する.
-     *
-     * @param iconId アイコンID
-     * @param titleId タイトルID
-     * @param messageId メッセージID
-     * @param cancelable キャンセル可否（trueのとき可）
-     * @return プログレスダイアログ
-     */
-    public ProgressDialogFragment showProgressDialog(int iconId, int titleId, int messageId, boolean cancelable)
-    {
-        synchronized (getLockObject("ProgressDialog"))
-        {
-            dismissProgressDialog();
-
-            ProgressDialogFragment dialog = null;
-
-            try
-            {
-                dialog = ProgressDialogFragment.newInstance(iconId, titleId, messageId, cancelable);
-                dialog.show(this.currentActivity.getSupportFragmentManager(), "");
-
-                this.displayingProgressDialog = true;
-            }
-            catch (Exception e)
-            {
-                Log.d("MainApplication", "Progress dialog show error", e);
-            }
-
-            return dialog;
-        }
-    }
-
-    /**
-     * プログレスダイアログを消去する.
-     */
-    public void dismissProgressDialog()
-    {
-        dismissProgressDialog(null);
-    }
-
-    /**
-     * プログレスダイアログを消去する.
-     *
-     * @param targetDialog 消去対象のプログレスダイアログ
-     */
-    public void dismissProgressDialog(ProgressDialogFragment targetDialog)
-    {
-        synchronized (getLockObject("ProgressDialog"))
-        {
-            ProgressDialogFragment dialog = getProgressDialog();
-
-            if ((dialog != null) && ((targetDialog == null) || (targetDialog.equals(dialog))))
-            {
-                try
-                {
-                    dialog.dismiss();
-                }
-                catch (Exception ex)
-                {
-                    Log.d("MainApplication", "Dialog dismiss error.", ex);
-                }
-
-                this.displayingProgressDialog = false;
-            }
-        }
+        return this.progresDialogId;
     }
 
     /**
@@ -295,23 +227,21 @@ public final class MainApplication extends Application
     /**
      * 表示中プログレスダイアログを返す.
      *
+     * @param id プログレスダイアログID
      * @return 表示中プログレスダイアログ
      */
-    public ProgressDialogFragment getProgressDialog()
+    public ProgressDialogFragment getProgressDialog(int id)
     {
         synchronized (getLockObject("ProgressDialog"))
         {
-            ProgressDialogFragment resultDialog = null;
-
-            if (this.progressDialog != null)
+            if (id == this.progresDialogId)
             {
-                if ((!this.progressDialog.isDetached()) && (!this.progressDialog.isRemoving()))
-                {
-                    resultDialog = this.progressDialog;
-                }
+                return this.progressDialog;
             }
-
-            return resultDialog;
+            else
+            {
+                return null;
+            }
         }
     }
 
@@ -319,21 +249,50 @@ public final class MainApplication extends Application
      * 表示中プログレスダイアログを設定する.
      *
      * @param dialog 表示中プログレスダイアログ
+     * @return プログレスダイアログID
      */
-    public void setProgressDialog(ProgressDialogFragment dialog)
+    public int registProgressDialog(ProgressDialogFragment dialog)
     {
         synchronized (getLockObject("ProgressDialog"))
         {
-            // すでに表示中のダイアログがあれば消去
-            ProgressDialogFragment oldDialog = getProgressDialog();
-
-            if ((dialog != null) && (oldDialog != null) && (!oldDialog.equals(dialog)))
-            {
-                dismissProgressDialog();
-            }
-
             // 保存
             this.progressDialog = dialog;
+            this.progresDialogId++;
+
+            return this.progresDialogId;
+        }
+    }
+
+    /**
+     * 表示中プログレスダイアログを設定する.
+     *
+     * @param id プログレスダイアログID
+     * @param dialog 表示中プログレスダイアログ
+     */
+    public void registProgressDialog(int id, ProgressDialogFragment dialog)
+    {
+        synchronized (getLockObject("ProgressDialog"))
+        {
+            // 保存
+            this.progressDialog = dialog;
+            this.progresDialogId = id;
+        }
+    }
+
+    /**
+     * プログレスダイアログの登録を解除する.
+     *
+     * @param id プログレスダイアログID
+     */
+    public void unregistProgressDialog(int id)
+    {
+        synchronized (getLockObject("ProgressDialog"))
+        {
+            if (this.progresDialogId == id)
+            {
+                this.progresDialogId++;
+                this.progressDialog = null;
+            }
         }
     }
 
