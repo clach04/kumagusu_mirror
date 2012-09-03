@@ -248,24 +248,6 @@ public final class MainApplication extends Application
     /**
      * 表示中プログレスダイアログを設定する.
      *
-     * @param dialog 表示中プログレスダイアログ
-     * @return プログレスダイアログID
-     */
-    public int registProgressDialog(ProgressDialogFragment dialog)
-    {
-        synchronized (getLockObject("ProgressDialog"))
-        {
-            // 保存
-            this.progressDialog = dialog;
-            this.progresDialogId++;
-
-            return this.progresDialogId;
-        }
-    }
-
-    /**
-     * 表示中プログレスダイアログを設定する.
-     *
      * @param id プログレスダイアログID
      * @param dialog 表示中プログレスダイアログ
      */
@@ -273,6 +255,12 @@ public final class MainApplication extends Application
     {
         synchronized (getLockObject("ProgressDialog"))
         {
+            // 古いプログレスダイアログがある場合消去
+            if (this.progressDialog != null)
+            {
+                this.progressDialog.dismiss();
+            }
+
             // 保存
             this.progressDialog = dialog;
             this.progresDialogId = id;
@@ -290,7 +278,7 @@ public final class MainApplication extends Application
         {
             if (this.progresDialogId == id)
             {
-                this.progresDialogId++;
+                this.progresDialogId = -1;
                 this.progressDialog = null;
             }
         }
