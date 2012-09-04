@@ -10,6 +10,7 @@ import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
 import android.app.Activity;
 import android.app.Application;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 /**
  * Applicationクラス.
@@ -205,12 +206,17 @@ public final class MainApplication extends Application
     }
 
     /**
-     * プログレスダイアログID.
+     * プログレスダイアログID作成もと.
      */
-    private int progresDialogId = 0;
+    private int progresDialogIdBase = 0;
 
     /**
-     * プログレスダイアログIDを返す.
+     * 表示中プログレスダイアログID.
+     */
+    private int progresDialogId = -1;
+
+    /**
+     * 表示中プログレスダイアログIDを返す.
      *
      * @return プログレスダイアログID
      */
@@ -234,6 +240,8 @@ public final class MainApplication extends Application
     {
         synchronized (getLockObject("ProgressDialog"))
         {
+            Log.d("MainApplication", "*** Start getProgressDialog() id:" + id);
+
             if (id == this.progresDialogId)
             {
                 return this.progressDialog;
@@ -248,22 +256,62 @@ public final class MainApplication extends Application
     /**
      * 表示中プログレスダイアログを設定する.
      *
-     * @param id プログレスダイアログID
      * @param dialog 表示中プログレスダイアログ
+     * @return プログレスダイアログID
      */
-    public void registProgressDialog(int id, ProgressDialogFragment dialog)
+    public int registProgressDialog(ProgressDialogFragment dialog)
     {
         synchronized (getLockObject("ProgressDialog"))
         {
-            // 古いプログレスダイアログがある場合消去
+            Log.d("MainApplication", "*** Start registProgressDialog()");
+
+            // 古いダイアログがあれば消去
             if (this.progressDialog != null)
             {
-                this.progressDialog.dismiss();
+                Log.d("MainApplication", "Destroy old progress dialog!! id:" + this.progresDialogId);
+                try
+                {
+                    this.progressDialog.dismiss();
+                }
+                catch (Exception ex)
+                {
+                    Log.d("MainApplication", "Dismiss progress dialog error. id:" + this.progresDialogId, ex);
+                }
             }
 
             // 保存
+            this.progresDialogIdBase++;
+
             this.progressDialog = dialog;
-            this.progresDialogId = id;
+            this.progresDialogId = this.progresDialogIdBase;
+
+            return this.progresDialogId;
+        }
+    }
+
+    /**
+     * 表示中プログレスダイアログを再設定する.
+     *
+     * @param id 表示中プログレスダイアログID
+     * @param dialog 再登録する表示中プログレスダイアログ
+     * @return プログレスダイアログが表示継続できるときtrue
+     */
+    public boolean registProgressDialog(int id, ProgressDialogFragment dialog)
+    {
+        synchronized (getLockObject("ProgressDialog"))
+        {
+            Log.d("MainApplication", "*** Start registProgressDialog() id:" + id);
+
+            if (this.progresDialogId == id)
+            {
+                // 保存
+                this.progressDialog = dialog;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
@@ -276,6 +324,8 @@ public final class MainApplication extends Application
     {
         synchronized (getLockObject("ProgressDialog"))
         {
+            Log.d("MainApplication", "*** Start unregistProgressDialog() id:" + id);
+
             if (this.progresDialogId == id)
             {
                 this.progresDialogId = -1;

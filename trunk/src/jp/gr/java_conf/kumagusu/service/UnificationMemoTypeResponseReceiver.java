@@ -3,6 +3,7 @@ package jp.gr.java_conf.kumagusu.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * メモ種別・パスワード統一サービスの動作状態受信処理.
@@ -52,6 +53,8 @@ public class UnificationMemoTypeResponseReceiver extends BroadcastReceiver
     {
         // パラメータ取得
         int status = intent.getIntExtra("status", 0);
+
+        Log.d("UnificationMemoTypeResponseReceiver", "*** START onReceive()  status:" + status);
 
         switch (status)
         {

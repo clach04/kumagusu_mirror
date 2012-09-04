@@ -32,6 +32,31 @@ public final class ProgressDialogFragment extends DialogFragment
     }
 
     /**
+     * プログレスダイアログ小分類ID.
+     */
+    private int progressDialogSid = -1;
+
+    /**
+     * プログレスダイアログ小分類IDを返す.
+     *
+     * @return プログレスダイアログ小分類ID
+     */
+    public int getProgressDialogSid()
+    {
+        return this.progressDialogSid;
+    }
+
+    /**
+     * プログレスダイアログ小分類IDを設定する.
+     *
+     * @param sid プログレスダイアログ小分類ID
+     */
+    public void setProgressDialogSid(int sid)
+    {
+        this.progressDialogSid = sid;
+    }
+
+    /**
      * プログレスダイアログ.
      */
     private ProgressDialog progressDialog;
@@ -42,9 +67,9 @@ public final class ProgressDialogFragment extends DialogFragment
     private CharSequence message = null;
 
     /**
-     * ダイアログを永続化する?
+     * ダイアログを消去.
      */
-    private boolean progressDialogPersistence = false;
+    private boolean goDismiss = false;
 
     /**
      * 入力ダイアログを生成する.
@@ -53,12 +78,9 @@ public final class ProgressDialogFragment extends DialogFragment
      * @param titleId タイトルID
      * @param messageId メッセージID
      * @param cancelable キャンセル可能のときtrue
-     * @param persistence ダイアログを永続化するときtrue
-     * @param id プログレスダイアログID
      * @return ダイアログ
      */
-    private static ProgressDialogFragment newInstance(int iconId, int titleId, int messageId, boolean cancelable,
-            boolean persistence, int id)
+    private static ProgressDialogFragment newInstance(int iconId, int titleId, int messageId, boolean cancelable)
     {
         ProgressDialogFragment frag = new ProgressDialogFragment();
 
@@ -68,8 +90,6 @@ public final class ProgressDialogFragment extends DialogFragment
         args.putInt("titleId", titleId);
         args.putInt("messageId", messageId);
         args.putBoolean("cancelable", cancelable);
-        args.putBoolean("persistence", persistence);
-        args.putInt("progressDialogId", id);
 
         frag.setArguments(args);
 
@@ -94,7 +114,6 @@ public final class ProgressDialogFragment extends DialogFragment
         int titleId = getArguments().getInt("titleId");
         int messageId = getArguments().getInt("messageId");
         boolean cancelable = getArguments().getBoolean("cancelable");
-        this.progressDialogPersistence = getArguments().getBoolean("persistence");
 
         // ダイアログ生成
         this.progressDialog = new ProgressDialog(getActivity());
@@ -117,16 +136,19 @@ public final class ProgressDialogFragment extends DialogFragment
         // ダイアログID
         if ((savedInstanceState != null) && (savedInstanceState.containsKey("progressDialogId")))
         {
-            // 再表示時、保存データからプログレスダイアログIDを取得
             this.progressDialogId = savedInstanceState.getInt("progressDialogId");
-        }
-        else
-        {
-            // 新規表示時、バンドルデータからプログレスダイアログIDを取得
-            this.progressDialogId = getArguments().getInt("progressDialogId");
 
-            // プログレスダイアログを旧IDを指定し共通情報に保存
-            MainApplication.getInstance(getActivity()).registProgressDialog(this.progressDialogId, this);
+            Log.d("ProgressDialogFragment", " id:" + this.progressDialogId);
+
+            if (this.progressDialogId >= 0)
+            {
+                // プログレスダイアログを旧IDを指定し共通情報に保存
+                if (!MainApplication.getInstance(getActivity()).registProgressDialog(this.progressDialogId, this))
+                {
+                    // 廃棄済みプログレスダイアログ
+                    this.goDismiss = true;
+                }
+            }
         }
 
         // メッセージ設定（保存メッセージを優先）
@@ -153,71 +175,53 @@ public final class ProgressDialogFragment extends DialogFragment
     @Override
     public void onResume()
     {
-        Log.d("ProgressDialogFragment", "*** Start onResume()");
+        Log.d("ProgressDialogFragment", "*** Start onResume() id:" + this.progressDialogId);
 
         super.onResume();
 
-        if (this.progressDialogId >= 0)
+        if (this.goDismiss)
         {
-            // 表示中ダイアログと異なる場合廃棄
-            if (this.progressDialogId != MainApplication.getInstance(getActivity()).getProgresDialogId())
-            {
-                dismiss();
-                return;
-            }
-
-            // プログレスダイアログを旧IDを指定し共通情報に保存
-            MainApplication.getInstance(getActivity()).registProgressDialog(this.progressDialogId, this);
-        }
-    }
-
-    @Override
-    public void onStop()
-    {
-        Log.d("ProgressDialogFragment", "*** Start onStop()");
-
-        super.onStop();
-
-        if (!this.progressDialogPersistence)
-        {
+            Log.d("ProgressDialogFragment", "Destroy progress dialog!! id:" + this.progressDialogId);
             dismiss();
         }
     }
 
     @Override
+    public void onPause()
+    {
+        Log.d("ProgressDialogFragment", "*** Start onPause() id:" + this.progressDialogId);
+
+        super.onPause();
+    }
+
+    @Override
+    public void onStop()
+    {
+        Log.d("ProgressDialogFragment", "*** Start onStop() id:" + this.progressDialogId);
+
+        super.onStop();
+    }
+
+    @Override
     public void onDestroy()
     {
-        Log.d("ProgressDialogFragment", "*** Start onDestroy()");
+        Log.d("ProgressDialogFragment", "*** Start onDestroy() id:" + this.progressDialogId);
 
         super.onDestroy();
-
-        if (progressDialogPersistence)
-        {
-            // 表示中プログレスダイアログのインスタンスのみクリア
-            MainApplication.getInstance(getActivity()).registProgressDialog(this.progressDialogId, null);
-        }
-        else
-        {
-            // 表示中プログレスダイアログの登録解除
-            MainApplication.getInstance(getActivity()).unregistProgressDialog(this.progressDialogId);
-        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle args)
     {
-        Log.d("ProgressDialogFragment", "*** Start onSaveInstanceState()");
+        Log.d("ProgressDialogFragment", "*** Start onSaveInstanceState() id:" + this.progressDialogId);
 
-        if (progressDialogPersistence)
+        // プログレスダイアログID
+        args.putInt("progressDialogId", this.progressDialogId);
+
+        // メッセージ
+        if (this.message != null)
         {
-            // プログレスダイアログID
-            args.putInt("progressDialogId", this.progressDialogId);
-
-            // メッセージ
-            if (this.message != null)
-            {
-                args.putCharSequence("message", this.message);
-            }
+            args.putCharSequence("message", this.message);
         }
 
         super.onSaveInstanceState(args);
@@ -230,6 +234,8 @@ public final class ProgressDialogFragment extends DialogFragment
      */
     public void setMessage(CharSequence msg)
     {
+        Log.d("ProgressDialogFragment", "*** Start setMessage() id:" + this.progressDialogId);
+
         this.message = msg;
         this.progressDialog.setMessage(msg);
     }
@@ -238,28 +244,40 @@ public final class ProgressDialogFragment extends DialogFragment
      * プログレスダイアログを表示する.
      *
      * @param act Activity
-     * @param id プログレスダイアログID
      * @param iconId アイコンID
      * @param titleId タイトルID
      * @param messageId メッセージID
      * @param cancelable キャンセル可能か？
-     * @param persistence ダイアログを永続化するときtrue
+     * @return プログレスダイアログID
      */
-    public static void showProgressDialog(FragmentActivity act, int id, int iconId, int titleId, int messageId,
-            boolean cancelable, boolean persistence)
+    public static int showProgressDialog(FragmentActivity act, int iconId, int titleId, int messageId,
+            boolean cancelable)
     {
         synchronized (MainApplication.getInstance(act).getLockObject("ProgressDialog"))
         {
+            Log.d("ProgressDialogFragment", "*** Start showProgressDialog()");
+
+            int id = -1;
+
             try
             {
+                // ダイアログ生成
                 ProgressDialogFragment dialog = ProgressDialogFragment.newInstance(iconId, titleId, messageId,
-                        cancelable, persistence, id);
+                        cancelable);
+
+                // 新規表示時、バンドルデータからプログレスダイアログIDを取得
+                id = MainApplication.getInstance(act).registProgressDialog(dialog);
+                dialog.progressDialogId = id;
+
+                // 表示
                 dialog.show(act.getSupportFragmentManager(), "");
             }
             catch (Exception e)
             {
                 Log.d("MainApplication", "Progress dialog show error", e);
             }
+
+            return id;
         }
     }
 
@@ -275,6 +293,8 @@ public final class ProgressDialogFragment extends DialogFragment
         {
             try
             {
+                Log.d("ProgressDialogFragment", "*** Start dismissProgressDialog() id:" + id);
+
                 ProgressDialogFragment dialog = MainApplication.getInstance(act).getProgressDialog(id);
 
                 if (dialog != null)

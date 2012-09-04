@@ -380,17 +380,17 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     /**
      * プログレスダイアログID「メモリスト作成」.
      */
-    private static final int PROGRESS_DIALOG_ID_CREATE_MEMO_LIST = 101;
+    private int progressDialogIdCreateMemoList = -1;
 
     /**
      * プログレスダイアログID「メモ種別・パスワード統一前処理」.
      */
-    private static final int PROGRESS_DIALOG_ID_PRE_UNIFICATION_MEMO_TYPE = 102;
+    private int progressDialogIdPreUnificationMemoType = -1;
 
     /**
      * プログレスダイアログID「メモ種別・パスワード統一」.
      */
-    private static final int PROGRESS_DIALOG_ID_UNIFICATION_MEMO_TYPE = 103;
+    private int progressDialogIdUnificationMemoType = -1;
 
     /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
@@ -418,9 +418,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         initListDialogListener();
         initInputDialogListener();
         initSelectDialogListener();
-
-        // サービスのReceiverを登録
-        unificationMemoTypeRegisterReceiver();
 
         // リストのインスタンスを取得
         this.mListView = (ListView) findViewById(R.id.list);
@@ -587,6 +584,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // 最新Activity保存
         MainApplication.getInstance(this).setCurrentActivity(this);
 
+        // サービスのReceiverを登録
+        unificationMemoTypeRegisterReceiver();
+
         // タイムアウトの確認
         Timer timer = MainApplication.getInstance(this).getPasswordTimer();
 
@@ -641,6 +641,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         int changingConf = getChangingConfigurations();
         boolean changingOrientation = ((changingConf & ActivityInfo.CONFIG_ORIENTATION) != 0);
 
+        // サービスのReceiverを登録解除
+        unificationMemoTypeUnregisterReceiver();
+
         // タイマ開始
         if ((!this.executedChildActivity) && (!changingOrientation) && (!this.return2Kumagusu))
         {
@@ -663,9 +666,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     protected void onDestroy()
     {
         Log.d("Kumagusu", "*** START onDestroy()");
-
-        // サービスのReceiverを登録解除
-        unificationMemoTypeUnregisterReceiver();
 
         super.onDestroy();
     }
@@ -694,6 +694,15 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // メモ種別・パスワード統一ワーカスレッド起動中
         outState.putBoolean("unificationMemoTypeTaskExecute", this.unificationMemoTypeTaskExecute);
+
+        // プログレスダイアログID「メモリスト作成」
+        outState.putInt("progressDialogIdCreateMemoList", this.progressDialogIdCreateMemoList);
+
+        // プログレスダイアログID「メモ種別・パスワード統一前処理」
+        outState.putInt("progressDialogIdPreUnificationMemoType", this.progressDialogIdPreUnificationMemoType);
+
+        // プログレスダイアログID「メモ種別・パスワード統一」
+        outState.putInt("progressDialogIdUnificationMemoType", this.progressDialogIdUnificationMemoType);
 
         super.onSaveInstanceState(outState);
     }
@@ -724,6 +733,25 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         if (savedInstanceState.containsKey("unificationMemoTypeTaskExecute"))
         {
             this.unificationMemoTypeTaskExecute = savedInstanceState.getBoolean("unificationMemoTypeTaskExecute");
+        }
+
+        // プログレスダイアログID「メモリスト作成」
+        if (savedInstanceState.containsKey("progressDialogIdCreateMemoList"))
+        {
+            this.progressDialogIdCreateMemoList = savedInstanceState.getInt("progressDialogIdCreateMemoList");
+        }
+
+        // プログレスダイアログID「メモ種別・パスワード統一前処理」
+        if (savedInstanceState.containsKey("progressDialogIdPreUnificationMemoType"))
+        {
+            this.progressDialogIdPreUnificationMemoType = savedInstanceState
+                    .getInt("progressDialogIdPreUnificationMemoType");
+        }
+
+        // プログレスダイアログID「メモ種別・パスワード統一」
+        if (savedInstanceState.containsKey("progressDialogIdUnificationMemoType"))
+        {
+            this.progressDialogIdUnificationMemoType = savedInstanceState.getInt("progressDialogIdUnificationMemoType");
         }
 
         super.onRestoreInstanceState(savedInstanceState);
@@ -1004,14 +1032,15 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 {
                 case PreExecute:
                     // プログレスダイアログ表示
-                    ProgressDialogFragment.showProgressDialog(Kumagusu.this, PROGRESS_DIALOG_ID_CREATE_MEMO_LIST,
-                            R.drawable.icon, R.string.memo_list_create_progress_dialog_title,
-                            R.string.memo_list_create_progress_dialog_message, false, false);
+                    Kumagusu.this.progressDialogIdCreateMemoList = ProgressDialogFragment.showProgressDialog(
+                            Kumagusu.this, R.drawable.icon, R.string.memo_list_create_progress_dialog_title,
+                            R.string.memo_list_create_progress_dialog_message, false);
                     break;
 
                 default:
                     // プログレスダイアログ消去
-                    ProgressDialogFragment.dismissProgressDialog(Kumagusu.this, PROGRESS_DIALOG_ID_CREATE_MEMO_LIST);
+                    ProgressDialogFragment.dismissProgressDialog(Kumagusu.this,
+                            Kumagusu.this.progressDialogIdCreateMemoList);
 
                     break;
                 }
@@ -1346,9 +1375,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         Log.d("Kumagusu", "*** START unificationMemoTypeAllMemoCommon()");
 
         // プログレスダイアログ表示
-        ProgressDialogFragment.showProgressDialog(MainApplication.getInstance(Kumagusu.this).getCurrentActivity(),
-                PROGRESS_DIALOG_ID_UNIFICATION_MEMO_TYPE, R.drawable.unification_memo_type,
-                getUnificationMemoTypeProgresDialogTitleId(dstMemoType), 0, false, true);
+        this.progressDialogIdUnificationMemoType = ProgressDialogFragment.showProgressDialog(MainApplication
+                .getInstance(Kumagusu.this).getCurrentActivity(), R.drawable.unification_memo_type,
+                getUnificationMemoTypeProgresDialogTitleId(dstMemoType), 0, false);
 
         // メモ種別・パスワード統一サービス起動
         unificationMemoTypeStartService(dstMemoType, newPassword);
@@ -1385,39 +1414,42 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         IntentFilter filter = new IntentFilter(UnificationMemoTypeResponseReceiver.ACTION_RESPONSE);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
 
-        this.unificationMemoTypeResponseReceiver = new UnificationMemoTypeResponseReceiver(
-                new UnificationMemoTypeResponseReceiver.Observer()
-                {
-                    @Override
-                    public void onUpdate(String memoFileName)
+        if (this.unificationMemoTypeResponseReceiver == null)
+        {
+            this.unificationMemoTypeResponseReceiver = new UnificationMemoTypeResponseReceiver(
+                    new UnificationMemoTypeResponseReceiver.Observer()
                     {
-                        // プログレスダイアログにファイル名を出力
-                        ProgressDialogFragment progressDialog = MainApplication.getInstance(Kumagusu.this)
-                                .getProgressDialog(PROGRESS_DIALOG_ID_UNIFICATION_MEMO_TYPE);
-
-                        if (progressDialog != null)
+                        @Override
+                        public void onUpdate(String memoFileName)
                         {
-                            progressDialog.setMessage(memoFileName);
+                            // プログレスダイアログにファイル名を出力
+                            ProgressDialogFragment progressDialog = MainApplication.getInstance(Kumagusu.this)
+                                    .getProgressDialog(Kumagusu.this.progressDialogIdUnificationMemoType);
+
+                            if (progressDialog != null)
+                            {
+                                progressDialog.setMessage(memoFileName);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onStart()
-                    {
-                        // 処理なし
-                    }
+                        @Override
+                        public void onStart()
+                        {
+                            // 処理なし
+                        }
 
-                    @Override
-                    public void onFinish(boolean result)
-                    {
-                        // プログレスダイアログ消去
-                        ProgressDialogFragment.dismissProgressDialog(MainApplication.getInstance(Kumagusu.this)
-                                .getCurrentActivity(), PROGRESS_DIALOG_ID_UNIFICATION_MEMO_TYPE);
+                        @Override
+                        public void onFinish(boolean result)
+                        {
+                            // プログレスダイアログ消去
+                            ProgressDialogFragment.dismissProgressDialog(MainApplication.getInstance(Kumagusu.this)
+                                    .getCurrentActivity(), Kumagusu.this.progressDialogIdUnificationMemoType);
 
-                        // リスト表示を更新
-                        refreshMemoListAfterUnificationMemoType();
-                    }
-                });
+                            // リスト表示を更新
+                            refreshMemoListAfterUnificationMemoType();
+                        }
+                    });
+        }
 
         registerReceiver(this.unificationMemoTypeResponseReceiver, filter);
     }
@@ -1591,19 +1623,18 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                         {
                                         case PreExecute:
                                             // プログレスダイアログを生成・表示
-                                            ProgressDialogFragment.showProgressDialog(
-                                                    MainApplication.getInstance(Kumagusu.this).getCurrentActivity(),
-                                                    PROGRESS_DIALOG_ID_PRE_UNIFICATION_MEMO_TYPE,
-                                                    R.drawable.unification_memo_type,
-                                                    getUnificationMemoTypeProgresDialogTitleId(dstMemoType),
-                                                    R.string.unification_memo_type_verify_memo_message, false, true);
+                                            Kumagusu.this.progressDialogIdPreUnificationMemoType = ProgressDialogFragment
+                                                    .showProgressDialog(MainApplication.getInstance(Kumagusu.this)
+                                                            .getCurrentActivity(), R.drawable.unification_memo_type,
+                                                            getUnificationMemoTypeProgresDialogTitleId(dstMemoType),
+                                                            R.string.unification_memo_type_verify_memo_message, false);
                                             break;
 
                                         case PostExecute:
                                             // プログレスダイアログ消去
                                             ProgressDialogFragment.dismissProgressDialog(
                                                     MainApplication.getInstance(Kumagusu.this).getCurrentActivity(),
-                                                    PROGRESS_DIALOG_ID_PRE_UNIFICATION_MEMO_TYPE);
+                                                    Kumagusu.this.progressDialogIdPreUnificationMemoType);
 
                                             switch (dstMemoType)
                                             {
@@ -1658,7 +1689,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                             // プログレスダイアログ消去
                                             ProgressDialogFragment.dismissProgressDialog(
                                                     MainApplication.getInstance(Kumagusu.this).getCurrentActivity(),
-                                                    PROGRESS_DIALOG_ID_PRE_UNIFICATION_MEMO_TYPE);
+                                                    Kumagusu.this.progressDialogIdPreUnificationMemoType);
 
                                             // 確認ダイアログ表示
                                             ConfirmDialogFragment.newInstance(
