@@ -213,7 +213,7 @@ public final class MainApplication extends Application
     /**
      * 表示中プログレスダイアログID.
      */
-    private int progresDialogId = -1;
+    private int progressDialogId = -1;
 
     /**
      * 表示中プログレスダイアログIDを返す.
@@ -222,7 +222,7 @@ public final class MainApplication extends Application
      */
     public int getProgresDialogId()
     {
-        return this.progresDialogId;
+        return this.progressDialogId;
     }
 
     /**
@@ -242,9 +242,29 @@ public final class MainApplication extends Application
         {
             Log.d("MainApplication", "*** Start getProgressDialog() id:" + id);
 
-            if (id == this.progresDialogId)
+            if (id == this.progressDialogId)
             {
                 return this.progressDialog;
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+    
+    public ProgressDialogFragment clearProgressDialog(int id)
+    {
+        synchronized (getLockObject("ProgressDialog"))
+        {
+            Log.d("MainApplication", "*** Start clearProgressDialog() id:" + id);
+
+            if (id == this.progressDialogId)
+            {
+                ProgressDialogFragment result = this.progressDialog;
+                this.progressDialog = null;
+                this.progressDialogId = -1;
+                return result;
             }
             else
             {
@@ -268,14 +288,14 @@ public final class MainApplication extends Application
             // 古いダイアログがあれば消去
             if (this.progressDialog != null)
             {
-                Log.d("MainApplication", "Destroy old progress dialog!! id:" + this.progresDialogId);
+                Log.d("MainApplication", "Destroy old progress dialog!! id:" + this.progressDialogId);
                 try
                 {
                     this.progressDialog.dismiss();
                 }
                 catch (Exception ex)
                 {
-                    Log.d("MainApplication", "Dismiss progress dialog error. id:" + this.progresDialogId, ex);
+                    Log.d("MainApplication", "Dismiss progress dialog error. id:" + this.progressDialogId, ex);
                 }
             }
 
@@ -283,9 +303,9 @@ public final class MainApplication extends Application
             this.progresDialogIdBase++;
 
             this.progressDialog = dialog;
-            this.progresDialogId = this.progresDialogIdBase;
+            this.progressDialogId = this.progresDialogIdBase;
 
-            return this.progresDialogId;
+            return this.progressDialogId;
         }
     }
 
@@ -302,7 +322,7 @@ public final class MainApplication extends Application
         {
             Log.d("MainApplication", "*** Start registProgressDialog() id:" + id);
 
-            if (this.progresDialogId == id)
+            if (this.progressDialogId == id)
             {
                 // 保存
                 this.progressDialog = dialog;
@@ -326,9 +346,9 @@ public final class MainApplication extends Application
         {
             Log.d("MainApplication", "*** Start unregistProgressDialog() id:" + id);
 
-            if (this.progresDialogId == id)
+            if (this.progressDialogId == id)
             {
-                this.progresDialogId = -1;
+                this.progressDialogId = -1;
                 this.progressDialog = null;
             }
         }

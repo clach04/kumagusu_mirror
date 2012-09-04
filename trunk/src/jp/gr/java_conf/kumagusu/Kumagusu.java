@@ -200,9 +200,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * リスト表示モード値.
-     * 
+     *
      * @author tarshi
-     * 
+     *
      */
     public enum MemoListViewMode
     {
@@ -378,6 +378,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     private MemoType unificationMemoTypeDstMemoType = MemoType.None;
 
     /**
+     * メモ種別・パスワード統一前処理タスク.
+     */
+    private AbstractMemoCreateTask preUnificationMemoTypeCheckTask = null;
+
+    /**
      * プログレスダイアログID「メモリスト作成」.
      */
     private int progressDialogIdCreateMemoList = -1;
@@ -394,7 +399,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
-     * 
+     *
      * @param savedInstanceState Activityの状態
      */
     @Override
@@ -686,6 +691,16 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
             this.memoCreator = null;
         }
 
+        // if (this.preUnificationMemoTypeCheckTask != null)
+        // {
+        // if (this.preUnificationMemoTypeCheckTask.isBackgroundRunning())
+        // {
+        // this.preUnificationMemoTypeCheckTask.cancelTask(true);
+        // }
+        //
+        // this.preUnificationMemoTypeCheckTask = null;
+        // }
+
         // 選択中メモファイルパス
         outState.putString("selectedMemoFilePath", this.selectedMemoFilePath);
 
@@ -759,7 +774,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 戻るキーをフックする. ※Android2.0未満にも対応するためonBackPressedを使わない
-     * 
+     *
      * @param event イベント
      * @return ここで処理を終了するときtrue
      */
@@ -1018,7 +1033,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモリスト作成タスクの状態通知のリスナを返す.
-     * 
+     *
      * @return タスク状態通知のリスナ
      */
     private AbstractMemoCreateTask.OnTaskStateListener getCreateMemoListOnTaskStateListener()
@@ -1069,7 +1084,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモを検索する.
-     * 
+     *
      * @param searchFolder 検索フォルダ
      */
     private void createMemoListSearchView(String searchFolder)
@@ -1101,7 +1116,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 指定フォルダ内のファイルリストを取得する.
-     * 
+     *
      * @param targetFolder 指定フォルダ
      * @return ファイルリスト
      */
@@ -1170,7 +1185,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモのメモ種別を変更する.
-     * 
+     *
      * @param srcMemoFile 変更するメモ
      * @param dstMemoType 変更先のメモ種別
      * @param refreshPassword パスワードを再入力
@@ -1255,7 +1270,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 並び替え方法を変更する.
-     * 
+     *
      * @param method 並び替え方法
      */
     private void setMemoSortMethod(int method)
@@ -1275,7 +1290,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 選択中メモファイルを取得する.
-     * 
+     *
      * @return 選択中メモファイル
      */
     private IMemo getSelectedMemoFile()
@@ -1299,7 +1314,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモ操作・メモ種別変更で、変更先メモ種別を取得する.
-     * 
+     *
      * @param memoFile 変更元メモ
      * @return 変更先メモ種別
      */
@@ -1332,7 +1347,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * カレントフォルダ以下のすべてのメモのパスワードを再設定する.
-     * 
+     *
      * @param dstMemoType 変換先のメモ種別
      */
     private void unificationMemoTypeAllMemo(final MemoType dstMemoType)
@@ -1366,7 +1381,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * カレントフォルダ以下のすべてのメモのパスワードを再設定する（共通処理）.
-     * 
+     *
      * @param dstMemoType 変換先のメモ種別
      * @param newPassword 変換先メモのパスワード
      */
@@ -1380,7 +1395,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモ種別・パスワード統一プログレスダイアログのタイトルを取得する.
-     * 
+     *
      * @param dstMemoType 変換先のメモ種別
      * @return タイトルのID
      */
@@ -1472,7 +1487,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモ種別・パスワード統一サービスを起動する.
-     * 
+     *
      * @param dstMemoType 新しいメモ種別
      * @param newPassword 新しいパスワード
      */
@@ -1613,9 +1628,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                         final MemoType dstMemoType = Kumagusu.this.unificationMemoTypeDstMemoType;
 
                         // カレントフォルダ内のメモを確認
-                        UnificationMemoTypeTask task = new UnificationMemoTypeTask(Kumagusu.this, MainApplication
-                                .getInstance(Kumagusu.this).getCurrentMemoFolder(), Kumagusu.this.memoBuilder,
-                                new AbstractMemoCreateTask.OnFindMemoFileListener()
+                        Kumagusu.this.preUnificationMemoTypeCheckTask = new UnificationMemoTypeTask(Kumagusu.this,
+                                MainApplication.getInstance(Kumagusu.this).getCurrentMemoFolder(),
+                                Kumagusu.this.memoBuilder, new AbstractMemoCreateTask.OnFindMemoFileListener()
                                 {
                                     @Override
                                     public void onFind(List<IMemo> mList)
@@ -1653,35 +1668,46 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                             case Secret1:
                                                 // 新しいパスワードを入力
                                                 // パスワードを入力し、暗号化ファイル保存
-                                                Utilities.inputPassword(Kumagusu.this,
-                                                        new DialogInterface.OnClickListener()
-                                                        {
-                                                            /**
-                                                             * 入力パスワードが有効時を処理する.
-                                                             */
-                                                            @Override
-                                                            public void onClick(DialogInterface d, int which)
+                                                try
+                                                {
+                                                    Utilities.inputPassword(Kumagusu.this,
+                                                            new DialogInterface.OnClickListener()
                                                             {
-                                                                // 途中で最新パスワードが変更されることがあるため、入力パスワードを保管
-                                                                String newPassword = MainApplication.getInstance(
-                                                                        Kumagusu.this).getLastCorrectPassword();
+                                                                /**
+                                                                 * 入力パスワードが有効時を処理する
+                                                                 * .
+                                                                 */
+                                                                @Override
+                                                                public void onClick(DialogInterface d, int which)
+                                                                {
+                                                                    // 途中で最新パスワードが変更されることがあるため、入力パスワードを保管
+                                                                    String newPassword = MainApplication.getInstance(
+                                                                            Kumagusu.this).getLastCorrectPassword();
 
-                                                                unificationMemoTypeAllMemoCommon(dstMemoType,
-                                                                        newPassword);
-                                                            }
-                                                        }, new DialogInterface.OnClickListener()
-                                                        {
-                                                            /**
-                                                             * キャンセルを処理する.
-                                                             */
-                                                            @Override
-                                                            public void onClick(DialogInterface d, int which)
+                                                                    unificationMemoTypeAllMemoCommon(dstMemoType,
+                                                                            newPassword);
+                                                                }
+                                                            }, new DialogInterface.OnClickListener()
                                                             {
-                                                                // メモ種別・パスワード統一ワーカスレッド起動中クリア
-                                                                // リストが無ければ更新実行
-                                                                createMemoListAfterUnificationMemoType();
-                                                            }
-                                                        });
+                                                                /**
+                                                                 * キャンセルを処理する.
+                                                                 */
+                                                                @Override
+                                                                public void onClick(DialogInterface d, int which)
+                                                                {
+                                                                    // メモ種別・パスワード統一ワーカスレッド起動中クリア
+                                                                    // リストが無ければ更新実行
+                                                                    createMemoListAfterUnificationMemoType();
+                                                                }
+                                                            });
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    // メモ種別・パスワード統一ワーカスレッド起動中クリア
+                                                    // リストが無ければ更新実行
+                                                    createMemoListAfterUnificationMemoType();
+                                                }
+
                                                 break;
 
                                             default:
@@ -1700,13 +1726,18 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                                     Kumagusu.this.progressDialogIdPreUnificationMemoType);
 
                                             // 確認ダイアログ表示
-                                            ConfirmDialogFragment.newInstance(
-                                                    DIALOG_ID_CONFIRM_UNIFICATION_MEMO_TYPE_CANCEL,
-                                                    android.R.drawable.ic_menu_info_details,
-                                                    R.string.unification_memo_type_title,
-                                                    R.string.unification_memo_type_confirm_cancel,
-                                                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
-                                                    getSupportFragmentManager(), "");
+                                            FragmentActivity act = MainApplication.getInstance(Kumagusu.this)
+                                                    .getCurrentActivity();
+                                            if (act instanceof Kumagusu)
+                                            {
+                                                ConfirmDialogFragment.newInstance(
+                                                        DIALOG_ID_CONFIRM_UNIFICATION_MEMO_TYPE_CANCEL,
+                                                        android.R.drawable.ic_menu_info_details,
+                                                        R.string.unification_memo_type_title,
+                                                        R.string.unification_memo_type_confirm_cancel,
+                                                        ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                                        act.getSupportFragmentManager(), "");
+                                            }
 
                                             // メモ種別・パスワード統一ワーカスレッド起動中クリア
                                             // リストが無ければ更新実行
@@ -1717,7 +1748,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                                     }
                                 });
 
-                        task.execute();
+                        Kumagusu.this.preUnificationMemoTypeCheckTask.execute();
                     }
                 }, new OnClickListener()
                 {

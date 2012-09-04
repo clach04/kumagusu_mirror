@@ -306,7 +306,7 @@ public final class ProgressDialogFragment extends DialogFragment
             {
                 Log.d("ProgressDialogFragment", "*** Start dismissProgressDialog() id:" + id);
 
-                ProgressDialogFragment dialog = MainApplication.getInstance(act).getProgressDialog(id);
+                ProgressDialogFragment dialog = MainApplication.getInstance(act).clearProgressDialog(id);
 
                 if (dialog != null)
                 {
