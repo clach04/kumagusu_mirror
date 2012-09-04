@@ -154,14 +154,21 @@ public final class ProgressDialogFragment extends DialogFragment
         // メッセージ設定（保存メッセージを優先）
         CharSequence msg = null;
 
-        if ((savedInstanceState != null) && (savedInstanceState.containsKey("message")))
+        if (this.message == null)
         {
-            msg = savedInstanceState.getCharSequence("message");
-        }
+            if ((savedInstanceState != null) && (savedInstanceState.containsKey("message")))
+            {
+                msg = savedInstanceState.getCharSequence("message");
+            }
 
-        if ((msg == null) && (messageId != 0))
+            if ((msg == null) && (messageId != 0))
+            {
+                msg = getString(messageId);
+            }
+        }
+        else
         {
-            msg = getString(messageId);
+            msg = this.message;
         }
 
         if (msg != null)
@@ -237,7 +244,11 @@ public final class ProgressDialogFragment extends DialogFragment
         Log.d("ProgressDialogFragment", "*** Start setMessage() id:" + this.progressDialogId);
 
         this.message = msg;
-        this.progressDialog.setMessage(msg);
+
+        if (this.progressDialog != null)
+        {
+            this.progressDialog.setMessage(msg);
+        }
     }
 
     /**

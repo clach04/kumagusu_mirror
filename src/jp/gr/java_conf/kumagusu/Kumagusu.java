@@ -200,9 +200,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * リスト表示モード値.
-     *
+     * 
      * @author tarshi
-     *
+     * 
      */
     public enum MemoListViewMode
     {
@@ -394,7 +394,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * onCreate（アクティビティの生成）状態の処理を実行する.
-     *
+     * 
      * @param savedInstanceState Activityの状態
      */
     @Override
@@ -759,7 +759,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 戻るキーをフックする. ※Android2.0未満にも対応するためonBackPressedを使わない
-     *
+     * 
      * @param event イベント
      * @return ここで処理を終了するときtrue
      */
@@ -1018,7 +1018,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモリスト作成タスクの状態通知のリスナを返す.
-     *
+     * 
      * @return タスク状態通知のリスナ
      */
     private AbstractMemoCreateTask.OnTaskStateListener getCreateMemoListOnTaskStateListener()
@@ -1069,7 +1069,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモを検索する.
-     *
+     * 
      * @param searchFolder 検索フォルダ
      */
     private void createMemoListSearchView(String searchFolder)
@@ -1101,7 +1101,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 指定フォルダ内のファイルリストを取得する.
-     *
+     * 
      * @param targetFolder 指定フォルダ
      * @return ファイルリスト
      */
@@ -1170,7 +1170,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモのメモ種別を変更する.
-     *
+     * 
      * @param srcMemoFile 変更するメモ
      * @param dstMemoType 変更先のメモ種別
      * @param refreshPassword パスワードを再入力
@@ -1255,7 +1255,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 並び替え方法を変更する.
-     *
+     * 
      * @param method 並び替え方法
      */
     private void setMemoSortMethod(int method)
@@ -1275,7 +1275,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 選択中メモファイルを取得する.
-     *
+     * 
      * @return 選択中メモファイル
      */
     private IMemo getSelectedMemoFile()
@@ -1299,7 +1299,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモ操作・メモ種別変更で、変更先メモ種別を取得する.
-     *
+     * 
      * @param memoFile 変更元メモ
      * @return 変更先メモ種別
      */
@@ -1332,7 +1332,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * カレントフォルダ以下のすべてのメモのパスワードを再設定する.
-     *
+     * 
      * @param dstMemoType 変換先のメモ種別
      */
     private void unificationMemoTypeAllMemo(final MemoType dstMemoType)
@@ -1366,7 +1366,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * カレントフォルダ以下のすべてのメモのパスワードを再設定する（共通処理）.
-     *
+     * 
      * @param dstMemoType 変換先のメモ種別
      * @param newPassword 変換先メモのパスワード
      */
@@ -1374,18 +1374,13 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     {
         Log.d("Kumagusu", "*** START unificationMemoTypeAllMemoCommon()");
 
-        // プログレスダイアログ表示
-        this.progressDialogIdUnificationMemoType = ProgressDialogFragment.showProgressDialog(MainApplication
-                .getInstance(Kumagusu.this).getCurrentActivity(), R.drawable.unification_memo_type,
-                getUnificationMemoTypeProgresDialogTitleId(dstMemoType), 0, false);
-
         // メモ種別・パスワード統一サービス起動
         unificationMemoTypeStartService(dstMemoType, newPassword);
     }
 
     /**
      * メモ種別・パスワード統一プログレスダイアログのタイトルを取得する.
-     *
+     * 
      * @param dstMemoType 変換先のメモ種別
      * @return タイトルのID
      */
@@ -1435,7 +1430,13 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                         @Override
                         public void onStart()
                         {
-                            // 処理なし
+                            // プログレスダイアログ表示
+                            Kumagusu.this.progressDialogIdUnificationMemoType = ProgressDialogFragment
+                                    .showProgressDialog(
+                                            MainApplication.getInstance(Kumagusu.this).getCurrentActivity(),
+                                            R.drawable.unification_memo_type,
+                                            getUnificationMemoTypeProgresDialogTitleId(Kumagusu.this.unificationMemoTypeDestType),
+                                            0, false);
                         }
 
                         @Override
@@ -1465,8 +1466,13 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     }
 
     /**
+     * メモ種別・パスワード統一の新しいメモ種別.
+     */
+    private MemoType unificationMemoTypeDestType = MemoType.None;
+
+    /**
      * メモ種別・パスワード統一サービスを起動する.
-     *
+     * 
      * @param dstMemoType 新しいメモ種別
      * @param newPassword 新しいパスワード
      */
@@ -1481,6 +1487,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         intent.putExtra("memoCrypto", (dstMemoType == MemoType.Secret1));
         intent.putExtra("memoTitleLink", MainPreferenceActivity.isTitleLink(this));
         intent.putExtra("memoRandamName", MainPreferenceActivity.isRandamName(this));
+
+        this.unificationMemoTypeDestType = dstMemoType;
 
         startService(intent);
     }
