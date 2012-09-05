@@ -39,6 +39,19 @@ public final class MainApplication extends Application
     }
 
     /**
+     * MainApplicationのインスタンスを取得する.
+     *
+     * @param app Application
+     * @return MainApplicationインスタンス
+     */
+    public static MainApplication getInstance(Application app)
+    {
+        MainApplication application = (MainApplication) app;
+
+        return application;
+    }
+
+    /**
      * 最新のアクティビティ.
      */
     private FragmentActivity currentActivity = null;
@@ -252,7 +265,7 @@ public final class MainApplication extends Application
             }
         }
     }
-    
+
     public ProgressDialogFragment clearProgressDialog(int id)
     {
         synchronized (getLockObject("ProgressDialog"))
@@ -333,6 +346,56 @@ public final class MainApplication extends Application
                 return false;
             }
         }
+    }
+
+    /**
+     * メモ種別・パスワード統一処理中.
+     */
+    private boolean unificationMemoTypeTaskExecute = false;
+
+    /**
+     * メモ種別・パスワード統一処理中を返す.
+     *
+     * @return trueのときメモ種別・パスワード統一処理中
+     */
+    public boolean isUnificationMemoTypeTaskExecute()
+    {
+        return this.unificationMemoTypeTaskExecute;
+    }
+
+    /**
+     * メモ種別・パスワード統一処理中を設定する.
+     *
+     * @param execute trueのときメモ種別・パスワード統一処理中
+     */
+    public void setUnificationMemoTypeTaskExecute(boolean execute)
+    {
+        this.unificationMemoTypeTaskExecute = execute;
+    }
+
+    /**
+     * メモ種別・パスワード統一サービス処理中.
+     */
+    private boolean unificationMemoTypeServiceExecute = false;
+
+    /**
+     * メモ種別・パスワード統一サービス処理中を返す.
+     *
+     * @return メモ種別・パスワード統一サービス処理中
+     */
+    public boolean isUnificationMemoTypeServiceExecute()
+    {
+        return this.unificationMemoTypeServiceExecute;
+    }
+
+    /**
+     * メモ種別・パスワード統一サービス処理中を設定する.
+     *
+     * @param unificationMemoTypeServiceExecute メモ種別・パスワード統一サービス処理中
+     */
+    public void setUnificationMemoTypeServiceExecute(boolean unificationMemoTypeServiceExecute)
+    {
+        this.unificationMemoTypeServiceExecute = unificationMemoTypeServiceExecute;
     }
 
     /**

@@ -2,6 +2,7 @@ package jp.gr.java_conf.kumagusu.service;
 
 import java.io.File;
 
+import jp.gr.java_conf.kumagusu.MainApplication;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
@@ -64,6 +65,7 @@ public class UnificationMemoTypeService extends IntentService
 
         // 開始通知
         sendBCast(UnificationMemoTypeResponseReceiver.ACTION_STATUS_START, null, true);
+        MainApplication.getInstance(getApplication()).setUnificationMemoTypeServiceExecute(true);
 
         boolean finishResult = false;
 
@@ -110,6 +112,7 @@ public class UnificationMemoTypeService extends IntentService
         finally
         {
             // 終了通知
+            MainApplication.getInstance(getApplication()).setUnificationMemoTypeServiceExecute(false);
             sendBCast(UnificationMemoTypeResponseReceiver.ACTION_STATUS_FINISH, null, finishResult);
         }
 
