@@ -410,13 +410,13 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     {
         Log.d("EditorActivity", "*** START onPause()");
 
-        super.onPause();
-
         // タイマ開始
         if (!this.return2Kumagusu)
         {
             MainApplication.getInstance(this).getPasswordTimer().start();
         }
+
+        super.onPause();
     }
 
     @Override
@@ -424,21 +424,22 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     {
         Log.d("EditorActivity", "*** START onDestroy()");
 
-        super.onDestroy();
-
         // 編集終了
         if (isEditable())
         {
             setEditable(false);
         }
+
+        // Activity削除
+        MainApplication.getInstance(this).setCurrentActivity(null);
+
+        super.onDestroy();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
         Log.d("EditorActivity", "*** START onSaveInstanceState()");
-
-        super.onSaveInstanceState(outState);
 
         // 編集フラグを保存
         outState.putBoolean("editable", isEditable());
@@ -454,6 +455,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         {
             outState.putStringArray("fixedPhraseStrings", this.fixedPhraseStrings);
         }
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
