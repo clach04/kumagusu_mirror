@@ -266,6 +266,12 @@ public final class MainApplication extends Application
         }
     }
 
+    /**
+     * 表示中のプログレスダイアログの登録をクリアする.
+     *
+     * @param id プログレスダイアログID
+     * @return クリアしたプログレスダイアログ
+     */
     public ProgressDialogFragment clearProgressDialog(int id)
     {
         synchronized (getLockObject("ProgressDialog"))
