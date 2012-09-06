@@ -1051,9 +1051,13 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 {
                 case PreExecute:
                     // プログレスダイアログ表示
-                    Kumagusu.this.progressDialogIdCreateMemoList = ProgressDialogFragment.showProgressDialog(
-                            Kumagusu.this, R.drawable.icon, R.string.memo_list_create_progress_dialog_title,
-                            R.string.memo_list_create_progress_dialog_message, false);
+                    if (Kumagusu.this.memoListViewMode != MemoListViewMode.SEARCH_VIEW)
+                    {
+                        Kumagusu.this.progressDialogIdCreateMemoList = ProgressDialogFragment.showProgressDialog(
+                                Kumagusu.this, R.drawable.icon, R.string.memo_list_create_progress_dialog_title,
+                                R.string.memo_list_create_progress_dialog_message, false);
+                    }
+
                     break;
 
                 default:
