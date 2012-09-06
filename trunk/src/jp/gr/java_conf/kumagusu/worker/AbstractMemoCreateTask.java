@@ -524,7 +524,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             }
 
             // 付加タイトル文字列があれば付加
-            if (postTitleText != null)
+            if ((postTitleText != null) && (postTitleText.length() > 0))
             {
                 titleBuilder.append(" - ");
                 titleBuilder.append(postTitleText);

@@ -52,28 +52,49 @@ public final class MainApplication extends Application
     }
 
     /**
-     * 最新のアクティビティ.
+     * アクティビティ.
      */
-    private FragmentActivity currentActivity = null;
+    private Stack<FragmentActivity> activityStack = new Stack<FragmentActivity>();
 
     /**
-     * 最新のアクティビティを返す.
+     * アクティビティを登録する.
      *
-     * @return 最新のアクティビティ
+     * @param act アクティビティ
      */
-    public FragmentActivity getCurrentActivity()
+    public void popActivity(FragmentActivity act)
     {
-        return this.currentActivity;
+        this.activityStack.push(act);
+    }
+
+    /**
+     * アクティビティを削除する.
+     *
+     * @param act アクティビティ
+     */
+    public void removeActivity(FragmentActivity act)
+    {
+        Log.d("MainApplication", "*** Start removeActivity()");
+
+        boolean result = this.activityStack.remove(act);
+
+        Log.d("MainApplication", "remove activity result:" + result);
     }
 
     /**
      * 最新のアクティビティを設定する.
      *
-     * @param act 最新のアクティビティ
+     * @return 最新のアクティビティ
      */
-    public void setCurrentActivity(FragmentActivity act)
+    public FragmentActivity getCurrentActivity()
     {
-        this.currentActivity = act;
+        if (this.activityStack.size() > 0)
+        {
+            return this.activityStack.peek();
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /**
@@ -179,7 +200,7 @@ public final class MainApplication extends Application
     {
         if (this.passwordTimer == null)
         {
-            this.passwordTimer = new Timer(this.currentActivity);
+            this.passwordTimer = new Timer(getCurrentActivity());
         }
 
         return this.passwordTimer;
