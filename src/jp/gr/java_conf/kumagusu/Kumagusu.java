@@ -408,7 +408,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         Log.d("Kumagusu", "*** START onCreate()");
 
         // 最新Activity保存
-        MainApplication.getInstance(this).setCurrentActivity(this);
+        MainApplication.getInstance(this).popActivity(this);
 
         // パラメータ取得
         getParameter();
@@ -581,9 +581,6 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // パラメータ取得
         getParameter();
 
-        // 最新Activity保存
-        MainApplication.getInstance(this).setCurrentActivity(this);
-
         // サービスのReceiverを登録
         unificationMemoTypeRegisterReceiver();
 
@@ -684,7 +681,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         Log.d("Kumagusu", "*** START onDestroy()");
 
         // Activity削除
-        MainApplication.getInstance(this).setCurrentActivity(null);
+        MainApplication.getInstance(this).removeActivity(this);
 
         super.onDestroy();
     }
