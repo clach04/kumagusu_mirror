@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import jp.gr.java_conf.kumagusu.Kumagusu.MemoListViewMode;
+import jp.gr.java_conf.kumagusu.R;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
 import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import android.app.Activity;
@@ -47,6 +48,9 @@ public final class MemoSearchTask extends AbstractMemoCreateTask
             OnTaskStateListener taskStateListener)
     {
         super(act, viewMode, mBuilder, lView, mList, comparator, taskStateListener);
+
+        setActivityTitleStartTask(getActivity().getResources().getString(R.string.search_memo_list_post_title_start));
+        setActivityTitleEndTask(getActivity().getResources().getString(R.string.search_memo_list_post_title_end));
 
         this.baseFolder = bFolder;
         this.searchLowerCaseWords = sWords.toLowerCase();

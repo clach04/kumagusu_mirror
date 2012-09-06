@@ -94,6 +94,36 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
     private InputDialog inputPasswordDialog = null;
 
     /**
+     * アクティビティのタイトル（タスク開始時）.
+     */
+    private String activityTitleStartTask = "";
+
+    /**
+     * アクティビティのタイトル（タスク開始時）を設定する.
+     *
+     * @param activityTitleInit アクティビティのタイトル（タスク開始時）
+     */
+    public final void setActivityTitleStartTask(String activityTitleInit)
+    {
+        this.activityTitleStartTask = activityTitleInit;
+    }
+
+    /**
+     * アクティビティのタイトル（タスク終了時）.
+     */
+    private String activityTitleEndTask = "";
+
+    /**
+     * アクティビティのタイトル（Task終了時）を設定する.
+     *
+     * @param activityTitleStart アクティビティのタイトル（タスク終了時）
+     */
+    public final void setActivityTitleEndTask(String activityTitleStart)
+    {
+        this.activityTitleEndTask = activityTitleStart;
+    }
+
+    /**
      * 実行中.
      */
     private boolean running = false;
@@ -175,7 +205,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
         }
 
         // タイトル設定
-        setMainTitleText();
+        setMainTitleText(activityTitleStartTask);
     }
 
     @Override
@@ -189,7 +219,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             this.onTaskStateListener.onChangeState(TaskState.PostExecute);
         }
 
-        setMainTitleText();
+        setMainTitleText(activityTitleEndTask);
 
         if (this.inputPasswordDialog != null)
         {
@@ -209,7 +239,7 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             this.onTaskStateListener.onChangeState(TaskState.Cancel);
         }
 
-        setMainTitleText();
+        setMainTitleText(activityTitleEndTask);
 
         if (this.inputPasswordDialog != null)
         {
@@ -467,8 +497,10 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
 
     /**
      * タイトルバーにタイトルを設定する.
+     *
+     * @param postTitleText 付加タイトル文字列
      */
-    private void setMainTitleText()
+    private void setMainTitleText(String postTitleText)
     {
         // リストViewが設定されている場合、アクティビティのタイトルを変更
         // ※画面処理でなければリストViewが設定されない。
@@ -489,6 +521,13 @@ public abstract class AbstractMemoCreateTask extends AsyncTask<Void, List<IMemo>
             else
             {
                 titleBuilder.append("/");
+            }
+
+            // 付加タイトル文字列があれば付加
+            if (postTitleText != null)
+            {
+                titleBuilder.append(" - ");
+                titleBuilder.append(postTitleText);
             }
 
             getActivity().setTitle(titleBuilder.toString());
