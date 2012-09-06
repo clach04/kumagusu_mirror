@@ -391,11 +391,11 @@ public final class MainApplication extends Application
     /**
      * メモ種別・パスワード統一サービス処理中を設定する.
      *
-     * @param unificationMemoTypeServiceExecute メモ種別・パスワード統一サービス処理中
+     * @param execute メモ種別・パスワード統一サービス処理中
      */
-    public void setUnificationMemoTypeServiceExecute(boolean unificationMemoTypeServiceExecute)
+    public void setUnificationMemoTypeServiceExecute(boolean execute)
     {
-        this.unificationMemoTypeServiceExecute = unificationMemoTypeServiceExecute;
+        this.unificationMemoTypeServiceExecute = execute;
     }
 
     /**
