@@ -1180,7 +1180,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             dialogId = DIALOG_ID_CONFIRM_SAVE;
         }
 
-        ConfirmDialogFragment.newInstance(dialogId, 0, R.string.memo_edit_dialog_confiem_save, 0,
+        ConfirmDialogFragment.newInstance(dialogId, R.drawable.icon, R.string.memo_edit_dialog_confiem_save, 0,
                 ConfirmDialogFragment.POSITIVE_CAPTION_KIND_YES).show(getSupportFragmentManager(), "");
     }
 
