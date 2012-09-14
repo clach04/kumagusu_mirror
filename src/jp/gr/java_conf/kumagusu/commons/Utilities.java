@@ -17,7 +17,6 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
-import android.util.Log;
 
 /**
  * ユーティリティー.
