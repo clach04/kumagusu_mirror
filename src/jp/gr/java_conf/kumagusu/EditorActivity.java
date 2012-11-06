@@ -333,7 +333,7 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             }
         });
 
-        // メモを表示
+        // メモを開く
         MemoBuilder builder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
                 MainPreferenceActivity.isTitleLink(this));
 
@@ -378,11 +378,10 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         {
             // 無視
             Log.w("EditorActivity", "Memo file not found", ex);
-        }
 
-        // メモデータがあれば表示する
-        // なければ（復号できなければ）リストに戻る
-        setMemoData();
+            // エディタ終了
+            finishEditorActivity();
+        }
     }
 
     @Override
@@ -400,6 +399,10 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
 
             return;
         }
+
+        // メモデータがあれば表示する
+        // なければ（復号できなければ）リストに戻る
+        setMemoData();
     }
 
     @Override
@@ -453,6 +456,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             outState.putStringArray("fixedPhraseStrings", this.fixedPhraseStrings);
         }
 
+        // Kumagusuから起動.
+        outState.putBoolean("executeByKumagusu", this.executeByKumagusu);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -495,6 +501,12 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         finally
         {
             setEditable(editableTemp, true);
+        }
+
+        // Kumagusuから起動.
+        if (savedInstanceState.containsKey("executeByKumagusu"))
+        {
+            this.executeByKumagusu = savedInstanceState.getBoolean("executeByKumagusu");
         }
     }
 
@@ -563,6 +575,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     @Override
     public boolean onPrepareOptionsMenu(Menu menu)
     {
+        Log.d("EditorActivity", "*** START onPrepareOptionsMenu()");
+
         // 編集中フラグによりメニューの項目を切り替え
         menu.findItem(MENU_ID_EDIT).setVisible(!editable);
         menu.findItem(MENU_ID_EDIT_END).setVisible(editable);
@@ -637,6 +651,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private boolean isPasswordTimeout()
     {
+        Log.d("EditorActivity", "*** START isPasswordTimeout()");
+
         // タイムアウト発生?
         if (MainApplication.getInstance(this).getPasswordTimer().stop())
         {
@@ -656,6 +672,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void close(boolean dispCancel)
     {
+        Log.d("EditorActivity", "*** START close()");
+
         boolean modify = false;
 
         if (isEditable())
@@ -679,6 +697,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void searchWord(boolean nextFg)
     {
+        Log.d("EditorActivity", "*** START searchWord()");
+
         EditText searchWordEditText = (EditText) findViewById(R.id.edit_search_word);
         String searchWord = searchWordEditText.getText().toString();
 
@@ -737,6 +757,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void displaySearchView(boolean visible, String srchWords)
     {
+        Log.d("EditorActivity", "*** START displaySearchView()");
+
         setVisibilitySearchView(visible);
 
         if (visible)
@@ -759,6 +781,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private boolean isVisibilitySearchView()
     {
+        Log.d("EditorActivity", "*** START isVisibilitySearchView()");
+
         LinearLayout editSearchToolLayout = (LinearLayout) findViewById(R.id.edit_search_tool);
 
         return (editSearchToolLayout.getVisibility() == View.VISIBLE);
@@ -771,6 +795,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void setVisibilitySearchView(boolean visible)
     {
+        Log.d("EditorActivity", "*** START setVisibilitySearchView()");
+
         int visibility = (visible) ? View.VISIBLE : View.GONE;
 
         LinearLayout editSearchToolLayout = (LinearLayout) findViewById(R.id.edit_search_tool);
@@ -787,6 +813,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private boolean saveMemoData(boolean finishActivity, final boolean dispCancel)
     {
+        Log.d("EditorActivity", "*** START saveMemoData()");
+
         // 保存するか確認し、OKであればファイルに保存
         if (isModifiedMemo())
         {
@@ -801,22 +829,14 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     }
 
     /**
-     * メモデータをエディタに設定する.
+     * メモデータをエディタ部に設定する.
+     *
+     * @param title タイトル
+     * @param memoData メモデータ
      */
-    private void setMemoData()
+    private void setMemoData2View(String title, String memoData)
     {
-        String title = this.memoFile.getTitle();
-        String memoData = this.memoFile.getText();
-
-        boolean openedFg = true;
-
-        if ((title == null) || (memoData == null))
-        {
-            openedFg = false;
-
-            title = "";
-            memoData = "";
-        }
+        Log.d("EditorActivity", "*** START writeMemoData()");
 
         // タイトルと本文を設定
         setTitle(title);
@@ -846,6 +866,30 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
         {
             getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         }
+    }
+
+    /**
+     * メモデータをエディタに設定する.
+     */
+    private void setMemoData()
+    {
+        Log.d("EditorActivity", "*** START setMemoData()");
+
+        String title = this.memoFile.getTitle();
+        String memoData = this.memoFile.getText();
+
+        boolean openedFg = true;
+
+        if ((title == null) || (memoData == null))
+        {
+            openedFg = false;
+
+            title = "";
+            memoData = "";
+        }
+
+        // タイトルと本文を設定
+        setMemoData2View(title, memoData);
 
         // ファイルが開けない場合、暗号化ファイルであればパスワードを再入力
         // プレーンテキストならエディタ終了
@@ -908,6 +952,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private boolean isEditable()
     {
+        Log.d("EditorActivity", "*** START isEditable()");
+
         return editable;
     }
 
@@ -918,6 +964,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void setEditable(boolean edtbl)
     {
+        Log.d("EditorActivity", "*** START setEditable()");
+
         setEditable(edtbl, false);
     }
 
@@ -929,6 +977,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void setEditable(boolean edtbl, boolean forceWrite)
     {
+        Log.d("EditorActivity", "*** START setEditable()");
+
         this.editable = edtbl;
 
         if (!forceWrite)
@@ -967,6 +1017,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private boolean isModifiedMemo()
     {
+        Log.d("EditorActivity", "*** START isModifiedMemo()");
+
         String currentMemoString = this.memoEditText.getText().toString();
 
         return (!currentMemoString.equals(this.originalMemoString));
@@ -977,6 +1029,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void initialyzeEditorEvent()
     {
+        Log.d("EditorActivity", "*** START initialyzeEditorEvent()");
+
         // クリック
         this.memoEditText.setOnClickListener(new View.OnClickListener()
         {
@@ -1083,6 +1137,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void updateSpan()
     {
+        Log.d("EditorActivity", "*** START updateSpan()");
+
         CharSequence text = this.memoEditText.getText();
         Spannable span = (Spannable) text;
 
@@ -1166,6 +1222,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void showConfirmSaveDialog(boolean finishActivity, boolean dispCancel)
     {
+        Log.d("EditorActivity", "*** START showConfirmSaveDialog()");
+
         this.confirmSaveDialogFinishActivity = finishActivity;
         this.confirmSaveDialogDispCancel = dispCancel;
 
@@ -1189,6 +1247,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void initDialogListener()
     {
+        Log.d("EditorActivity", "*** START initDialogListener()");
+
         DialogInterface.OnClickListener okListener = new DialogInterface.OnClickListener()
         {
             /**
@@ -1322,6 +1382,8 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void confirmSaveDialogPostOkNo()
     {
+        Log.d("EditorActivity", "*** START confirmSaveDialogPostOkNo()");
+
         setEditable(false);
 
         // 終了
@@ -1337,6 +1399,11 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      */
     private void finishEditorActivity()
     {
+        Log.d("EditorActivity", "*** START finishEditorActivity()");
+
+        // エディタクリア
+        setMemoData2View("", "");
+
         // Kumagusuに戻る？
         this.return2Kumagusu = this.executeByKumagusu;
 

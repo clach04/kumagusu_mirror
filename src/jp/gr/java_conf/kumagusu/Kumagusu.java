@@ -726,6 +726,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // プログレスダイアログID「メモ種別・パスワード統一」
         outState.putInt("progressDialogIdUnificationMemoType", this.progressDialogIdUnificationMemoType);
 
+        // 子アクティビティー起動中？
+        outState.putBoolean("executedChildActivity", this.executedChildActivity);
+
+        // Kumagusuから起動
+        outState.putBoolean("executeByKumagusu", this.executeByKumagusu);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -768,6 +774,18 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         if (savedInstanceState.containsKey("progressDialogIdUnificationMemoType"))
         {
             this.progressDialogIdUnificationMemoType = savedInstanceState.getInt("progressDialogIdUnificationMemoType");
+        }
+
+        // 子アクティビティー起動中？
+        if (savedInstanceState.containsKey("executedChildActivity"))
+        {
+            this.executedChildActivity = savedInstanceState.getBoolean("executedChildActivity");
+        }
+
+        // Kumagusuから起動
+        if (savedInstanceState.containsKey("executeByKumagusu"))
+        {
+            this.executeByKumagusu = savedInstanceState.getBoolean("executeByKumagusu");
         }
 
         super.onRestoreInstanceState(savedInstanceState);
