@@ -10,6 +10,7 @@
 
     <!-- アプリ名 -->
     <string name="app_name">Kumagusu</string>
+    <string name="app_name_editor">Kumagusu Editor</string>
 
     <!--
     ******************************************************************

@@ -56,7 +56,7 @@ import android.widget.LinearLayout;
  *
  */
 @SuppressLint("NewApi")
-public final class EditorActivity extends FragmentActivity implements ConfirmDialogListenerFolder,
+public class EditorActivity extends FragmentActivity implements ConfirmDialogListenerFolder,
         ListDialogListenerFolder
 {
     /**
@@ -73,6 +73,11 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
      * メモ編集EditText.
      */
     private EditText memoEditText = null;
+
+    /**
+     * メモファイルビルダ.
+     */
+    private MemoBuilder memoBuilder = null;
 
     /**
      * メモファイル.
@@ -333,55 +338,9 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
             }
         });
 
-        // メモを開く
-        MemoBuilder builder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
+        // メモファイルビルダを生成
+        this.memoBuilder = new MemoBuilder(this, MainPreferenceActivity.getEncodingName(this),
                 MainPreferenceActivity.isTitleLink(this));
-
-        try
-        {
-            if (this.memoFileFullPath != null)
-            {
-                // 編集
-                this.memoFile = (MemoFile) builder.buildFromFile(this.memoFileFullPath);
-
-                // 表示モード
-                setEditable(false);
-            }
-            else
-            {
-                // 新規
-                MemoType createMemoType;
-
-                if (MainPreferenceActivity.isEnctyptNewMemo(this))
-                {
-                    if (MainPreferenceActivity.isRandamName(this))
-                    {
-                        createMemoType = MemoType.Secret2;
-                    }
-                    else
-                    {
-                        createMemoType = MemoType.Secret1;
-                    }
-                }
-                else
-                {
-                    createMemoType = MemoType.Text;
-                }
-
-                this.memoFile = (MemoFile) builder.build(this.currentFolderPath, createMemoType);
-
-                // 編集モード
-                setEditable(true);
-            }
-        }
-        catch (FileNotFoundException ex)
-        {
-            // 無視
-            Log.w("EditorActivity", "Memo file not found", ex);
-
-            // エディタ終了
-            finishEditorActivity();
-        }
     }
 
     @Override
@@ -875,6 +834,54 @@ public final class EditorActivity extends FragmentActivity implements ConfirmDia
     {
         Log.d("EditorActivity", "*** START setMemoData()");
 
+        // MemoFile生成
+        try
+        {
+            if (this.memoFileFullPath != null)
+            {
+                // 編集
+                this.memoFile = (MemoFile) this.memoBuilder.buildFromFile(this.memoFileFullPath);
+
+                // 表示モード
+                setEditable(false);
+            }
+            else
+            {
+                // 新規
+                MemoType createMemoType;
+
+                if (MainPreferenceActivity.isEnctyptNewMemo(this))
+                {
+                    if (MainPreferenceActivity.isRandamName(this))
+                    {
+                        createMemoType = MemoType.Secret2;
+                    }
+                    else
+                    {
+                        createMemoType = MemoType.Secret1;
+                    }
+                }
+                else
+                {
+                    createMemoType = MemoType.Text;
+                }
+
+                this.memoFile = (MemoFile) this.memoBuilder.build(this.currentFolderPath, createMemoType);
+
+                // 編集モード
+                setEditable(true);
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // ファイルが存在しない
+            Log.w("EditorActivity", "Memo file not found", ex);
+
+            // エディタ終了
+            finishEditorActivity();
+        }
+
+        // 読み込む
         String title = this.memoFile.getTitle();
         String memoData = this.memoFile.getText();
 

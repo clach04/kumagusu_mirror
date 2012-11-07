@@ -11,6 +11,7 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- リスト -->
     <application
         android:name=".MainApplication"
         android:icon="@drawable/icon"
@@ -25,7 +26,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- エディタ -->
         <activity android:name=".EditorActivity" >
+        </activity>
+
+        <!-- エディタ -->
+        <activity
+            android:name=".EditorSingleTaskActivity"
+            android:label="@string/app_name_editor"
+            android:permission="android.permission.WRITE_EXTERNAL_STORAGE"
+            android:taskAffinity="jp.gr.java_conf.kumagusu.editor" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
@@ -40,8 +51,9 @@
                 <data android:pathPattern=".*\\.chs" />
             </intent-filter>
         </activity>
-        <activity android:name=".preference.MainPreferenceActivity" >
-        </activity>
+
+        <!-- 設定 -->
+        <activity android:name=".preference.MainPreferenceActivity" />
 
         <!-- メモ種別・パスワード統一サービス -->
         <service android:name=".service.UnificationMemoTypeService" />
