@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="jp.gr.java_conf.kumagusu"
+    android:installLocation="auto"
+    android:versionCode="0110"
+    android:versionName="1.10" >
+
+    <uses-sdk
+        android:minSdkVersion="5"
+        android:targetSdkVersion="14" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- リスト -->
+    <application
+        android:name=".MainApplication"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:theme="@style/KumagusuLightTheme" >
+        <activity
+            android:name=".Kumagusu"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- エディタ -->
+        <activity android:name=".EditorActivity" >
+        </activity>
+
+        <!-- エディタ -->
+        <activity
+            android:name=".EditorSingleTaskActivity"
+            android:label="@string/app_name_editor"
+            android:permission="android.permission.WRITE_EXTERNAL_STORAGE"
+            android:taskAffinity="jp.gr.java_conf.kumagusu.editor" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:mimeType="*/*" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.txt" />
+                <data android:pathPattern=".*\\.chi" />
+                <data android:pathPattern=".*\\.chs" />
+            </intent-filter>
+        </activity>
+
+        <!-- 設定 -->
+        <activity android:name=".preference.MainPreferenceActivity" />
+
+        <!-- メモ種別・パスワード統一サービス -->
+        <service android:name=".service.UnificationMemoTypeService" />
+    </application>
+
+</manifest>
