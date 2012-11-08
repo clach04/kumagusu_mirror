@@ -6,10 +6,10 @@ import java.util.Locale;
 
 import jp.gr.java_conf.kumagusu.MainApplication;
 import jp.gr.java_conf.kumagusu.R;
-import jp.gr.java_conf.kumagusu.control.DialogListeners;
 import jp.gr.java_conf.kumagusu.control.InputDialog;
-import jp.gr.java_conf.kumagusu.control.fragment.ConfirmDialogFragment;
-import jp.gr.java_conf.kumagusu.control.fragment.ConfirmDialogListenerFolder;
+import jp.gr.java_conf.tarshi.widget.dialog.DialogListeners;
+import jp.gr.java_conf.tarshi.widget.dialog.fragment.ConfirmDialogFragment;
+import jp.gr.java_conf.tarshi.widget.dialog.fragment.ConfirmDialogListenerFolder;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;

@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Stack;
 
 import jp.gr.java_conf.kumagusu.commons.Timer;
-import jp.gr.java_conf.kumagusu.control.fragment.ProgressDialogFragment;
+import jp.gr.java_conf.tarshi.widget.dialog.fragment.ProgressDialogFragment;
+import jp.gr.java_conf.tarshi.widget.dialog.fragment.ProgressDialogFragment.ProgressDialogManagerInterface;
+import jp.gr.java_conf.tarshi.widget.dialog.fragment.ProgressDialogFragment.ProgressDialogRegsterInterface;
 import android.app.Activity;
 import android.app.Application;
 import android.support.v4.app.FragmentActivity;
@@ -17,12 +19,15 @@ import android.util.Log;
  *
  * @author tarshi
  */
-public final class MainApplication extends Application
+public final class MainApplication extends Application implements ProgressDialogManagerInterface
 {
     @Override
     public void onCreate()
     {
         super.onCreate();
+
+        // プログレスダイアログ登録処理を生成
+        this.progressDialogRegster = ProgressDialogFragment.newInstanceOfProgressDialogRegster();
     }
 
     /**
@@ -442,6 +447,17 @@ public final class MainApplication extends Application
                 this.progressDialog = null;
             }
         }
+    }
+
+    /**
+     * プログレスダイアログ登録処理.
+     */
+    private ProgressDialogRegsterInterface progressDialogRegster;
+
+    @Override
+    public ProgressDialogRegsterInterface getProgressDialogRegster()
+    {
+        return this.progressDialogRegster;
     }
 
     /**
