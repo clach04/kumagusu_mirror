@@ -105,7 +105,7 @@ public class UnificationMemoTypeService extends IntentService
             this.memoBuilder = new MemoBuilder(this.getBaseContext(), encodeName, memoTitleLink);
 
             // メモファイル変換
-            findMemoFile(new File(currentFolder));
+            findMemoFile(new File(currentFolder), 0);
 
             finishResult = true;
         }
@@ -119,13 +119,25 @@ public class UnificationMemoTypeService extends IntentService
     }
 
     /**
+     * フォルダ階層最大値.
+     */
+    private static final int FOLDER_LEVEL_MAX = 50;
+
+    /**
      * フォルダ内のメモファイルを検索し、指定種別・パスワードを設定する.
      *
      * @param targetFolderFile メモファイルを取得するフォルダ
+     * @param level 階層(0～)
      */
-    private void findMemoFile(File targetFolderFile)
+    private void findMemoFile(File targetFolderFile, int level)
     {
-        Log.d("UnificationMemoTypeService", "*** Start findMemoFile()");
+        Log.d("UnificationMemoTypeService", "*** Start findMemoFile() level:" + level);
+
+        if (level >= FOLDER_LEVEL_MAX)
+        {
+            Log.w("UnificationMemoTypeService", "folder level overflow (level > 50)");
+            return;
+        }
 
         // フォルダが存在しない場合終了
         if ((!targetFolderFile.exists()) || (!targetFolderFile.isDirectory()))
@@ -141,7 +153,7 @@ public class UnificationMemoTypeService extends IntentService
             if (file.isDirectory())
             {
                 // 下位フォルダ検索
-                findMemoFile(file.getAbsoluteFile());
+                findMemoFile(file.getAbsoluteFile(), level + 1);
             }
             else
             {

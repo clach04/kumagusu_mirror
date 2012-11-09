@@ -33,6 +33,7 @@ import jp.gr.java_conf.tarshi.widget.dialog.fragment.InputDialogListeners;
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.ListDialogFragment;
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.ListDialogListenerFolder;
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.ProgressDialogFragment;
+import jp.gr.java_conf.tarshi.widget.dialog.fragment.ProgressDialogFragment.ProgressDialogRegsterInterface;
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.SelectFolderDialogFragment;
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.SelectFolderDialogListenerFolder;
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.SelectFolderDialogListeners;
@@ -1456,7 +1457,10 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                         public void onUpdate(String memoFileName)
                         {
                             // プログレスダイアログにファイル名を出力
-                            ProgressDialogFragment progressDialog = MainApplication.getInstance(Kumagusu.this)
+                            ProgressDialogRegsterInterface regster = MainApplication.getInstance(Kumagusu.this)
+                                    .getProgressDialogRegster();
+
+                            ProgressDialogFragment progressDialog = regster
                                     .getProgressDialog(Kumagusu.this.progressDialogIdUnificationMemoType);
 
                             if (progressDialog != null)
