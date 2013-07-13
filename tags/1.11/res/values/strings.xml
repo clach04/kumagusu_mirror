@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+    ******************************************************************
+     共通
+    ******************************************************************
+    -->
+
+
+    <!-- アプリ名 -->
+    <string name="app_name">Kumagusu</string>
+    <string name="app_name_editor">Kumagusu Editor</string>
+
+    <!--
+    ******************************************************************
+     設定
+    ******************************************************************
+    -->
+
+    <string name="pref_mn_setting">Preferences</string>
+
+    <!-- 「メモリスト」カテゴリ -->
+    <string name="pref_category_view">View</string>
+    <string name="pref_cb_list_detail_visibility">To View details of list</string>
+    <string name="pref_enable_editor_titlebar_title">To View the titlebar of the note</string>
+
+    <!-- 「メモ」カテゴリ -->
+    <string name="pref_category_memo">Note</string>
+    <string name="pref_ds_memo_location_title">Notes folder</string>
+    <string name="pref_cb_title_link_title">To synchronize the title and file name</string>
+    <string name="pref_cb_title_link_summary">Match the first line of the note and file name when you save.</string>
+    <string name="pref_enable_auto_link_title">Using auto links</string>
+    <string name="pref_fixed_phrase_title">Fixed phrase</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_title">Operation of fixed phrase</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_delete_title">Delete</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_delete_message">Is a fixed phrase deleted?</string>
+    <string name="pref_cb_encrypt_new_memo_tittle">To encrypt a new note</string>
+
+    <!-- 「セキュリティ」カテゴリ -->
+    <string name="pref_category_security">Security</string>
+    <string name="pref_cb_randam_name_title">To a random file name at the time of encryption</string>
+    <string name="pref_ls_autoclose_delaytime_title">When you close a note to the background</string>
+
+    <!-- 「エンコーディング」カテゴリ -->
+    <string name="pref_category_encoding">Encoding</string>
+    <string name="pref_ls_encoding_title">Encoding</string>
+    <string name="pref_ls_encoding_summary">Sets the encoding of the note.</string>
+
+    <!-- 「その他」カテゴリ -->
+    <string name="pref_category_about">About</string>
+    <string name="pref_version_title">Version</string>
+
+    <!--
+    ******************************************************************
+     UI
+    ******************************************************************
+    -->
+
+    <string name="ui_setting">Settings</string>
+    <string name="ui_refresh">Update</string>
+    <string name="ui_create">New</string>
+    <string name="ui_ok">Ok</string>
+    <string name="ui_yes">Yes</string>
+    <string name="ui_no">No</string>
+    <string name="ui_cancel">Cancel</string>
+    <string name="ui_td_input_password">Password</string>
+    <string name="ui_td_input_new_password">New password</string>
+    <string name="ui_td_reinput_new_password">New password (Confirm)</string>
+    <string name="ui_td_input_password_empty">Password has not been entered.</string>
+    <string name="ui_td_input_password_incorrect">Password do not match.</string>
+    <string name="ui_search">Search</string>
+    <string name="ui_edit_start">Begin edit</string>
+    <string name="ui_edit_end">End edit</string>
+    <string name="ui_confirm">Confirmation</string>
+    <string name="ui_close">Close</string>
+    <string name="ui_add">Add</string>
+
+    <!-- メモリスト -->
+    <string name="memo_list_emply_message">Note does not exist</string>
+    <string name="memo_list_create_progress_dialog_title">Note list</string>
+    <string name="memo_list_create_progress_dialog_message">Updating list....</string>
+
+    <!-- ファイル操作ダイアログ -->
+    <string name="memo_file_control_dialog_title">Operation of Note</string>
+    <string name="memo_file_control_dialog_copy_title">Copy destination folder</string>
+    <string name="memo_file_control_dialog_move_title">Move destination folder</string>
+    <string name="memo_file_control_dialog_delete_title">Delete</string>
+    <string name="memo_file_control_dialog_delete_message">Does it delete?</string>
+    <!-- <string name="memo_file_control_dialog_copy_title">コピー</string> -->
+    <!-- <string name="memo_file_control_dialog_move_title">移動</string> -->
+
+    <string name="folder_control_dialog_title">Operation of Folder</string>
+    <string name="folder_control_dialog_copy_title">Copy destination folder</string>
+    <string name="folder_control_dialog_move_title">Move destination folder</string>
+    <string name="folder_control_dialog_delete_title">Delete</string>
+    <string name="folder_control_dialog_delete_message">Is a folder deleted?</string>
+    <string name="folder_control_dialog_delete_error">A folder is not empty.</string>
+    <string name="folder_rename_control_dialog_title">Change of a folder name</string>
+    <string name="folder_rename_control_dialog_error_duplicate">There is already a folder of a same name.</string>
+    <string name="folder_rename_control_dialog_error_noinput">The folder name is not inputted.</string>
+    <string name="memo_edit_dialog_confiem_save">Is a note saved?</string>
+
+    <!-- 新規作成ダイアログ -->
+    <string name="memo_list_control_dialog_title">Addition</string>
+    <string name="folder_add_control_dialog_title">The folder name to add </string>
+    <string name="memo_list_control_dialog_add_error_duplicate">There is already a folder of a same name.</string>
+    <string name="memo_list_control_dialog_add_error_noinput">The folder name is not inputted. </string>
+
+    <!-- メモ検索 -->
+    <string name="search_memo_control_dialog_title">Search</string>
+    <string name="search_memo_list_post_title_start">Searching note....</string>
+    <string name="search_memo_list_post_title_end">Results</string>
+
+    <!-- 定型文 -->
+    <string name="fixed_phrase_dialog_title">Fixed phrase</string>
+    <string name="fixed_phrase_pattern_letters">Pattern letters</string>
+
+    <!-- メモのソート方法 -->
+    <string name="memo_sort_method_dialog_title">Sort conditions</string>
+
+    <!-- メモのパスワード統一処理 -->
+    <string name="unification_memo_type_title">Unification note type</string>
+    <string name="unification_memo_type_confirm_encrypt_start">Encrypted with the same password all notes.</string>
+    <string name="unification_memo_type_confirm_decrypt_start">Decrypted all notes.</string>
+    <string name="unification_memo_type_confirm_cancel">Note type unification processing was canceled.</string>
+    <string name="unification_memo_type_verify_memo_message">To verify a note under current folder.</string>
+    <string name="unification_memo_type_encrypt_title">Encrypted with the same password all notes.</string>
+    <string name="unification_memo_type_decrypt_title">Decrypted all notes.</string>
+
+    <!--
+    ******************************************************************
+     その他
+    ******************************************************************
+    -->
+
+
+    <!-- メモファイル種別 -->
+    <string name="etc_memo_type_text">Plain</string>
+    <string name="etc_memo_type_secret1">Encryption</string>
+    <string name="etc_memo_type_secret2">Encryption</string>
+    <string name="etc_memo_type_folder">Folder</string>
+    <string name="etc_memo_type_parent_folder">Parent foldere</string>
+    <string name="etc_memo_type_none">(Unknown)</string>
+
+    <!-- メモファイル処理 -->
+    <string name="etc_memo_file_untitled_4_filename">untitled</string>
+    <string name="etc_memo_file_untitled_4_title">(untitled)</string>
+
+</resources>

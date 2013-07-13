@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 設定のエントリ -->
+    <string-array name="encoding_entries">
+        <item>SJIS</item>
+        <item>UTF-8</item>
+        <item>UTF-16LE</item>
+    </string-array>
+    <string-array name="encoding_values">
+        <item>MS932</item>
+        <item>UTF8</item>
+        <item>UnicodeLittleUnmarked</item>
+    </string-array>
+    <string-array name="autoclose_delaytime_entries">
+        <item>Disable</item>
+        <item>0 sec.</item>
+        <item>30 sec.</item>
+        <item>1 min.</item>
+        <item>5 min.</item>
+        <item>10 min.</item>
+    </string-array>
+    <string-array name="autoclose_delaytime_values">
+        <item>-1</item>
+        <item>0</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>300000</item>
+        <item>600000</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_entries">
+        <item>Year 4 digits (2012)</item>
+        <item>Year 2 digits (12)</item>
+        <item>Month in year (01,02,..)</item>
+        <item>Month in year (1,2,..)</item>
+        <item>Month in year (Jan,Feb..)</item>
+        <item>Day in month (01,02..)</item>
+        <item>Day in month (1,2,..)</item>
+        <item>Day in week (locale)</item>
+        <item>Day in week (Sun,Mon)</item>
+        <item>Hour in AM/PM (00..11)</item>
+        <item>Hour in AM/PM (01..12)</item>
+        <item>Hour in day (00..23)</item>
+        <item>AM/PM marker(locale)</item>
+        <item>AM/PM marker</item>
+        <item>Minute in hour (01,02..)</item>
+        <item>Second in minute (01,02..)</item>
+        <item>%</item>
+        <item>改行</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_values">
+        <item>%y</item>
+        <item>%Y</item>
+        <item>%MM</item>
+        <item>%M</item>
+        <item>%b</item>
+        <item>%d</item>
+        <item>%D</item>
+        <item>%w</item>
+        <item>%W</item>
+        <item>%H</item>
+        <item>%I</item>
+        <item>%h</item>
+        <item>%a</item>
+        <item>%A</item>
+        <item>%m</item>
+        <item>%s</item>
+        <item>%%</item>
+        <item>%n</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_format_values">
+        <item>yyyy</item>
+        <item>yy</item>
+        <item>MM</item>
+        <item>M</item>
+        <item>MMM,1</item>
+        <item>dd</item>
+        <item>d</item>
+        <item>EEE</item>
+        <item>EEE,1</item>
+        <item>KK</item>
+        <item>hh</item>
+        <item>HH</item>
+        <item>a</item>
+        <item>a,1</item>
+        <item>mm</item>
+        <item>ss</item>
+        <item>%</item>
+        <item>\n</item>
+    </string-array>
+    <string-array name="fixed_phrase_escape_item_values_default">
+        <item>%y/%M/%d %h:%m:%s</item>
+        <item>%y/%M/%d</item>
+        <item>%h:%m:%s</item>
+    </string-array>
+    <string-array name="pref_fixed_phrase_entries_control_dialog_entries">
+        <item>Delete</item>
+    </string-array>
+
+    <!-- メモのソート方法 -->
+    <string-array name="memo_sort_method_kind_entries">
+        <item>Title - ascending</item>
+        <item>Title - descending</item>
+        <item>Last modified - from the oldest</item>
+        <item>Last modified - from the newest</item>
+        <item>Size - from minimum</item>
+        <item>Size - from maxmum</item>
+    </string-array>
+
+    <integer-array name="memo_sort_method_kind_values">
+        <item>00</item>
+        <item>01</item>
+        <item>10</item>
+        <item>11</item>
+        <item>20</item>
+        <item>21</item>
+    </integer-array>
+
+    <!-- メモ種別・パスワード統一 -->
+    <string-array name="unification_memo_type_entries">
+        <item>Unified crypto (same password) text</item>
+        <item>Unified plain text</item>
+    </string-array>
+
+    <!-- ファイル操作ダイアログのエントリ -->
+    <string-array name="memo_file_control_dialog_entries_4_text">
+        <item>Copy</item>
+        <item>Move</item>
+        <item>Delete</item>
+        <item>Encrypt</item>
+    </string-array>
+    <string-array name="memo_file_control_dialog_entries_4_text_2">
+        <item>Copy</item>
+        <item>Move</item>
+        <item>Delete</item>
+        <item>Encrypt</item>
+        <item>Encrypt (new password)</item>
+    </string-array>
+    <string-array name="memo_file_control_dialog_entries_4_secret">
+        <item>Copy</item>
+        <item>Move</item>
+        <item>Delete</item>
+        <item>Decrypt</item>
+    </string-array>
+
+    <!-- フォルダ操作ダイアログのエントリ -->
+    <string-array name="memo_file_control_dialog_entries_4_folder">
+        <item>Copy</item>
+        <item>Move</item>
+        <item>Delete</item>
+        <item>Rename</item>
+    </string-array>
+
+    <!-- 追加のエントリ -->
+    <string-array name="memo_list_control_dialog_entries">
+        <item>Create a new note</item>
+        <item>Create a new folder</item>
+    </string-array>
+
+</resources>
