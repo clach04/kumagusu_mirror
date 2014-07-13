@@ -128,6 +128,7 @@
         <item>移動</item>
         <item>削除</item>
         <item>暗号化</item>
+        <item>送信</item>
     </string-array>
     <string-array name="memo_file_control_dialog_entries_4_text_2">
         <item>コピー</item>
@@ -135,13 +136,15 @@
         <item>削除</item>
         <item>暗号化</item>
         <item>暗号化(ﾊﾟｽﾜｰﾄﾞ再入力)</item>
-    </string-array>
+        <item>送信</item>
+        </string-array>
     <string-array name="memo_file_control_dialog_entries_4_secret">
         <item>コピー</item>
         <item>移動</item>
         <item>削除</item>
         <item>復号化</item>
-    </string-array>
+        <item>送信</item>
+        </string-array>
 
     <!-- フォルダ操作ダイアログのエントリ -->
     <string-array name="memo_file_control_dialog_entries_4_folder">

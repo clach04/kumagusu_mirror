@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="jp.gr.java_conf.kumagusu"
     android:installLocation="auto"
-    android:versionCode="0111"
-    android:versionName="1.11" >
+    android:versionCode="0112"
+    android:versionName="1.12">
 
     <uses-sdk
         android:minSdkVersion="5"
@@ -16,10 +17,10 @@
         android:name=".MainApplication"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:theme="@style/KumagusuLightTheme" >
+        android:theme="@style/KumagusuLightTheme">
         <activity
             android:name=".Kumagusu"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,7 +29,7 @@
         </activity>
 
         <!-- エディタ -->
-        <activity android:name=".EditorActivity" >
+        <activity android:name=".EditorActivity">
         </activity>
 
         <!-- エディタ -->
@@ -36,7 +37,48 @@
             android:name=".EditorSingleTaskActivity"
             android:label="@string/app_name_editor"
             android:permission="android.permission.WRITE_EXTERNAL_STORAGE"
-            android:taskAffinity="jp.gr.java_conf.kumagusu.editor" >
+            android:launchMode="singleTask"
+            android:taskAffinity="jp.gr.java_conf.kumagusu.editor">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:mimeType="application/octet-stream"
+                    android:host="*"
+                    android:pathPattern=".*\\.txt" />
+                <data
+                    android:mimeType="application/octet-stream"
+                    android:host="*"
+                    android:pathPattern=".*\\.chi" />
+                <data
+                    android:mimeType="application/octet-stream"
+                    android:host="*"
+                    android:pathPattern=".*\\.chs" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.EDIT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:mimeType="text/*"
+                    android:host="*"
+                    android:pathPattern=".*\\.txt" />
+                <data
+                    android:mimeType="application/txt"
+                    android:host="*"
+                    android:pathPattern=".*\\.txt" />
+                <data
+                    android:mimeType="application/chi"
+                    android:host="*"
+                    android:pathPattern=".*\\.chi" />
+                <data
+                    android:mimeType="application/chs"
+                    android:host="*"
+                    android:pathPattern=".*\\.chs" />
+            </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />

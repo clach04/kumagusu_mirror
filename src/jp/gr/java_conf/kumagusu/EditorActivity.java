@@ -2,6 +2,9 @@ package jp.gr.java_conf.kumagusu;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,11 +24,15 @@ import jp.gr.java_conf.tarshi.widget.dialog.fragment.ConfirmDialogListenerFolder
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.ListDialogFragment;
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.ListDialogListenerFolder;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -56,8 +63,7 @@ import android.widget.LinearLayout;
  *
  */
 @SuppressLint("NewApi")
-public class EditorActivity extends FragmentActivity implements ConfirmDialogListenerFolder,
-        ListDialogListenerFolder
+public class EditorActivity extends FragmentActivity implements ConfirmDialogListenerFolder, ListDialogListenerFolder
 {
     /**
      * メモファイル（フルパス）.
@@ -216,6 +222,11 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
      */
     private boolean return2Kumagusu = false;
 
+    /**
+     * テンポラリファイル使用中?
+     */
+    private boolean useTemporaryFile = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -277,12 +288,126 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
             // 起動情報からパラメータ取得
             Uri uri = getIntent().getData();
 
-            this.memoFileFullPath = uri.getPath();
+            final String scheme = uri.getScheme();
+
+            if (ContentResolver.SCHEME_CONTENT.equals(scheme))
+            {
+                ContentResolver contentResolver = getContentResolver();
+
+                String[] columns =
+                    {
+                            MediaStore.Images.Media.DATA, MediaStore.Images.Media.DISPLAY_NAME,
+                    };
+
+                Cursor cursor = null;
+
+                try
+                {
+                    cursor = contentResolver.query(uri, columns, null, null, null);
+                    cursor.moveToFirst();
+
+                    int displayNameIndex = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
+
+                    String displayName = cursor.getString(displayNameIndex);
+                    if (displayName == null)
+                    {
+                        finishEditorActivity();
+                        return;
+                    }
+
+                    String[] splitDisplayNames = displayName.split("\\.");
+                    if (splitDisplayNames.length < 2)
+                    {
+                        finishEditorActivity();
+                        return;
+                    }
+
+                    String tempFileName = splitDisplayNames[0] + "." + String.valueOf(System.currentTimeMillis()) + "."
+                            + splitDisplayNames[1];
+
+                    File tempFolderFile = null;
+
+                    if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+                    {
+                        tempFolderFile = getExternalCacheDir();
+                    }
+                    else
+                    {
+                        tempFolderFile = getCacheDir();
+                    }
+
+                    if (tempFolderFile == null)
+                    {
+                        finishEditorActivity();
+                        return;
+                    }
+
+                    this.useTemporaryFile = true; // テンポラリ使用中
+
+                    File tempFile = new File(tempFolderFile, tempFileName);
+
+                    FileOutputStream tempFileOutputStream = null;
+                    InputStream contentInputStream = null;
+                    try
+                    {
+                        tempFileOutputStream = new FileOutputStream(tempFile);
+
+                        contentInputStream = contentResolver.openInputStream(uri);
+
+                        byte[] buffer = new byte[1024];
+                        int len;
+
+                        while ((len = contentInputStream.read(buffer)) != -1)
+                        {
+                            tempFileOutputStream.write(buffer, 0, len);
+                        }
+
+                        tempFileOutputStream.flush();
+                    }
+                    finally
+                    {
+                        if (tempFileOutputStream != null)
+                        {
+                            tempFileOutputStream.close();
+                        }
+
+                        if (contentInputStream != null)
+                        {
+                            contentInputStream.close();
+                        }
+                    }
+
+                    this.memoFileFullPath = tempFile.getAbsolutePath();
+                }
+                catch (Exception e)
+                {
+                    finishEditorActivity();
+                    return;
+                }
+                finally
+                {
+                    if (cursor != null)
+                    {
+                        cursor.close();
+                    }
+                }
+            }
+            else
+            {
+                this.memoFileFullPath = uri.getPath();
+            }
+
+            if (this.memoFileFullPath == null)
+            {
+                finishEditorActivity();
+                return;
+            }
 
             File targetFile = new File(this.memoFileFullPath);
             if ((!targetFile.exists()) || (!targetFile.isFile()))
             {
                 finishEditorActivity();
+                return;
             }
 
             this.currentFolderPath = targetFile.getParent();
@@ -392,6 +517,13 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         // Activity削除
         MainApplication.getInstance(this).removeActivity(this);
 
+        // テンポラリ削除
+        if (this.useTemporaryFile)
+        {
+            File temp = new File(this.memoFileFullPath);
+            temp.delete();
+        }
+
         super.onDestroy();
     }
 
@@ -417,6 +549,9 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
 
         // Kumagusuから起動.
         outState.putBoolean("executeByKumagusu", this.executeByKumagusu);
+
+        // テンポラリ使用中
+        outState.putBoolean("useTemporaryFile", this.useTemporaryFile);
 
         super.onSaveInstanceState(outState);
     }
@@ -466,6 +601,12 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         if (savedInstanceState.containsKey("executeByKumagusu"))
         {
             this.executeByKumagusu = savedInstanceState.getBoolean("executeByKumagusu");
+        }
+
+        // テンポラリ使用中
+        if (savedInstanceState.containsKey("useTemporaryFile"))
+        {
+            this.useTemporaryFile = savedInstanceState.getBoolean("useTemporaryFile");
         }
     }
 
