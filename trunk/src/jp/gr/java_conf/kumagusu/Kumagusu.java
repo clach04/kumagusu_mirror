@@ -42,6 +42,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
@@ -127,7 +128,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     /**
      * ファイルコントロールID「暗号化(ﾊﾟｽﾜｰﾄﾞ入力)」.
      */
-    private static final int FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD = 4;
+    private static final int FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD_OR_SEND = 4;
+
+    /**
+     * ファイルコントロールID「送信」.
+     */
+    private static final int FILE_CONTROL_ID_SEND = 5;
 
     /**
      * フォルダコントロールID「コピー」.
@@ -168,6 +174,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      * 選択中のメモのパス.
      */
     private String selectedMemoFilePath;
+
+    /**
+     * 選択中のメモ種別
+     */
+    private MemoType selectedMemoType = MemoType.None;;
 
     /**
      * カレントディレクトリのメモ.
@@ -501,6 +512,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 if (selectedItem != null)
                 {
                     Kumagusu.this.selectedMemoFilePath = selectedItem.getPath();
+                    Kumagusu.this.selectedMemoType = selectedItem.getMemoType();
 
                     // ダイアログ表示
                     switch (selectedItem.getMemoType())
@@ -715,6 +727,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // 選択中メモファイルパス
         outState.putString("selectedMemoFilePath", this.selectedMemoFilePath);
 
+        // 選択中メモ種別
+        outState.putInt("selectedMemoType", this.selectedMemoType.getTypeId());
+
         // メモ種別・パスワード統一の統一先メモ種別
         outState.putInt("unificationMemoTypeDstMemoType", this.unificationMemoTypeDstMemoType.getTypeId());
 
@@ -745,6 +760,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         if (savedInstanceState.containsKey("selectedMemoFilePath"))
         {
             this.selectedMemoFilePath = savedInstanceState.getString("selectedMemoFilePath");
+        }
+
+        // 選択中メモ種別
+        if (savedInstanceState.containsKey("selectedMemoType"))
+        {
+            this.selectedMemoType = MemoType.getMemoType(savedInstanceState.getInt("selectedMemoType"));
         }
 
         // メモ種別・パスワード統一の統一先メモ種別
@@ -1845,6 +1866,8 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     return;
                 }
 
+                MemoType memoType = Kumagusu.this.selectedMemoType;
+
                 switch (which)
                 {
                 case FILE_CONTROL_ID_COPY: // コピー
@@ -1875,11 +1898,24 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     changeMemoType((MemoFile) selectedMemoFile, getChange2MemoType(selectedMemoFile), false, true);
                     break;
 
-                case FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD: // 暗号化(ﾊﾟｽﾜｰﾄﾞ入力)
-                    if (getChange2MemoType(selectedMemoFile) == MemoType.Secret1)
+                case FILE_CONTROL_ID_ENCRYPT_NEW_PASSWORD_OR_SEND: // 暗号化(ﾊﾟｽﾜｰﾄﾞ入力)／送信
+                    if ((memoType == MemoType.Text)
+                            && (MainApplication.getInstance(Kumagusu.this).getLastCorrectPassword() != null))
                     {
-                        changeMemoType((MemoFile) selectedMemoFile, getChange2MemoType(selectedMemoFile), true, true);
+                        if (getChange2MemoType(selectedMemoFile) == MemoType.Secret1)
+                        {
+                            changeMemoType((MemoFile) selectedMemoFile, getChange2MemoType(selectedMemoFile), true,
+                                    true);
+                        }
                     }
+                    else
+                    {
+                        Kumagusu.this.sendFile(file);
+                    }
+                    break;
+
+                case FILE_CONTROL_ID_SEND: // 送信
+                    Kumagusu.this.sendFile(file);
                     break;
 
                 default:
@@ -2015,6 +2051,23 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                 }
             }
         }));
+    }
+
+    /**
+     * ファイルをActivityへ送信する。
+     *
+     * @param file ファイル
+     */
+    private void sendFile(File file)
+    {
+        Uri uri = Uri.fromFile(file);
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+
+        startActivity(intent);
     }
 
     /**

@@ -128,6 +128,7 @@
         <item>Move</item>
         <item>Delete</item>
         <item>Encrypt</item>
+        <item>Send</item>
     </string-array>
     <string-array name="memo_file_control_dialog_entries_4_text_2">
         <item>Copy</item>
@@ -135,13 +136,15 @@
         <item>Delete</item>
         <item>Encrypt</item>
         <item>Encrypt (new password)</item>
-    </string-array>
+        <item>Send</item>
+        </string-array>
     <string-array name="memo_file_control_dialog_entries_4_secret">
         <item>Copy</item>
         <item>Move</item>
         <item>Delete</item>
         <item>Decrypt</item>
-    </string-array>
+        <item>Send</item>
+        </string-array>
 
     <!-- フォルダ操作ダイアログのエントリ -->
     <string-array name="memo_file_control_dialog_entries_4_folder">
