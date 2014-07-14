@@ -37,7 +37,6 @@
             android:name=".EditorSingleTaskActivity"
             android:label="@string/app_name_editor"
             android:permission="android.permission.WRITE_EXTERNAL_STORAGE"
-            android:launchMode="singleTask"
             android:taskAffinity="jp.gr.java_conf.kumagusu.editor">
 
             <intent-filter>

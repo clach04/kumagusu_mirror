@@ -1910,12 +1910,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     }
                     else
                     {
-                        Kumagusu.this.sendFile(file);
+                        Kumagusu.this.sendFile(file, memoType);
                     }
                     break;
 
                 case FILE_CONTROL_ID_SEND: // 送信
-                    Kumagusu.this.sendFile(file);
+                    Kumagusu.this.sendFile(file, memoType);
                     break;
 
                 default:
@@ -2057,14 +2057,24 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      * ファイルをActivityへ送信する。
      *
      * @param file ファイル
+     * @param memoType メモ種別
      */
-    private void sendFile(File file)
+    private void sendFile(File file, MemoType memoType)
     {
         Uri uri = Uri.fromFile(file);
 
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
-        intent.setType("*/*");
+
+        if (memoType == MemoType.Text)
+        {
+            intent.setType("text/plain");
+        }
+        else
+        {
+            intent.setType("application/octet-stream");
+        }
+
         intent.putExtra(Intent.EXTRA_STREAM, uri);
 
         startActivity(intent);

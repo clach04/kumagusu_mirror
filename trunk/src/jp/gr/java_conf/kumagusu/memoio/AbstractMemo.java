@@ -86,7 +86,7 @@ abstract class AbstractMemo implements IMemo
      */
     protected File getFolderFile()
     {
-        return folderFile;
+        return this.folderFile;
     }
 
     /**
@@ -96,7 +96,7 @@ abstract class AbstractMemo implements IMemo
      */
     protected String getEncodingName()
     {
-        return encodingName;
+        return this.encodingName;
     }
 
     /**
@@ -106,7 +106,7 @@ abstract class AbstractMemo implements IMemo
      */
     protected boolean isTitleLinkFg()
     {
-        return titleLinkFg;
+        return this.titleLinkFg;
     }
 
     /**
@@ -116,7 +116,7 @@ abstract class AbstractMemo implements IMemo
      */
     protected File getMemoFile()
     {
-        return memoFile;
+        return this.memoFile;
     }
 
     /**
@@ -136,6 +136,36 @@ abstract class AbstractMemo implements IMemo
      */
     protected Context getContext()
     {
-        return context;
+        return this.context;
+    }
+
+    /**
+     * フォルダを変更する。
+     *
+     * @param folder フォルダ
+     * @return 成功した場合true
+     */
+    public boolean setParentFolder(String folder)
+    {
+        File newFolder = new File(folder);
+
+        if (newFolder.isDirectory())
+        {
+            if (memoFile != null)
+            {
+                this.memoFile = new File(newFolder, this.memoFile.getName());
+                this.folderFile = newFolder;
+            }
+            else
+            {
+                this.folderFile = newFolder;
+            }
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
