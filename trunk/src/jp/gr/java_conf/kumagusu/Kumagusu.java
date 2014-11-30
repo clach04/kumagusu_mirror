@@ -1,6 +1,7 @@
 package jp.gr.java_conf.kumagusu;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -263,6 +264,11 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      * 確認ダイアログID「フォルダ名変更エラー（フォルダ名重複）」.
      */
     private static final int DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT = 5;
+
+    /**
+     * 確認ダイアログID「フォルダ追加エラー」.
+     */
+    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR = 10;
 
     /**
      * 確認ダイアログID「フォルダ追加エラー（フォルダ名重複）」.
@@ -1182,8 +1188,17 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // 親フォルダへの移動手段を設定（最上位以外）
         if (!targetFolder.equals(MainPreferenceActivity.getMemoLocation(this)))
         {
-            ActivityCompat.setUpFolderFunction(this, this.mCurrentFolderMemoFileList,
-                    this.memoBuilder.build(currentFolderfile.getParent(), MemoType.ParentFolder));
+            try
+            {
+                IMemo parentFolder = this.memoBuilder.build(currentFolderfile.getParent(), MemoType.ParentFolder);
+
+                ActivityCompat.setUpFolderFunction(this, this.mCurrentFolderMemoFileList, parentFolder);
+            }
+            catch (FileNotFoundException ex)
+            {
+                // 親フォルダが存在しない（ふつうは発生しない）
+                Log.w("Kumagusu", "Parent folder not found", ex);
+            }
         }
 
         // カレントフォルダのファイル一覧を取得
@@ -1293,22 +1308,31 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         else
         {
             // メモを出力（更新日時は変更しない）
-            MemoFile dstMemoFile = (MemoFile) mb.build(srcMemoFile.getParent(), dstMemoType);
-
-            if (dstMemoFile.setText(MainApplication.getInstance(this).getLastCorrectPassword(), srcMemoData,
-                    srcMemoFile.lastModified()))
+            MemoFile dstMemoFile;
+            try
             {
-                // メモ種別の変更に成功した場合、元のファイルを削除
-                if (!srcMemoFile.getPath().equals(dstMemoFile.getPath()))
-                {
-                    MemoUtilities.deleteFile(srcMemoFile.getPath());
+                dstMemoFile = (MemoFile) mb.build(srcMemoFile.getParent(), dstMemoType);
 
-                    // メモリストを更新
-                    if (refreshListView)
+                if (dstMemoFile.setText(MainApplication.getInstance(this).getLastCorrectPassword(), srcMemoData,
+                        srcMemoFile.lastModified()))
+                {
+                    // メモ種別の変更に成功した場合、元のファイルを削除
+                    if (!srcMemoFile.getPath().equals(dstMemoFile.getPath()))
                     {
-                        refreshMemoList(this);
+                        MemoUtilities.deleteFile(srcMemoFile.getPath());
+
+                        // メモリストを更新
+                        if (refreshListView)
+                        {
+                            refreshMemoList(this);
+                        }
                     }
                 }
+            }
+            catch (FileNotFoundException ex)
+            {
+                // 新しい種別のメモファイルの作成に失敗
+                Log.w("Kumagusu", "Change of the memo failed", ex);
             }
         }
     }
@@ -1671,6 +1695,9 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         // フォルダ名変更エラー（フォルダ名重複）
         putConfirmDialogListeners(DIALOG_ID_CONFIRM_RENAME_FOLDER_ERROR_CONFLICT, new DialogListeners(null, null, null));
+
+        // フォルダ追加エラー
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR, new DialogListeners(null, null, null));
 
         // フォルダ追加エラー（フォルダ名重複）
         putConfirmDialogListeners(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT, new DialogListeners(null, null, null));
@@ -2181,10 +2208,21 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
                             if (!addFolderFile.exists())
                             {
-                                addFolderFile.mkdirs();
+                                if (!addFolderFile.mkdirs())
+                                {
+                                    // 新しい種類のメモファイルの作成に失敗
+                                    ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR,
+                                            android.R.drawable.ic_dialog_alert,
+                                            R.string.memo_list_control_dialog_add_error, 0,
+                                            ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(
+                                            getSupportFragmentManager(), "");
 
-                                // メモリストを更新
-                                refreshMemoList(Kumagusu.this);
+                                }
+                                else
+                                {
+                                    // メモリストを更新
+                                    refreshMemoList(Kumagusu.this);
+                                }
                             }
                             else
                             {

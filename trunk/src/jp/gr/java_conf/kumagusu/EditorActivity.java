@@ -126,6 +126,11 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
     private static final int DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL = 2;
 
     /**
+     * 確認ダイアログID「オープンエラー」.
+     */
+    private static final int DIALOG_ID_CONFIRM_OPEN_MEMO_ERROR = 3;
+
+    /**
      * 定型文選択ダイアログID.
      */
     private static final int DIALOG_ID_LIST_FIXED_PHRASE = 11;
@@ -359,12 +364,6 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         {
             ContentResolver contentResolver = getContentResolver();
 
-            String[] columns =
-                {
-                    // MediaStore.MediaColumns.DISPLAY_NAME,
-                    "filename",
-                };
-
             Cursor cursor = null;
 
             try
@@ -383,6 +382,11 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
                 }
                 catch (Exception exQuery)
                 {
+                    if (cursor != null)
+                    {
+                        cursor.close();
+                    }
+
                     cursor = contentResolver.query(uri, new String[]
                         {
                             "filename"
@@ -1054,10 +1058,14 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         catch (FileNotFoundException ex)
         {
             // ファイルが存在しない
-            Log.w("EditorActivity", "Memo file not found", ex);
+            Log.w("EditorActivity", "Memo file open error", ex);
 
-            // エディタ終了
-            finishEditorActivity();
+            // 新しい種類のメモファイルの作成に失敗
+            ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_OPEN_MEMO_ERROR, android.R.drawable.ic_dialog_alert,
+                    R.string.memo_edit_dialog_confiem_open_error, 0, ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK)
+                    .show(getSupportFragmentManager(), "");
+
+            return;
         }
 
         // 読み込む
@@ -1576,6 +1584,21 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
                 memoEditable.replace(Math.min(cStart, cEnd), Math.max(cStart, cEnd), insertString);
             }
         }));
+
+        // 確認ダイアログ「メモオープン失敗」
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_OPEN_MEMO_ERROR, new DialogListeners(
+                new DialogInterface.OnClickListener()
+                {
+                    /**
+                     * Noを処理する.
+                     */
+                    @Override
+                    public void onClick(DialogInterface d, int which)
+                    {
+                        // エディタ終了
+                        finishEditorActivity();
+                    }
+                }));
     }
 
     /**
