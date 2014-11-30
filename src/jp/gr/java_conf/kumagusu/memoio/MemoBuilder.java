@@ -87,8 +87,9 @@ public final class MemoBuilder
      * @param fileOrFolderPath メモまたはメモフォルダの絶対パス
      * @param type メモまたはメモフォルダのタイプ
      * @return メモ
+     * @throws FileNotFoundException
      */
-    public IMemo build(String fileOrFolderPath, MemoType type)
+    public IMemo build(String fileOrFolderPath, MemoType type) throws FileNotFoundException
     {
         return build(fileOrFolderPath, type, null);
     }
@@ -100,8 +101,9 @@ public final class MemoBuilder
      * @param type メモまたはメモフォルダのタイプ
      * @param passwds 入力済みパスワード
      * @return メモ
+     * @throws FileNotFoundException
      */
-    public IMemo build(String fileOrFolderPath, MemoType type, String[] passwds)
+    public IMemo build(String fileOrFolderPath, MemoType type, String[] passwds) throws FileNotFoundException
     {
         File memoFileOrFolder = new File(fileOrFolderPath);
 

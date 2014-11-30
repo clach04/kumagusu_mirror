@@ -1,10 +1,10 @@
 package jp.gr.java_conf.kumagusu.memoio;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Date;
 
 import jp.gr.java_conf.kumagusu.R;
-
 import android.content.Context;
 import android.content.res.Configuration;
 
@@ -23,8 +23,10 @@ public final class MemoFolder extends AbstractMemo
      * @param encodingName エンコーディング名
      * @param titleLinkFg ファイルの一行目とタイトルを連動するか
      * @param type メモ種別
+     * @throws FileNotFoundException
      */
     MemoFolder(Context context, File folderFile, String encodingName, boolean titleLinkFg, MemoType type)
+            throws FileNotFoundException
     {
         super(context, folderFile, encodingName, titleLinkFg, type);
 

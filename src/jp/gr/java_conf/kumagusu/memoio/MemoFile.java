@@ -60,8 +60,10 @@ public final class MemoFile extends AbstractMemo
      * @param encodingName エンコーディング名
      * @param titleLinkFg ファイルの一行目とタイトルを連動するか
      * @param type メモの種別
+     * @throws FileNotFoundException
      */
     MemoFile(Context context, File memoFile, String encodingName, boolean titleLinkFg, MemoType type)
+            throws FileNotFoundException
     {
         this(context, memoFile, encodingName, titleLinkFg, type, MainApplication.getInstance((Activity) context)
                 .getPasswordList().toArray(new String[0]));
@@ -76,8 +78,10 @@ public final class MemoFile extends AbstractMemo
      * @param titleLinkFg ファイルの一行目とタイトルを連動するか
      * @param type メモの種別
      * @param passwds 入力済みパスワード
+     * @throws FileNotFoundException
      */
     MemoFile(Context context, File memoFile, String encodingName, boolean titleLinkFg, MemoType type, String[] passwds)
+            throws FileNotFoundException
     {
         super(context, memoFile, encodingName, titleLinkFg, type);
 

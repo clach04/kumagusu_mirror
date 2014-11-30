@@ -1,6 +1,7 @@
 package jp.gr.java_conf.kumagusu.memoio;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import android.content.Context;
 
@@ -49,8 +50,10 @@ abstract class AbstractMemo implements IMemo
      * @param encName エンコーディング名
      * @param tlkFg ファイルの一行目とタイトルを連動するか
      * @param type メモ種別
+     * @throws FileNotFoundException
      */
     AbstractMemo(Context con, File mFileOrDir, String encName, boolean tlkFg, MemoType type)
+            throws FileNotFoundException
     {
         this.context = con;
         this.encodingName = encName;
@@ -69,7 +72,7 @@ abstract class AbstractMemo implements IMemo
         }
         else
         {
-            throw new IllegalArgumentException("not file or directory.");
+            throw new FileNotFoundException("not file or directory.");
         }
     }
 

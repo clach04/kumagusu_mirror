@@ -7,6 +7,7 @@
     ******************************************************************
     -->
 
+
     <!-- アプリ名 -->
     <string name="app_name">くまぐす</string>
     <string name="app_name_editor">くまぐす エディタ</string>
@@ -99,10 +100,12 @@
     <string name="folder_rename_control_dialog_error_duplicate">すでに同名のフォルダがあります.</string>
     <string name="folder_rename_control_dialog_error_noinput">フォルダ名が入力されていません.</string>
     <string name="memo_edit_dialog_confiem_save">メモを保存しますか ?</string>
+    <string name="memo_edit_dialog_confiem_open_error">メモが開けません.</string>
 
     <!-- 新規作成ダイアログ -->
     <string name="memo_list_control_dialog_title">追加</string>
     <string name="folder_add_control_dialog_title">追加するフォルダ名</string>
+    <string name="memo_list_control_dialog_add_error">フォルダの追加に失敗しました.</string>
     <string name="memo_list_control_dialog_add_error_duplicate">すでに同名のフォルダがあります.</string>
     <string name="memo_list_control_dialog_add_error_noinput">フォルダ名が入力されていません.</string>
 
@@ -132,6 +135,7 @@
      その他
     ******************************************************************
     -->
+
 
     <!-- メモファイル種別 -->
     <string name="etc_memo_type_text">平文メモ</string>

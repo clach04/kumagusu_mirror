@@ -101,9 +101,12 @@
     <string name="folder_rename_control_dialog_error_noinput">The folder name is not inputted.</string>
     <string name="memo_edit_dialog_confiem_save">Is a note saved?</string>
 
+    <string name="memo_edit_dialog_confiem_open_error">Note open error.</string>
+
     <!-- 新規作成ダイアログ -->
     <string name="memo_list_control_dialog_title">Addition</string>
     <string name="folder_add_control_dialog_title">The folder name to add </string>
+    <string name="memo_list_control_dialog_add_error">Add folder failed.</string>
     <string name="memo_list_control_dialog_add_error_duplicate">There is already a folder of a same name.</string>
     <string name="memo_list_control_dialog_add_error_noinput">The folder name is not inputted. </string>
 

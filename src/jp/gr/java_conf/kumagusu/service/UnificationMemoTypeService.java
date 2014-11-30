@@ -1,6 +1,7 @@
 package jp.gr.java_conf.kumagusu.service;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import jp.gr.java_conf.kumagusu.MainApplication;
 import jp.gr.java_conf.kumagusu.memoio.IMemo;
@@ -193,16 +194,24 @@ public class UnificationMemoTypeService extends IntentService
         String srcMemoData = srcMemoFile.getText();
 
         // メモを出力（更新日時は変更しない）
-        MemoFile dstMemoFile = (MemoFile) this.memoBuilder.build(srcMemoFile.getParent(), this.memoType,
-                this.oldPasswords);
-
-        if (dstMemoFile.setText(this.newPassword, srcMemoData, srcMemoFile.lastModified()))
+        MemoFile dstMemoFile;
+        try
         {
-            // メモ種別の変更に成功した場合、元のファイルを削除
-            if (!srcMemoFile.getPath().equals(dstMemoFile.getPath()))
+            dstMemoFile = (MemoFile) this.memoBuilder.build(srcMemoFile.getParent(), this.memoType, this.oldPasswords);
+
+            if (dstMemoFile.setText(this.newPassword, srcMemoData, srcMemoFile.lastModified()))
             {
-                MemoUtilities.deleteFile(srcMemoFile.getPath());
+                // メモ種別の変更に成功した場合、元のファイルを削除
+                if (!srcMemoFile.getPath().equals(dstMemoFile.getPath()))
+                {
+                    MemoUtilities.deleteFile(srcMemoFile.getPath());
+                }
             }
+        }
+        catch (FileNotFoundException ex)
+        {
+            // 新しい種別のメモファイルの作成に失敗
+            Log.w("UnificationMemoTypeService", " New type memo creating failed", ex);
         }
     }
 
