@@ -47,15 +47,21 @@
             android:src="@drawable/arrow_right" />
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/editor"
+    <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:focusableInTouchMode="true"
-        android:gravity="top"
-        android:inputType="text|textMultiLine|textNoSuggestions"
-        android:padding="5dp"
-        android:scrollbars="vertical" />
+        android:fillViewport="true">
+
+        <EditText
+            android:id="@+id/editor"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:focusableInTouchMode="true"
+            android:gravity="top"
+            android:inputType="text|textMultiLine|textNoSuggestions"
+            android:padding="5dp"
+            android:scrollbars="vertical" />
+    </ScrollView>
 
 </LinearLayout>
