@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+    ******************************************************************
+     共通
+    ******************************************************************
+    -->
+
+
+    <!-- アプリ名 -->
+    <string name="app_name">くまぐす</string>
+    <string name="app_name_editor">くまぐす エディタ</string>
+
+    <!--
+    ******************************************************************
+     設定
+    ******************************************************************
+    -->
+
+    <string name="pref_mn_setting">設定</string>
+
+    <!-- 「メモリスト」カテゴリ -->
+    <string name="pref_category_view">表示</string>
+    <string name="pref_cb_list_detail_visibility">リスト画面の詳細を表示する</string>
+    <string name="pref_enable_editor_titlebar_title">メモ内容画面のタイトルバーを表示する</string>
+
+    <!-- 「メモ」カテゴリ -->
+    <string name="pref_category_memo">メモ</string>
+    <string name="pref_ds_memo_location_title">メモフォルダ</string>
+    <string name="pref_cb_title_link_title">メモファイル名とタイトルを連動する</string>
+    <string name="pref_cb_title_link_summary">保存時にメモの１行目とファイル名をあわせます.</string>
+    <string name="pref_enable_auto_link_title">自動リンクを使用する</string>
+    <string name="pref_fixed_phrase_title">定型文</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_title">定型文登録の操作</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_delete_title">削除</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_delete_message">定型文登録を削除しますか ?</string>
+    <string name="pref_cb_encrypt_new_memo_tittle">新規メモを暗号化メモにする</string>
+
+    <!-- 「セキュリティ」カテゴリ -->
+    <string name="pref_category_security">セキュリティ</string>
+    <string name="pref_ls_autoclose_delaytime_title">バックグラウンド時にメモを閉じる</string>
+    <string name="pref_cb_randam_name_title">暗号化時にファイル名をランダムにする</string>
+
+    <!-- 「エンコーディング」カテゴリ -->
+    <string name="pref_category_encoding">エンコーディング</string>
+    <string name="pref_ls_encoding_title">エンコーディング</string>
+    <string name="pref_ls_encoding_summary">ファイルの文字コードを設定します.</string>
+
+    <!-- 「その他」カテゴリ -->
+    <string name="pref_category_about">このアプリについて</string>
+    <string name="pref_version_title">バージョン</string>
+
+    <!--
+    ******************************************************************
+     UI
+    ******************************************************************
+    -->
+
+    <string name="ui_setting">設定</string>
+    <string name="ui_refresh">表示更新</string>
+    <string name="ui_create">新規</string>
+    <string name="ui_ok">OK</string>
+    <string name="ui_yes">はい</string>
+    <string name="ui_no">いいえ</string>
+    <string name="ui_cancel">キャンセル</string>
+    <string name="ui_td_input_password">パスワード</string>
+    <string name="ui_td_input_new_password">新しいパスワード</string>
+    <string name="ui_td_reinput_new_password">新しいパスワード (確認)</string>
+    <string name="ui_td_input_password_empty">パスワードが入力されていません.</string>
+    <string name="ui_td_input_password_incorrect">パスワードが一致しません.</string>
+    <string name="ui_search">検索</string>
+    <string name="ui_edit_start">編集開始</string>
+    <string name="ui_edit_end">編集終了</string>
+    <string name="ui_confirm">確認</string>
+    <string name="ui_close">閉じる</string>
+    <string name="ui_add">追加</string>
+
+    <!-- メモリスト -->
+    <string name="memo_list_emply_message">表示できるメモがありません.</string>
+    <string name="memo_list_create_progress_dialog_title">メモリスト</string>
+    <string name="memo_list_create_progress_dialog_message">更新中....</string>
+
+    <!-- ファイル操作ダイアログ -->
+    <string name="memo_file_control_dialog_title">メモの操作</string>
+    <string name="memo_file_control_dialog_copy_title">コピー先フォルダ</string>
+    <string name="memo_file_control_dialog_move_title">移動先フォルダ</string>
+    <string name="memo_file_control_dialog_delete_title">削除</string>
+    <string name="memo_file_control_dialog_delete_message">メモを削除しますか ?</string>
+    <!-- <string name="memo_file_control_dialog_copy_title">コピー</string> -->
+    <!-- <string name="memo_file_control_dialog_move_title">移動</string> -->
+
+    <string name="folder_control_dialog_title">フォルダの操作</string>
+    <string name="folder_control_dialog_copy_title">コピー先フォルダ</string>
+    <string name="folder_control_dialog_move_title">移動先フォルダ</string>
+    <string name="folder_control_dialog_delete_title">削除</string>
+    <string name="folder_control_dialog_delete_message">フォルダを削除しますか ?</string>
+    <string name="folder_control_dialog_delete_error">フォルダが空ではありません.</string>
+    <string name="folder_rename_control_dialog_title">フォルダ名の変更</string>
+    <string name="folder_rename_control_dialog_error_duplicate">すでに同名のフォルダがあります.</string>
+    <string name="folder_rename_control_dialog_error_noinput">フォルダ名が入力されていません.</string>
+    <string name="memo_edit_dialog_confiem_save">メモを保存しますか ?</string>
+    <string name="memo_edit_dialog_confiem_open_error">メモが開けません.</string>
+
+    <!-- 新規作成ダイアログ -->
+    <string name="memo_list_control_dialog_title">追加</string>
+    <string name="folder_add_control_dialog_title">追加するフォルダ名</string>
+    <string name="memo_list_control_dialog_add_error">フォルダの追加に失敗しました.</string>
+    <string name="memo_list_control_dialog_add_error_duplicate">すでに同名のフォルダがあります.</string>
+    <string name="memo_list_control_dialog_add_error_noinput">フォルダ名が入力されていません.</string>
+
+    <!-- メモ検索 -->
+    <string name="search_memo_control_dialog_title">検索</string>
+    <string name="search_memo_list_post_title_start">検索中....</string>
+    <string name="search_memo_list_post_title_end">検索結果</string>
+
+    <!-- 定型文 -->
+    <string name="fixed_phrase_dialog_title">定型文</string>
+    <string name="fixed_phrase_pattern_letters">パターン文字</string>
+
+    <!-- メモのソート方法 -->
+    <string name="memo_sort_method_dialog_title">並び替え方法</string>
+
+    <!-- メモのパスワード統一処理 -->
+    <string name="unification_memo_type_title">メモ種別統一</string>
+    <string name="unification_memo_type_confirm_encrypt_start">表示フォルダ以下のメモを同じパスワードで暗号メモにします.\n\n下の順序でパスワードが求められます。\n(1)既存暗号メモで未入力の全パスワード\n(2)新しいパスワード</string>
+    <string name="unification_memo_type_confirm_decrypt_start">表示フォルダ以下のメモを平文メモにします.\n\n既存暗号メモで未入力の全パスワードが求められます。</string>
+    <string name="unification_memo_type_confirm_cancel">処理が中断されました.</string>
+    <string name="unification_memo_type_verify_memo_message">メモのパスワードを確認しています.</string>
+    <string name="unification_memo_type_encrypt_title">すべて暗号メモ(同パスワード)に変更</string>
+    <string name="unification_memo_type_decrypt_title">すべて平文メモに変更</string>
+
+    <!--
+    ******************************************************************
+     その他
+    ******************************************************************
+    -->
+
+
+    <!-- メモファイル種別 -->
+    <string name="etc_memo_type_text">平文メモ</string>
+    <string name="etc_memo_type_secret1">暗号メモ</string>
+    <string name="etc_memo_type_secret2">暗号メモ</string>
+    <string name="etc_memo_type_folder">フォルダ</string>
+    <string name="etc_memo_type_parent_folder">上位フォルダ</string>
+    <string name="etc_memo_type_none">(不明)</string>
+
+    <!-- メモファイル処理 -->
+    <string name="etc_memo_file_untitled_4_filename">無題</string>
+    <string name="etc_memo_file_untitled_4_title">(無題)</string>
+
+</resources>
