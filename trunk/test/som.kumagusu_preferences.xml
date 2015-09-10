@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
-<map>
-<boolean name="cb_title_link" value="true" />
-<boolean name="cb_randam_name" value="false" />
-<string name="ls_encoding_name">MS932</string>
-</map>
