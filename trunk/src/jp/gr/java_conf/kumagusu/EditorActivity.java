@@ -45,6 +45,7 @@ import android.text.TextWatcher;
 import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -530,6 +531,10 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
 
             return;
         }
+
+        // フォント設定
+        this.memoEditText.setTypeface(MainPreferenceActivity.getFontFamily(this));
+        this.memoEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, MainPreferenceActivity.getFontSize(this));
 
         // メモデータがあれば表示する
         // なければ（復号できなければ）リストに戻る

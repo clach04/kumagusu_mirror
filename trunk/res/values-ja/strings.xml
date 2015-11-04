@@ -23,7 +23,6 @@
     <!-- 「メモリスト」カテゴリ -->
     <string name="pref_category_view">表示</string>
     <string name="pref_cb_list_detail_visibility">リスト画面の詳細を表示する</string>
-    <string name="pref_enable_editor_titlebar_title">メモ内容画面のタイトルバーを表示する</string>
 
     <!-- 「メモ」カテゴリ -->
     <string name="pref_category_memo">メモ</string>
@@ -36,6 +35,12 @@
     <string name="pref_fixed_phrase_entries_control_dialog_delete_title">削除</string>
     <string name="pref_fixed_phrase_entries_control_dialog_delete_message">定型文登録を削除しますか ?</string>
     <string name="pref_cb_encrypt_new_memo_tittle">新規メモを暗号化メモにする</string>
+
+    <!-- 「エディター」カテゴリ -->
+    <string name="pref_category_editor">エディタ</string>
+    <string name="pref_enable_editor_titlebar_title">メモ内容画面のタイトルバーを表示する</string>
+    <string name="pref_ls_font_family_title">フォント</string>
+    <string name="pref_ls_font_size_title">フォントサイズ</string>
 
     <!-- 「セキュリティ」カテゴリ -->
     <string name="pref_category_security">セキュリティ</string>

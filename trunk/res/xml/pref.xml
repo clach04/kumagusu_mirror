@@ -11,13 +11,6 @@
             android:enabled="true"
             android:key="cb_list_detail_visibility"
             android:title="@string/pref_cb_list_detail_visibility" />
-
-        <!-- エディタのタイトルを表示する -->
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:enabled="true"
-            android:key="cb_enable_editor_title"
-            android:title="@string/pref_enable_editor_titlebar_title" />
     </PreferenceCategory>
 
     <!-- 「メモ」カテゴリ -->
@@ -45,6 +38,37 @@
             android:enabled="true"
             android:key="cb_title_link"
             android:title="@string/pref_cb_title_link_title" />
+    </PreferenceCategory>
+
+    <!-- 「エディタ」カテゴリ -->
+    <PreferenceCategory android:title="@string/pref_category_editor" >
+
+        <!-- エディタのタイトルを表示する -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="cb_enable_editor_title"
+            android:title="@string/pref_enable_editor_titlebar_title" />
+
+        <!-- フォントファミリー -->
+        <ListPreference
+            android:defaultValue="sans-serif"
+            android:dialogTitle="@string/pref_ls_font_family_title"
+            android:enabled="true"
+            android:entries="@array/font_family_entries"
+            android:entryValues="@array/font_family_values"
+            android:key="ls_font_family"
+            android:title="@string/pref_ls_font_family_title" />
+
+        <!-- フォントサイズ -->
+        <ListPreference
+            android:defaultValue="18"
+            android:dialogTitle="@string/pref_ls_font_size_title"
+            android:enabled="true"
+            android:entries="@array/font_size_entries"
+            android:entryValues="@array/font_size_values"
+            android:key="ls_font_size"
+            android:title="@string/pref_ls_font_size_title" />
 
         <!-- 自動リンクを使用する -->
         <CheckBoxPreference
@@ -58,6 +82,7 @@
             android:enabled="true"
             android:title="@string/pref_fixed_phrase_title" />
     </PreferenceCategory>
+
     <!-- 「セキュリティ」カテゴリ -->
     <PreferenceCategory android:title="@string/pref_category_security" >
 
