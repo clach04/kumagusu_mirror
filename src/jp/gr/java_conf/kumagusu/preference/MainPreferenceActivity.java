@@ -9,6 +9,7 @@ import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -54,6 +55,11 @@ public final class MainPreferenceActivity extends PreferenceActivity implements 
      */
     private static final int PREF_DEFAULT_VALUE_AUTO_CLOSE_TIME = 60000;
 
+    /**
+     * フォントサイズ（sp）.
+     */
+    private static final int PREF_DEFAULT_VALUE_FONT_SIZE = 18;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -69,10 +75,23 @@ public final class MainPreferenceActivity extends PreferenceActivity implements 
         autoCloseDelayTimePreference.setSummary(autoCloseDelayTimePreference.getEntry());
         autoCloseDelayTimePreference.setOnPreferenceChangeListener(this);
 
+        // 「エンコーディング」の設定値をSummaryに表示
         ListPreference encodingNaemPreference = (ListPreference) getPreferenceScreen().findPreference(
                 "ls_encoding_name");
         encodingNaemPreference.setSummary(encodingNaemPreference.getEntry());
         encodingNaemPreference.setOnPreferenceChangeListener(this);
+
+        // 「フォントファミリ」の設定値をSummaryに表示
+        ListPreference fontFamilyPreference = (ListPreference) getPreferenceScreen().findPreference(
+                "ls_font_family");
+        fontFamilyPreference.setSummary(fontFamilyPreference.getEntry());
+        fontFamilyPreference.setOnPreferenceChangeListener(this);
+
+        // 「フォントサイズ」の設定値をSummaryに表示
+        ListPreference fontSizePreference = (ListPreference) getPreferenceScreen().findPreference(
+                "ls_font_size");
+        fontSizePreference.setSummary(fontSizePreference.getEntry());
+        fontSizePreference.setOnPreferenceChangeListener(this);
     }
 
     @Override
@@ -103,6 +122,46 @@ public final class MainPreferenceActivity extends PreferenceActivity implements 
         {
             String[] values = getResources().getStringArray(R.array.encoding_values);
             String[] names = getResources().getStringArray(R.array.encoding_entries);
+
+            preference.setSummary("");
+
+            for (int i = 0; i < values.length; i++)
+            {
+                if (values[i].equals((String) newValue))
+                {
+                    preference.setSummary(names[i]);
+                    break;
+                }
+            }
+
+            return true;
+        }
+
+        // 「フォントファミリ」の設定値をSummaryに表示
+        if (preference.getKey().equals("ls_font_family"))
+        {
+            String[] values = getResources().getStringArray(R.array.font_family_values);
+            String[] names = getResources().getStringArray(R.array.font_family_entries);
+
+            preference.setSummary("");
+
+            for (int i = 0; i < values.length; i++)
+            {
+                if (values[i].equals((String) newValue))
+                {
+                    preference.setSummary(names[i]);
+                    break;
+                }
+            }
+
+            return true;
+        }
+
+        // 「フォントサイズ」の設定値をSummaryに表示
+        if (preference.getKey().equals("ls_font_size"))
+        {
+            String[] values = getResources().getStringArray(R.array.font_size_values);
+            String[] names = getResources().getStringArray(R.array.font_size_entries);
 
             preference.setSummary("");
 
@@ -352,5 +411,58 @@ public final class MainPreferenceActivity extends PreferenceActivity implements 
     public static boolean isViwerMode(Context con)
     {
         return PreferenceManager.getDefaultSharedPreferences(con).getBoolean("cb_editor_viewer_mode", true);
+    }
+
+    /**
+     * 「フォントファミリ」を取得する.
+     *
+     * @param con コンテキスト
+     * @return フォントファミリ
+     */
+    public static Typeface getFontFamily(Context con)
+    {
+        String fontFamilyName = PreferenceManager.getDefaultSharedPreferences(con).getString("ls_font_family", "sans-serif");
+
+        if (fontFamilyName.equals("serif"))
+        {
+            return Typeface.SERIF;
+        }
+        else if (fontFamilyName.equals("sans-serif"))
+        {
+            return Typeface.SANS_SERIF;
+        }
+        else if (fontFamilyName.equals("monospace"))
+        {
+            return Typeface.MONOSPACE;
+        }
+        else
+        {
+            return Typeface.SANS_SERIF;
+        }
+    }
+
+    /**
+     * 「フォントサイズ」を取得する.
+     *
+     * @param con コンテキスト
+     * @return フォントサイズ
+     */
+    public static float getFontSize(Context con)
+    {
+        String fontSizeString = PreferenceManager.getDefaultSharedPreferences(con).getString("ls_font_size",
+                Integer.toString(PREF_DEFAULT_VALUE_FONT_SIZE));
+
+        float fontSize;
+
+        try
+        {
+            fontSize = Float.parseFloat(fontSizeString);
+        }
+        catch (NumberFormatException ex)
+        {
+            fontSize = PREF_DEFAULT_VALUE_FONT_SIZE;
+        }
+
+        return fontSize;
     }
 }

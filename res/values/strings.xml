@@ -23,7 +23,6 @@
     <!-- 「メモリスト」カテゴリ -->
     <string name="pref_category_view">View</string>
     <string name="pref_cb_list_detail_visibility">To View details of list</string>
-    <string name="pref_enable_editor_titlebar_title">To View the titlebar of the note</string>
 
     <!-- 「メモ」カテゴリ -->
     <string name="pref_category_memo">Note</string>
@@ -36,6 +35,12 @@
     <string name="pref_fixed_phrase_entries_control_dialog_delete_title">Delete</string>
     <string name="pref_fixed_phrase_entries_control_dialog_delete_message">Is a fixed phrase deleted?</string>
     <string name="pref_cb_encrypt_new_memo_tittle">To encrypt a new note</string>
+
+    <!-- 「エディター」カテゴリ -->
+    <string name="pref_category_editor">Editor</string>
+    <string name="pref_enable_editor_titlebar_title">To view the titlebar of the editor</string>
+    <string name="pref_ls_font_family_title">Font family</string>
+    <string name="pref_ls_font_size_title">Font size</string>
 
     <!-- 「セキュリティ」カテゴリ -->
     <string name="pref_category_security">Security</string>

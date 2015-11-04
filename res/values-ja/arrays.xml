@@ -160,4 +160,68 @@
         <item>フォルダを追加</item>
     </string-array>
 
+    <!-- フォントファミリー -->
+    <string-array name="font_family_entries">
+        <item>明朝体</item>
+        <item>ゴシック体</item>
+        <item>固定幅</item>
+    </string-array>
+
+    <string-array name="font_family_values">
+        <item>serif</item>
+        <item>sans-serif</item>
+        <item>monospace</item>
+    </string-array>
+
+    <!-- フォントサイズ -->
+    <string-array name="font_size_entries">
+        <item>4</item>
+        <item>6</item>
+        <item>8</item>
+        <item>10</item>
+
+        <item>12</item>
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+        <item>20</item>
+
+        <item>22</item>
+        <item>24</item>
+        <item>26</item>
+        <item>28</item>
+        <item>30</item>
+
+        <item>32</item>
+        <item>34</item>
+        <item>36</item>
+        <item>38</item>
+        <item>40</item>
+    </string-array>
+
+    <string-array name="font_size_values">
+        <item>4</item>
+        <item>6</item>
+        <item>8</item>
+        <item>10</item>
+
+        <item>12</item>
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+        <item>20</item>
+
+        <item>22</item>
+        <item>24</item>
+        <item>26</item>
+        <item>28</item>
+        <item>30</item>
+
+        <item>32</item>
+        <item>34</item>
+        <item>36</item>
+        <item>38</item>
+        <item>40</item>
+    </string-array>
+
 </resources>
