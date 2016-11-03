@@ -558,10 +558,12 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
 
         // メモデータがあれば表示する
         // なければ（復号できなければ）リストに戻る
-        setMemoData();
+        if (!setMemoData())
+        {
+            // 編集状態を設定
+            setEditable(this.saveEditable);
+        }
 
-        // 編集状態を設定
-        setEditable(this.saveEditable);
         this.saveEditable = false;
     }
 
@@ -1094,10 +1096,14 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * メモデータをエディタに設定する.
+     *
+     * @reuturn trueのとき新規
      */
-    private void setMemoData()
+    private boolean setMemoData()
     {
         Log.d("EditorActivity", "*** START setMemoData()");
+
+        boolean isNewMemo = false;
 
         // MemoFile生成
         try
@@ -1135,6 +1141,8 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
 
                 // 編集モード
                 setEditable(true);
+
+                isNewMemo = true;
             }
         }
         catch (FileNotFoundException ex)
@@ -1147,7 +1155,7 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
                     R.string.memo_edit_dialog_confiem_open_error, 0, ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK)
                     .show(getSupportFragmentManager(), "");
 
-            return;
+            return false;
         }
 
         // 読み込む
@@ -1245,6 +1253,8 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
                 this.searchWords = null; // 検索ワード指定を解除
             }
         }
+
+        return isNewMemo;
     }
 
     /**
