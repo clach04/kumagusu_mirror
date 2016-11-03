@@ -233,6 +233,26 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
      */
     private boolean useTemporaryFile = false;
 
+    /**
+     * (一時保存)画面回転・ホームボタン押下から復帰時に一時保存から読みだしたタイトル.
+     */
+    private String saveMemoTitle = null;
+
+    /**
+     * (一時保存)画面回転・ホームボタン押下から復帰時に一時保存から読みだしたデータ.
+     */
+    private String saveMemoEditText = null;
+
+    /**
+     * (一時保存)カーソル位置(開始).
+     */
+    private int saveMemoSelectionStart = 0;
+
+    /**
+     * (一時保存)編集可否.
+     */
+    private boolean saveEditable = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -539,6 +559,10 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         // メモデータがあれば表示する
         // なければ（復号できなければ）リストに戻る
         setMemoData();
+
+        // 編集状態を設定
+        setEditable(this.saveEditable);
+        this.saveEditable = false;
     }
 
     @Override
@@ -577,8 +601,24 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
     {
         Log.d("EditorActivity", "*** START onSaveInstanceState()");
 
+        // タイトル
+        outState.putString("saveMemoTitle", getTitle().toString());
+        this.saveMemoTitle = getTitle().toString();
+
+        // データ
+        outState.putString("saveMemoEditText", this.memoEditText.getText().toString());
+        this.saveMemoEditText = this.memoEditText.getText().toString();
+
+        // 編集前データ
+        outState.putString("originalMemoString", this.originalMemoString);
+
+        // カーソル位置(開始)
+        outState.putInt("saveMemoSelectionStart", this.memoEditText.getSelectionStart());
+        this.saveMemoSelectionStart = this.memoEditText.getSelectionStart();
+
         // 編集フラグを保存
         outState.putBoolean("editable", isEditable());
+        this.saveEditable = isEditable();
 
         // 保存後終了フラグ保存
         outState.putBoolean("confirmSaveDialogFinishActivity", this.confirmSaveDialogFinishActivity);
@@ -609,7 +649,7 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         // 編集フラグをリストア
         if (savedInstanceState.containsKey("editable"))
         {
-            setEditable(savedInstanceState.getBoolean("editable"));
+            this.saveEditable = savedInstanceState.getBoolean("editable");
         }
 
         // 保存後終了フラグをリストア
@@ -630,16 +670,28 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
             this.fixedPhraseStrings = savedInstanceState.getStringArray("fixedPhraseStrings");
         }
 
-        // onRestoreInstanceStateで、EditText（ほか）をリストア
-        boolean editableTemp = this.editable;
-        try
+        // タイトル
+        if (savedInstanceState.containsKey("saveMemoTitle"))
         {
-            setEditable(true, true);
-            super.onRestoreInstanceState(savedInstanceState);
+            this.saveMemoTitle = savedInstanceState.getString("saveMemoTitle", "");
         }
-        finally
+
+        // データ
+        if (savedInstanceState.containsKey("saveMemoEditText"))
         {
-            setEditable(editableTemp, true);
+            this.saveMemoEditText = savedInstanceState.getString("saveMemoEditText", "");
+        }
+
+        // 編集前データ
+        if (savedInstanceState.containsKey("originalMemoString"))
+        {
+            this.originalMemoString = savedInstanceState.getString("originalMemoString", "");
+        }
+
+        // カーソル位置(開始)
+        if (savedInstanceState.containsKey("saveMemoSelectionStart"))
+        {
+            this.saveMemoSelectionStart = savedInstanceState.getInt("saveMemoSelectionStart");
         }
 
         // Kumagusuから起動.
@@ -983,22 +1035,47 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
      */
     private void setMemoData2View(String title, String memoData)
     {
-        Log.d("EditorActivity", "*** START writeMemoData()");
+        setMemoData2View(title, memoData, 0, false);
+    }
+
+    /**
+     * メモデータをエディタ部に設定する.
+     *
+     * @param title タイトル
+     * @param memoData メモデータ
+     * @param selStart テキスト選択開始位置
+     * @param isRestore メモ再設定(編集前データを変更しない)
+     */
+    private void setMemoData2View(String title, String memoData, int selStart, boolean isRestore)
+    {
+        Log.d("EditorActivity", "*** START setMemoData2View()");
 
         // タイトルと本文を設定
         setTitle(title);
 
-        this.originalMemoString = memoData.replaceAll("\r", "");
+        memoData = memoData.replaceAll("\r", "");
+
+        if (!isRestore)
+        {
+            this.originalMemoString = memoData;
+        }
+
         boolean editableTemp = this.editable;
+
         try
         {
             setEditable(true, true);
-            this.memoEditText.setText(this.originalMemoString);
+            this.memoEditText.setText(memoData);
 
-            // カーソルを先頭に移動
-            this.memoEditText.setSelection(0, this.memoEditText.getText().length());
-            this.memoEditText.setSelection(0);
+            // カーソル位置設定
+            if (selStart == 0)
+            {
+                // テキストを全選択
+                // ※カーソルを先頭に移動する場合、一度全選択しないと移動しないため
+                this.memoEditText.setSelection(0, this.memoEditText.getText().length());
+            }
 
+            this.memoEditText.setSelection(selStart);
         }
         finally
         {
@@ -1074,8 +1151,33 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         }
 
         // 読み込む
-        String title = this.memoFile.getTitle();
-        String memoData = this.memoFile.getText();
+        String title;
+        String memoData;
+        boolean isRestore = false;
+
+        if (this.saveMemoTitle != null)
+        {
+            title = this.saveMemoTitle;
+            this.saveMemoTitle = null;
+
+            isRestore = true;
+        }
+        else
+        {
+            title = this.memoFile.getTitle();
+        }
+
+        if (this.saveMemoEditText != null)
+        {
+            memoData = this.saveMemoEditText;
+            this.saveMemoEditText = null;
+
+            isRestore = true;
+        }
+        else
+        {
+            memoData = this.memoFile.getText();
+        }
 
         boolean openedFg = true;
 
@@ -1088,7 +1190,8 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         }
 
         // タイトルと本文を設定
-        setMemoData2View(title, memoData);
+        setMemoData2View(title, memoData, this.saveMemoSelectionStart, isRestore);
+        this.saveMemoSelectionStart = 0;
 
         // ファイルが開けない場合、暗号化ファイルであればパスワードを再入力
         // プレーンテキストならエディタ終了
