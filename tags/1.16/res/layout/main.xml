@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:fastScrollEnabled="true" />
+
+    <TextView
+        android:id="@+id/list_empty_text"
+        style="@android:style/TextAppearance.Medium"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:gravity="center|center_vertical"
+        android:text="@string/memo_list_emply_message"
+        android:visibility="gone"
+        android:textColor="#777777" />
+
+    <Button
+        android:id="@+id/close_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:drawablePadding="10dp"
+        android:text="@string/ui_close"
+        android:visibility="gone" />
+
+</LinearLayout>
