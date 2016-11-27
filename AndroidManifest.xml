@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="jp.gr.java_conf.kumagusu"
     android:installLocation="auto"
-    android:versionCode="0116"
-    android:versionName="1.16">
+    android:versionCode="0117"
+    android:versionName="1.17">
 
     <uses-sdk
         android:minSdkVersion="5"

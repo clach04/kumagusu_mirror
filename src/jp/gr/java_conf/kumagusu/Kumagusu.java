@@ -217,17 +217,59 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         /**
          * モードなし.
          */
-        NONE,
+        NONE(10),
 
         /**
          * フォルダ表示.
          */
-        FOLDER_VIEW,
+        FOLDER_VIEW(20),
 
         /**
          * 検索表示.
          */
-        SEARCH_VIEW,
+        SEARCH_VIEW(30), ;
+
+        /** int値 */
+        private final int id;
+
+        /**
+         * int値からenumを生成する。。
+         *
+         * @param id int値
+         */
+        private MemoListViewMode(final int id)
+        {
+            this.id = id;
+        }
+
+        /**
+         * enumのint値を返す。
+         *
+         * @return enumのint値
+         */
+        public int getModeId()
+        {
+            return this.id;
+        }
+
+        /**
+         * intをenumに変換する。
+         *
+         * @param id int値
+         * @return enum値
+         */
+        public static MemoListViewMode getMemoListViewMode(int id)
+        {
+            for (MemoListViewMode mode : MemoListViewMode.values())
+            {
+                if (mode.getModeId() == id)
+                {
+                    return mode;
+                }
+            }
+
+            return FOLDER_VIEW;
+        }
     }
 
     /**
@@ -754,6 +796,12 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         // Kumagusuから起動
         outState.putBoolean("executeByKumagusu", this.executeByKumagusu);
 
+        // リスト表示モード
+        outState.putInt("memoListViewMode", this.memoListViewMode.getModeId());
+
+        // タイマー開始値を保存
+        MainApplication.getInstance(this).getPasswordTimer().SaveInstanceState(outState);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -815,6 +863,15 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
         {
             this.executeByKumagusu = savedInstanceState.getBoolean("executeByKumagusu");
         }
+
+        // リスト表示モード
+        if (savedInstanceState.containsKey("memoListViewMode"))
+        {
+            this.memoListViewMode = MemoListViewMode.getMemoListViewMode(savedInstanceState.getInt("memoListViewMode"));
+        }
+
+        // タイマー開始値
+        MainApplication.getInstance(this).getPasswordTimer().RestoreInstanceState(savedInstanceState);
 
         super.onRestoreInstanceState(savedInstanceState);
     }
