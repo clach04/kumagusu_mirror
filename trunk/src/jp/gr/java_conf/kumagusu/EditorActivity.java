@@ -28,6 +28,7 @@ import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -640,6 +641,9 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         // テンポラリ使用中
         outState.putBoolean("useTemporaryFile", this.useTemporaryFile);
 
+        // タイマー開始値を保存
+        MainApplication.getInstance(this).getPasswordTimer().SaveInstanceState(outState);
+
         super.onSaveInstanceState(outState);
     }
 
@@ -707,6 +711,11 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         {
             this.useTemporaryFile = savedInstanceState.getBoolean("useTemporaryFile");
         }
+
+        // タイマー開始値
+        MainApplication.getInstance(this).getPasswordTimer().RestoreInstanceState(savedInstanceState);
+
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     /**
@@ -860,6 +869,8 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
 
             return true;
         }
+
+        MainApplication.getInstance(this).getPasswordTimer().resetTimeout();
 
         return false;
     }
@@ -1287,6 +1298,7 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
      * @param edtbl 編集中のときtrue
      * @param forceWrite 強制書き込み時
      */
+    @SuppressWarnings("deprecation")
     private void setEditable(boolean edtbl, boolean forceWrite)
     {
         Log.d("EditorActivity", "*** START setEditable()");
@@ -1311,13 +1323,23 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
         if (!forceWrite)
         {
             // 編集中はエディタの枠線を赤に設定
+            Drawable editorFrameDrawable;
             if (this.editable)
             {
-                this.memoEditText.setBackgroundDrawable(getResources().getDrawable(R.drawable.editable_border_true));
+                editorFrameDrawable = getResources().getDrawable(R.drawable.editable_border_true);
             }
             else
             {
-                this.memoEditText.setBackgroundDrawable(getResources().getDrawable(R.drawable.editable_border_false));
+                editorFrameDrawable = getResources().getDrawable(R.drawable.editable_border_false);
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            {
+                this.memoEditText.setBackground(editorFrameDrawable);
+            }
+            else
+            {
+                this.memoEditText.setBackgroundDrawable(editorFrameDrawable);
             }
         }
     }

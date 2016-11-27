@@ -2,11 +2,9 @@ package jp.gr.java_conf.kumagusu.commons;
 
 import java.util.Date;
 
-import jp.gr.java_conf.kumagusu.MainApplication;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
-
-import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 
 /**
@@ -40,6 +38,7 @@ public final class Timer
     {
         this.context = con;
 
+        this.startDateTime = 0;
         this.timeout = false;
     }
 
@@ -92,28 +91,6 @@ public final class Timer
     }
 
     /**
-     * 自動クローズ処理.
-     *
-     * @author tarshi
-     */
-    class AutoClosure implements Runnable
-    {
-        @Override
-        public void run()
-        {
-            // 一応タイマを破棄
-            stop();
-
-            // パスワードをクリア
-            MainApplication.getInstance((Activity) context).clearPasswordList();
-
-            // アプリケーションを終了する
-            Activity act = (Activity) context;
-            act.moveTaskToBack(true);
-        }
-    }
-
-    /**
      * タイムアウト発生？を返す.
      *
      * @return タイムアウト発生のときtrue
@@ -129,5 +106,36 @@ public final class Timer
     public void resetTimeout()
     {
         this.timeout = false;
+    }
+
+    /**
+     * タイマー開始時刻を保存する。
+     * @param outState バンドル
+     */
+    public void SaveInstanceState(Bundle outState)
+    {
+        Log.d("Timer", "*** START SaveInstanceState()");
+
+        outState.putLong("kumagusuTimerStartDateTime", this.startDateTime);
+        outState.putBoolean("kumagusuTimerTimeout", this.timeout);
+    }
+
+    /**
+     * タイマー開始時刻を再現する。
+     * @param savedInstanceState バンドル
+     */
+    public void RestoreInstanceState(Bundle savedInstanceState)
+    {
+        Log.d("Timer", "*** START RestoreInstanceState()");
+
+        if (savedInstanceState.containsKey("kumagusuTimerStartDateTime"))
+        {
+            this.startDateTime = savedInstanceState.getLong("kumagusuTimerStartDateTime");
+        }
+
+        if (savedInstanceState.containsKey("kumagusuTimerTimeout"))
+        {
+            this.timeout = savedInstanceState.getBoolean("kumagusuTimerTimeout");
+        }
     }
 }
