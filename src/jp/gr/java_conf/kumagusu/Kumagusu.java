@@ -38,13 +38,18 @@ import jp.gr.java_conf.tarshi.widget.dialog.fragment.ProgressDialogFragment.Prog
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.SelectFolderDialogFragment;
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.SelectFolderDialogListenerFolder;
 import jp.gr.java_conf.tarshi.widget.dialog.fragment.SelectFolderDialogListeners;
+
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.util.Log;
@@ -59,6 +64,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * メモ一覧. Root Activity
@@ -310,27 +316,32 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
     /**
      * 確認ダイアログID「フォルダ追加エラー」.
      */
-    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR = 10;
+    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR = 6;
 
     /**
      * 確認ダイアログID「フォルダ追加エラー（フォルダ名重複）」.
      */
-    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT = 6;
+    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_CONFLICT = 7;
 
     /**
      * 確認ダイアログID「フォルダ追加エラー（フォルダ名指定なし）」.
      */
-    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME = 7;
+    private static final int DIALOG_ID_CONFIRM_ADD_FOLDER_ERROR_NONAME = 8;
 
     /**
      * 確認ダイアログID「メモ種別・パスワード統一開始」.
      */
-    private static final int DIALOG_ID_CONFIRM_UNIFICATION_MEMO_TYPE_START = 8;
+    private static final int DIALOG_ID_CONFIRM_UNIFICATION_MEMO_TYPE_START = 9;
 
     /**
      * 確認ダイアログID「メモ種別・パスワード統一中止」.
      */
-    private static final int DIALOG_ID_CONFIRM_UNIFICATION_MEMO_TYPE_CANCEL = 9;
+    private static final int DIALOG_ID_CONFIRM_UNIFICATION_MEMO_TYPE_CANCEL = 10;
+
+    /**
+     * 確認ダイアログID「くまぐすは端末内にメモを保存します.\n端末内のファイルへのアクセスを許可してください.」.
+     */
+    private static final int DIALOG_ID_CONFIRM_REQUEST_PERMISSION_INFO = 11;
 
     /**
      * リストダイアログID「メモ操作」.
@@ -565,45 +576,45 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
                     // ダイアログ表示
                     switch (selectedItem.getMemoType())
                     {
-                    case Text:
-                    case Secret1:
-                    case Secret2:
-                        String[] dialogEntries;
-                        if (selectedItem.getMemoType() == MemoType.Text)
-                        {
-                            if (MainApplication.getInstance(Kumagusu.this).getLastCorrectPassword() == null)
+                        case Text:
+                        case Secret1:
+                        case Secret2:
+                            String[] dialogEntries;
+                            if (selectedItem.getMemoType() == MemoType.Text)
                             {
-                                dialogEntries = getResources().getStringArray(
-                                        R.array.memo_file_control_dialog_entries_4_text);
+                                if (MainApplication.getInstance(Kumagusu.this).getLastCorrectPassword() == null)
+                                {
+                                    dialogEntries = getResources().getStringArray(
+                                            R.array.memo_file_control_dialog_entries_4_text);
+                                }
+                                else
+                                {
+                                    dialogEntries = getResources().getStringArray(
+                                            R.array.memo_file_control_dialog_entries_4_text_2);
+                                }
                             }
                             else
                             {
                                 dialogEntries = getResources().getStringArray(
-                                        R.array.memo_file_control_dialog_entries_4_text_2);
+                                        R.array.memo_file_control_dialog_entries_4_secret);
                             }
-                        }
-                        else
-                        {
-                            dialogEntries = getResources().getStringArray(
-                                    R.array.memo_file_control_dialog_entries_4_secret);
-                        }
 
-                        ListDialogFragment.newInstance(DIALOG_ID_LIST_MEMO_FILE_CONTROL, R.drawable.memo_operation,
-                                R.string.memo_file_control_dialog_title, 0, dialogEntries).show(
-                                getSupportFragmentManager(), "");
+                            ListDialogFragment.newInstance(DIALOG_ID_LIST_MEMO_FILE_CONTROL, R.drawable.memo_operation,
+                                    R.string.memo_file_control_dialog_title, 0, dialogEntries).show(
+                                    getSupportFragmentManager(), "");
 
-                        break;
+                            break;
 
-                    case Folder:
-                        ListDialogFragment.newInstance(DIALOG_ID_LIST_FOLDER_CONTROL, R.drawable.folder_operation,
-                                R.string.folder_control_dialog_title, 0,
-                                getResources().getStringArray(R.array.memo_file_control_dialog_entries_4_folder)).show(
-                                getSupportFragmentManager(), "");
+                        case Folder:
+                            ListDialogFragment.newInstance(DIALOG_ID_LIST_FOLDER_CONTROL, R.drawable.folder_operation,
+                                    R.string.folder_control_dialog_title, 0,
+                                    getResources().getStringArray(R.array.memo_file_control_dialog_entries_4_folder)).show(
+                                    getSupportFragmentManager(), "");
 
-                        break;
+                            break;
 
-                    default:
-                        break;
+                        default:
+                            break;
                     }
                 }
 
@@ -639,6 +650,89 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
 
         super.onResume();
 
+        // Android 6, API 23以上でパーミッシンの確認
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            checkPermission();
+        }
+        else
+        {
+            startLocationActivity();
+        }
+    }
+
+    /**
+     * パーミッション要求
+     */
+    private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1000;
+
+    /**
+     * パーミッションを確認する。
+     */
+    public void checkPermission()
+    {
+        // 既に許可している
+        if (android.support.v4.content.ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED)
+        {
+            startLocationActivity();
+        }
+        // 拒否していた場合
+        else
+        {
+            requestLocationPermission();
+        }
+    }
+
+    /**
+     * パーミッションを取得する。
+     */
+    private void requestLocationPermission()
+    {
+        if (android.support.v4.app.ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION))
+        {
+            android.support.v4.app.ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,},
+                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
+        else
+        {
+            // くまぐすは端末内にメモを保存するため、端末内のファイルへのアクセスを許可してください。
+            ConfirmDialogFragment.newInstance(DIALOG_ID_CONFIRM_REQUEST_PERMISSION_INFO,
+                    android.R.drawable.ic_menu_info_details,
+                    R.string.request_permission_dialog_confirm_title,
+                    R.string.request_permission_dialog_confirm_information,
+                    ConfirmDialogFragment.POSITIVE_CAPTION_KIND_OK).show(getSupportFragmentManager(),
+                    "");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults)
+    {
+        if (requestCode == MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE)
+        {
+            // 使用が許可された
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                startLocationActivity();
+            }
+            else
+            {
+                // それでも拒否された時の対応
+                finishKumagusuActivity();
+            }
+        }
+    }
+
+    /**
+     * Activiryを開始する。
+     */
+    private void startLocationActivity()
+    {
         // パラメータ取得
         getParameter();
 
@@ -1692,6 +1786,19 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private void initConfirmDialogListener()
     {
+        // アクセス権設定の紹介
+        putConfirmDialogListeners(DIALOG_ID_CONFIRM_REQUEST_PERMISSION_INFO,
+                new DialogListeners(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        android.support.v4.app.ActivityCompat.requestPermissions(Kumagusu.this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,},
+                                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                    }
+                }, null, null));
+
         // ファイル削除
         putConfirmDialogListeners(DIALOG_ID_CONFIRM_DELETE_FILE, new DialogListeners(new OnClickListener()
         {

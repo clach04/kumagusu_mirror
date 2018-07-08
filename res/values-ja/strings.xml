@@ -135,6 +135,10 @@
     <string name="unification_memo_type_encrypt_title">すべて暗号メモ(同パスワード)に変更</string>
     <string name="unification_memo_type_decrypt_title">すべて平文メモに変更</string>
 
+    <!-- アクセス権 -->
+    <string name="request_permission_dialog_confirm_title">パーミッション設定</string>
+    <string name="request_permission_dialog_confirm_information">くまぐすは端末内にメモを保存します.\n端末内のファイルへのアクセスを許可してください.</string>
+
     <!--
     ******************************************************************
      その他

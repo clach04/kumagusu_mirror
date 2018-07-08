@@ -136,6 +136,10 @@
     <string name="unification_memo_type_encrypt_title">Encrypted with the same password all notes.</string>
     <string name="unification_memo_type_decrypt_title">Decrypted all notes.</string>
 
+    <!-- アクセス権 -->
+    <string name="request_permission_dialog_confirm_title">Permission setting</string>
+    <string name="request_permission_dialog_confirm_information">Kumagusu saves memo in the storage.\nPlease allow access to the file.</string>
+
     <!--
     ******************************************************************
      その他
