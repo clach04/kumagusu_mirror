@@ -128,7 +128,7 @@
         <item>Move</item>
         <item>Delete</item>
         <item>Encrypt</item>
-        <item>Send</item>
+        <item>Share</item>
     </string-array>
     <string-array name="memo_file_control_dialog_entries_4_text_2">
         <item>Copy</item>
