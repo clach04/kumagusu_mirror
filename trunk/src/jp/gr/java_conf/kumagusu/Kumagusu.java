@@ -51,6 +51,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.FileProvider;
 import android.text.InputType;
 import android.util.Log;
 import android.util.SparseArray;
@@ -2252,7 +2253,7 @@ public final class Kumagusu extends FragmentActivity implements ConfirmDialogLis
      */
     private void sendFile(File file, MemoType memoType)
     {
-        Uri uri = Uri.fromFile(file);
+        Uri uri = FileProvider.getUriForFile(Kumagusu.this, "jp.gr.java_conf.kumagusu.fileprovider", file);
 
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);

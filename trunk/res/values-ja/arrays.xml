@@ -128,7 +128,7 @@
         <item>移動</item>
         <item>削除</item>
         <item>暗号化</item>
-        <item>送信</item>
+        <item>共有</item>
     </string-array>
     <string-array name="memo_file_control_dialog_entries_4_text_2">
         <item>コピー</item>
