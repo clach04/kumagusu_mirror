@@ -7,7 +7,11 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- リスト -->
+    <!--
+        広範なファイルアクセスを維持するため、requestLegacyExternalStorageを設定している。
+        但し、APIレベル10以降は無効となるため注意。 -->
     <application
+        android:requestLegacyExternalStorage="true"
         android:name=".MainApplication"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
