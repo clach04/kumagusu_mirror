@@ -18,6 +18,8 @@ dependencies {
 }
 
 android {
+    compileSdk 29
+
     /*signingConfigs {
         KumagusuRelease {
             keyAlias KUMAGUSU_KEY_ALIAS
@@ -26,7 +28,6 @@ android {
             storePassword KEY_STORE_PASSWORD
         }
     }*/
-    compileSdkVersion 29
     buildToolsVersion '29.0.2'
     sourceSets {
         main {
@@ -53,9 +54,9 @@ android {
         release.setRoot('build-types/release')
     }
     defaultConfig {
-        applicationId 'jp.gr.java_conf.kumagusu'
-        versionCode 121
-        versionName '1.21'
+        applicationId 'jp.gr.java_conf.kumagusu_mirror'
+        versionCode 122
+        versionName '1.22'
         minSdkVersion 14
         targetSdkVersion 29
         //signingConfig signingConfigs.KumagusuRelease
@@ -64,6 +65,8 @@ android {
     }
     buildTypes {
         release {
+            signingConfig signingConfigs.debug
+
             //minifyEnabled false
             //proguardFiles false
             //signingConfig signingConfigs.KumagusuRelease
