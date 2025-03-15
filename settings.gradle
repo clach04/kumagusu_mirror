@@ -1,3 +1,4 @@
-include ':LibDialog'
+include ':kumagusu_mirror'
+/*include ':LibDialog'
 
-project(':LibDialog').projectDir = new File(settingsDir, '../../android/LibDialog')
+project(':LibDialog').projectDir = new File(settingsDir, '../../android/LibDialog')*/
