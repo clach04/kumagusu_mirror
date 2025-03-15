@@ -104,7 +104,7 @@
     <string name="folder_rename_control_dialog_title">Change of a folder name</string>
     <string name="folder_rename_control_dialog_error_duplicate">There is already a folder of a same name.</string>
     <string name="folder_rename_control_dialog_error_noinput">The folder name is not inputted.</string>
-    <string name="memo_edit_dialog_confiem_save">Is a note saved?</string>
+    <string name="memo_edit_dialog_confiem_save">Do you want to save note changes?</string>
 
     <string name="memo_edit_dialog_confiem_open_error">Note open error.</string>
 
