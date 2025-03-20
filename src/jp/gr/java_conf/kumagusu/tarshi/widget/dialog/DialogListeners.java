@@ -6,7 +6,7 @@ public final class DialogListeners {
     private DialogInterface.OnClickListener cancelOnClickListener;
     private DialogInterface.OnClickListener noOnClickListener;
     private DialogInterface.OnClickListener okOnClickListener;
-    private boolean visibleButton = false;
+    private boolean visibleButton = true;  // TODO review, is there a better way than defaulting?
 
     public DialogListeners(DialogInterface.OnClickListener ok) {
         this.okOnClickListener = ok;
