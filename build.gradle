@@ -55,8 +55,8 @@ android {
     }
     defaultConfig {
         applicationId 'jp.gr.java_conf.kumagusu_mirror'
-        versionCode 122
-        versionName '1.22'
+        versionCode 123
+        versionName '1.23'
         minSdkVersion 14
         targetSdkVersion 29
         //signingConfig signingConfigs.KumagusuRelease
