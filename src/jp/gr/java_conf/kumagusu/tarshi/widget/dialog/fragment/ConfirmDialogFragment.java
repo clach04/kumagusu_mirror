@@ -92,14 +92,20 @@ public final class ConfirmDialogFragment extends DialogFragment {
                     }
                 };
             }
+            db.setCancelable(false);
             switch (positiveCaptionKind) {
-                case 1:
+                case 1:  // FIXME replace with POSITIVE_CAPTION_KIND_OK
                     db.setPositiveButton(R.string.ui_ok, okListener);
                     break;
-                case 2:
+                case 2:  // FIXME replace with POSITIVE_CAPTION_KIND_YES
                     db.setPositiveButton(R.string.ui_yes, okListener);
+                    // This works for save. But for delete, end up wth an unwanted No button (but works fine will not delete by accident)
+                    db.setCancelable(true);
+                    db.setNeutralButton(R.string.ui_no, noListener);
+                    db.setNegativeButton(R.string.ui_cancel, cancelListener);
+                    // Debug
                     break;
-                default:
+                default:  // Treat as POSITIVE_CAPTION_KIND_OK
                     db.setPositiveButton(R.string.ui_ok, okListener);
                     break;
             }
