@@ -119,11 +119,13 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 確認ダイアログID「保存」.
+     * Confirmation dialog id "Save".  - raw Google translate of above
      */
     private static final int DIALOG_ID_CONFIRM_SAVE = 1;
 
     /**
      * 確認ダイアログID「保存（キャンセルあり）」.
+     * Confirmation dialog ID "Save (with Cancel)".  - raw Google translate of above
      */
     private static final int DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL = 2;
 
