@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.Random;
 
 import jp.gr.java_conf.kumagusu.MainApplication;
+import jp.gr.java_conf.kumagusu.memoio.MemoUtilities;
 
 import jp.gr.java_conf.kumagusu.R;
 

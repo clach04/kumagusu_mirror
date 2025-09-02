@@ -37,67 +37,34 @@
             android:permission="android.permission.WRITE_EXTERNAL_STORAGE"
             android:taskAffinity="jp.gr.java_conf.kumagusu.editor">
 
-            <intent-filter>
+                        <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data
-                    android:mimeType="application/octet-stream"
-                    android:host="*"
-                    android:pathPattern=".*\\.txt" />
-                <data
-                    android:mimeType="application/octet-stream"
-                    android:host="*"
-                    android:pathPattern=".*\\.chi" />
-                <data
-                    android:mimeType="application/octet-stream"
-                    android:host="*"
-                    android:pathPattern=".*\\.chs" />
+                    android:mimeType="*/*"
+                    android:scheme="file"
+                    android:host="*" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data
-                    android:mimeType="text/*"
-                    android:host="*"
-                    android:pathPattern=".*\\.txt" />
-                <data
-                    android:mimeType="application/txt"
-                    android:host="*"
-                    android:pathPattern=".*\\.txt" />
-                <data
-                    android:mimeType="application/chi"
-                    android:host="*"
-                    android:pathPattern=".*\\.chi" />
-                <data
-                    android:mimeType="application/chs"
-                    android:host="*"
-                    android:pathPattern=".*\\.chs" />
+                    android:mimeType="text/plain"
+                    android:scheme="file"
+                    android:host="*" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:scheme="file" />
-                <data android:mimeType="*/*" />
-                <data android:host="*" />
-                <data android:pathPattern=".*\\.txt" />
-                <data android:pathPattern=".*\\..*\\.txt" />
-                <data android:pathPattern=".*\\..*\\..*\\.txt" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.txt" />
-                <data android:pathPattern=".*\\.chi" />
-                <data android:pathPattern=".*\\..*\\.chi" />
-                <data android:pathPattern=".*\\..*\\..*\\.chi" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.chi" />
-                <data android:pathPattern=".*\\.chs" />
-                <data android:pathPattern=".*\\..*\\.chs" />
-                <data android:pathPattern=".*\\..*\\..*\\.chs" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.chs" />
+                <data
+                    android:mimeType="application/octet-stream"
+                    android:scheme="file"
+                    android:host="*" />
             </intent-filter>
+
         </activity>
 
         <!-- 設定 -->

@@ -1,5 +1,8 @@
 package jp.gr.java_conf.kumagusu.memoio;
 
+import jp.gr.java_conf.kumagusu.file.FileType;
+import jp.gr.java_conf.kumagusu.file.FileTypeRegistry;
+
 /**
  * メモ種別.
  *
@@ -10,32 +13,32 @@ public enum MemoType
     /**
      * (txt)プレーンテキスト.
      */
-    Text("Text", 1, "txt"),
+    Text("Text", 1, FileTypeRegistry.getFileTypeByExt("txt")),
 
     /**
      * (chi)内容暗号化.
      */
-    Secret1("Secret1", 2, "chi"),
+    Secret1("Secret1", 2, FileTypeRegistry.getFileTypeByExt("chi")),
 
     /**
      * (chs)内容暗号化かつファイル名暗号化.
      */
-    Secret2("Secret2", 3, "chs"),
+    Secret2("Secret2", 3, FileTypeRegistry.getFileTypeByExt("chs")),
 
     /**
      * 親フォルダ.
      */
-    ParentFolder("ParentFolder", 4, ""),
+    ParentFolder("ParentFolder", 4, null),
 
     /**
      * 下位フォルダ.
      */
-    Folder("Folder", 5, ""),
+    Folder("Folder", 5, null),
 
     /**
      * 不明.
      */
-    None("None", 9, "");
+    None("None", 9, null);
 
     /**
      * メモ種別名称.
@@ -48,22 +51,22 @@ public enum MemoType
     private final int typeId;
 
     /**
-     * メモ拡張子.
+     * ファイル種別.
      */
-    private final String fileExt;
+    private final FileType fileType;
 
     /**
      * メモ種別を初期化する.
      *
      * @param tName メモ種別名称
      * @param tNumber メモ種別ID
-     * @param ext メモ拡張子
+     * @param fType ファイル種別
      */
-    private MemoType(String tName, int tNumber, String ext)
+    private MemoType(String tName, int tNumber, FileType fType)
     {
         this.typeName = tName;
         this.typeId = tNumber;
-        this.fileExt = ext;
+        this.fileType = fType;
     }
 
     /**
@@ -106,12 +109,25 @@ public enum MemoType
     }
 
     /**
+     * ファイル種別を返す.
+     *
+     * @return ファイル種別
+     */
+    public FileType getFileType()
+    {
+        return this.fileType;
+    }
+
+    /**
      * メモ拡張子を返す.
      *
      * @return メモ拡張子
      */
     public String getFileExt()
     {
-        return this.fileExt;
+        if (this.fileType == null) {
+            return "";
+        }
+        return this.fileType.getFileExt();
     }
 }

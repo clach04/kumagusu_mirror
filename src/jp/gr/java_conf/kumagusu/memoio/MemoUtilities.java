@@ -99,35 +99,37 @@ public final class MemoUtilities
      */
     public static MemoType getMemoType(File file)
     {
-        String name = file.getName();
-
-        MemoType type = MemoType.None;
-
         if (file.isDirectory())
         {
-            type = MemoType.Folder;
+            return MemoType.Folder;
         }
         else if (file.isFile())
         {
-            if (name.endsWith(".txt"))
+            String name = file.getName();
+            int dotIndex = name.lastIndexOf('.');
+            if (dotIndex != -1)
             {
-                type = MemoType.Text;
-            }
-            else if (name.endsWith(".chi"))
-            {
-                type = MemoType.Secret1;
-            }
-            else if (name.endsWith(".chs"))
-            {
-                type = MemoType.Secret2;
-            }
-            else
-            {
-                type = MemoType.None;
+                String ext = name.substring(dotIndex + 1);
+                return getMemoTypeFromExt(ext);
             }
         }
 
-        return type;
+        return MemoType.None;
+    }
+
+    /**
+     * 拡張子からメモ種別を生成する.
+     *
+     * @param ext 拡張子
+     * @return メモ種別
+     */
+    public static MemoType getMemoTypeFromExt(String ext) {
+        for (MemoType type : MemoType.values()) {
+            if (type.getFileExt().equalsIgnoreCase(ext)) {
+                return type;
+            }
+        }
+        return MemoType.None;
     }
 
     /**
@@ -143,56 +145,60 @@ public final class MemoUtilities
 
         switch (type)
         {
-        case Text:
-            name = con.getResources().getString(R.string.etc_memo_type_text);
-            break;
-        case Secret1:
-            name = con.getResources().getString(R.string.etc_memo_type_secret1);
-            break;
-        case Secret2:
-            name = con.getResources().getString(R.string.etc_memo_type_secret2);
-            break;
-        case Folder:
-            name = con.getResources().getString(R.string.etc_memo_type_folder);
-            break;
-        case ParentFolder:
-            name = con.getResources().getString(R.string.etc_memo_type_parent_folder);
-            break;
-        default:
-            name = con.getResources().getString(R.string.etc_memo_type_none);
+            case Text:
+                name = con.getResources().getString(R.string.etc_memo_type_text);
+                break;
+            case Secret1:
+                name = con.getResources().getString(R.string.etc_memo_type_secret1);
+                break;
+            case Secret2:
+                name = con.getResources().getString(R.string.etc_memo_type_secret2);
+                break;
+            case Folder:
+                name = con.getResources().getString(R.string.etc_memo_type_folder);
+                break;
+            case ParentFolder:
+                name = con.getResources().getString(R.string.etc_memo_type_parent_folder);
+                break;
+            default:
+                name = con.getResources().getString(R.string.etc_memo_type_none);
         }
 
         return name;
     }
 
-    /**
-     * メモ種別を拡張子に変換する.
-     *
-     * @param type メモ種別
-     * @return 拡張子
-     */
     public static String type2Ext(MemoType type)
     {
-        String ext;
-
+        String extension="txt";
+        // FIXME TODO use FileTypeRegistry
         switch (type)
         {
-        case Text:
-            ext = "txt";
-            break;
-        case Secret1:
-            ext = "chi";
-            break;
-        case Secret2:
-            ext = "chs";
-            break;
-        default:
-            // メモ以外
-            ext = null;
+            case Text:
+                extension = "txt";
+                break;
+            case Secret1:
+                extension = "chi";
+                break;
+            case Secret2:
+                extension = "chs";
+                break;
+            /*
+            case Folder:
+                name = con.getResources().getString(R.string.etc_memo_type_folder);
+                break;
+            case ParentFolder:
+                name = con.getResources().getString(R.string.etc_memo_type_parent_folder);
+                break;
+            default:
+                name = con.getResources().getString(R.string.etc_memo_type_none);
+            FIXME!
+            */
         }
 
-        return ext;
+        return extension;
     }
+
+
 
     /**
      * ファイルをコピーする.
