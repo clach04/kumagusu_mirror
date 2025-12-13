@@ -33,7 +33,7 @@
     <string name="pref_fixed_phrase_title">Fixed phrase</string>
     <string name="pref_fixed_phrase_entries_control_dialog_title">Operation of fixed phrase</string>
     <string name="pref_fixed_phrase_entries_control_dialog_delete_title">Delete</string>
-    <string name="pref_fixed_phrase_entries_control_dialog_delete_message">Is a fixed phrase deleted?</string>
+    <string name="pref_fixed_phrase_entries_control_dialog_delete_message">Delete fixed phrase/snippet?</string>
     <string name="pref_cb_encrypt_new_memo_tittle">To encrypt a new note</string>
 
     <!-- 「エディター」カテゴリ -->
@@ -45,7 +45,7 @@
     <!-- 「セキュリティ」カテゴリ -->
     <string name="pref_category_security">Security</string>
     <string name="pref_cb_randam_name_title">To a random file name at the time of encryption</string>
-    <string name="pref_ls_autoclose_delaytime_title">When you close a note to the background</string>
+    <string name="pref_ls_autoclose_delaytime_title">Forget password timeout</string>
 
     <!-- 「エンコーディング」カテゴリ -->
     <string name="pref_category_encoding">Encoding</string>
@@ -73,7 +73,7 @@
     <string name="ui_td_input_new_password">New password</string>
     <string name="ui_td_reinput_new_password">New password (Confirm)</string>
     <string name="ui_td_input_password_empty">Password has not been entered.</string>
-    <string name="ui_td_input_password_incorrect">Password do not match.</string>
+    <string name="ui_td_input_password_incorrect">Passwords do not match.</string>
     <string name="ui_search">Search</string>
     <string name="ui_edit_start">Begin edit</string>
     <string name="ui_edit_end">End edit</string>
@@ -91,18 +91,16 @@
     <string name="memo_file_control_dialog_copy_title">Copy destination folder</string>
     <string name="memo_file_control_dialog_move_title">Move destination folder</string>
     <string name="memo_file_control_dialog_delete_title">Delete</string>
-    <string name="memo_file_control_dialog_delete_message">Does it delete?</string>
-    <!-- <string name="memo_file_control_dialog_copy_title">コピー</string> -->
-    <!-- <string name="memo_file_control_dialog_move_title">移動</string> -->
+    <string name="memo_file_control_dialog_delete_message">Delete file?</string>
 
     <string name="folder_control_dialog_title">Operation of Folder</string>
     <string name="folder_control_dialog_copy_title">Copy destination folder</string>
     <string name="folder_control_dialog_move_title">Move destination folder</string>
     <string name="folder_control_dialog_delete_title">Delete</string>
-    <string name="folder_control_dialog_delete_message">Is a folder deleted?</string>
+    <string name="folder_control_dialog_delete_message">Delete folder?</string>
     <string name="folder_control_dialog_delete_error">A folder is not empty.</string>
-    <string name="folder_rename_control_dialog_title">Change of a folder name</string>
-    <string name="folder_rename_control_dialog_error_duplicate">There is already a folder of a same name.</string>
+    <string name="folder_rename_control_dialog_title">Rename folder, new name</string>
+    <string name="folder_rename_control_dialog_error_duplicate">A folder with that name already exists.</string>
     <string name="folder_rename_control_dialog_error_noinput">The folder name is not inputted.</string>
     <string name="memo_edit_dialog_confiem_save">Do you want to save note changes?</string>
 
@@ -129,11 +127,11 @@
 
     <!-- メモのパスワード統一処理 -->
     <string name="unification_memo_type_title">Unification note type</string>
-    <string name="unification_memo_type_confirm_encrypt_start">Encrypted with the same password all notes.</string>
+    <string name="unification_memo_type_confirm_encrypt_start">Apply same password to all notes.</string>
     <string name="unification_memo_type_confirm_decrypt_start">Decrypted all notes.</string>
     <string name="unification_memo_type_confirm_cancel">Note type unification processing was canceled.</string>
     <string name="unification_memo_type_verify_memo_message">To verify a note under current folder.</string>
-    <string name="unification_memo_type_encrypt_title">Encrypted with the same password all notes.</string>
+    <string name="unification_memo_type_encrypt_title">Apply same password to all notes.</string>
     <string name="unification_memo_type_decrypt_title">Decrypted all notes.</string>
 
     <!-- アクセス権 -->

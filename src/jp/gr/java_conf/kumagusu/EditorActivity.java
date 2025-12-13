@@ -18,11 +18,11 @@ import jp.gr.java_conf.kumagusu.memoio.MemoBuilder;
 import jp.gr.java_conf.kumagusu.memoio.MemoFile;
 import jp.gr.java_conf.kumagusu.memoio.MemoType;
 import jp.gr.java_conf.kumagusu.preference.MainPreferenceActivity;
-import jp.gr.java_conf.tarshi.widget.dialog.DialogListeners;
-import jp.gr.java_conf.tarshi.widget.dialog.fragment.ConfirmDialogFragment;
-import jp.gr.java_conf.tarshi.widget.dialog.fragment.ConfirmDialogListenerFolder;
-import jp.gr.java_conf.tarshi.widget.dialog.fragment.ListDialogFragment;
-import jp.gr.java_conf.tarshi.widget.dialog.fragment.ListDialogListenerFolder;
+import jp.gr.java_conf.kumagusu.tarshi.widget.dialog.DialogListeners;
+import jp.gr.java_conf.kumagusu.tarshi.widget.dialog.fragment.ConfirmDialogFragment;
+import jp.gr.java_conf.kumagusu.tarshi.widget.dialog.fragment.ConfirmDialogListenerFolder;
+import jp.gr.java_conf.kumagusu.tarshi.widget.dialog.fragment.ListDialogFragment;
+import jp.gr.java_conf.kumagusu.tarshi.widget.dialog.fragment.ListDialogListenerFolder;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
@@ -119,11 +119,13 @@ public class EditorActivity extends FragmentActivity implements ConfirmDialogLis
 
     /**
      * 確認ダイアログID「保存」.
+     * Confirmation dialog id "Save".  - raw Google translate of above
      */
     private static final int DIALOG_ID_CONFIRM_SAVE = 1;
 
     /**
      * 確認ダイアログID「保存（キャンセルあり）」.
+     * Confirmation dialog ID "Save (with Cancel)".  - raw Google translate of above
      */
     private static final int DIALOG_ID_CONFIRM_SAVE_WITH_CANCEL = 2;
 

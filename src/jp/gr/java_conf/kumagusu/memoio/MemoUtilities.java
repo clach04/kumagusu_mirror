@@ -109,10 +109,16 @@ public final class MemoUtilities
         }
         else if (file.isFile())
         {
-            if (name.endsWith(".txt"))
+            if (name.endsWith(".txt") || name.endsWith(".md"))  // FIXME need a new MemoType Markdown
             {
                 type = MemoType.Text;
             }
+            /*
+            else if (name.endsWith(".md"))
+            {
+                type = MemoType.Markdown;
+            }
+            */
             else if (name.endsWith(".chi"))
             {
                 type = MemoType.Secret1;
@@ -178,7 +184,7 @@ public final class MemoUtilities
         switch (type)
         {
         case Text:
-            ext = "txt";
+            ext = "txt";  // FIXME pull from MemoType.getFileExt()
             break;
         case Secret1:
             ext = "chi";

@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Stack;
 
 import jp.gr.java_conf.kumagusu.commons.Timer;
-import jp.gr.java_conf.tarshi.widget.dialog.fragment.ProgressDialogFragment;
-import jp.gr.java_conf.tarshi.widget.dialog.fragment.ProgressDialogFragment.ProgressDialogManagerInterface;
-import jp.gr.java_conf.tarshi.widget.dialog.fragment.ProgressDialogFragment.ProgressDialogRegsterInterface;
+import jp.gr.java_conf.kumagusu.tarshi.widget.dialog.fragment.ProgressDialogFragment;
+import jp.gr.java_conf.kumagusu.tarshi.widget.dialog.fragment.ProgressDialogFragment.ProgressDialogManagerInterface;
+import jp.gr.java_conf.kumagusu.tarshi.widget.dialog.fragment.ProgressDialogFragment.ProgressDialogRegsterInterface;
 import android.app.Activity;
 import android.app.Application;
 import android.support.v4.app.FragmentActivity;

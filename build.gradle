@@ -12,20 +12,22 @@ apply plugin: 'com.android.application'
 
 dependencies {
     implementation fileTree(include: '*.jar', dir: 'libs')
-    implementation project(':LibDialog')
+    //implementation project(':LibDialog')
     implementation 'com.android.support:support-v4:28.0.0'
+
 }
 
 android {
-    signingConfigs {
+    compileSdk 29
+
+    /*signingConfigs {
         KumagusuRelease {
             keyAlias KUMAGUSU_KEY_ALIAS
             keyPassword KUMAGUSU_KEY_PASSWORD
             storeFile file(KEY_STORE_FILE)
             storePassword KEY_STORE_PASSWORD
         }
-    }
-    compileSdkVersion 29
+    }*/
     buildToolsVersion '29.0.2'
     sourceSets {
         main {
@@ -52,20 +54,22 @@ android {
         release.setRoot('build-types/release')
     }
     defaultConfig {
-        applicationId 'jp.gr.java_conf.kumagusu'
-        versionCode 121
-        versionName '1.21'
+        applicationId 'jp.gr.java_conf.kumagusu_mirror'
+        versionCode 125
+        versionName '1.25'
         minSdkVersion 14
         targetSdkVersion 29
-        signingConfig signingConfigs.KumagusuRelease
+        //signingConfig signingConfigs.KumagusuRelease
     }
     productFlavors {
     }
     buildTypes {
         release {
+            signingConfig signingConfigs.debug
+
             //minifyEnabled false
             //proguardFiles false
-            signingConfig signingConfigs.KumagusuRelease
+            //signingConfig signingConfigs.KumagusuRelease
         }
     }
 }
