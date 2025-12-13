@@ -12,4 +12,4 @@ For more information about Tombo and chi encrypted notes see https://github.com/
 
 APKs are available from https://github.com/clach04/kumagusu_mirror/releases
 No plans for Google Play Store.
-Help wanted for F-Droid and/or GitHub Action builds.
+Help wanted for [F-Droid](https://github.com/clach04/kumagusu_mirror/issues/22) and/or [GitHub Action](https://github.com/clach04/kumagusu_mirror/issues/10) builds.
