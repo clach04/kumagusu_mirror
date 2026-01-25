@@ -183,7 +183,7 @@ public final class MemoFile extends AbstractMemo
         }
         else
         {
-            // 通常テキスト
+            // 通常テキスト - Normal text - i.e. plain text
             this.isDecryptFg = true;
 
             try
@@ -256,7 +256,7 @@ public final class MemoFile extends AbstractMemo
         }
         else
         {
-            // 通常テキスト
+            // 通常テキスト - Normal text - i.e. plain text
             try
             {
                 buffer = memoData.getBytes(this.getEncodingName());
