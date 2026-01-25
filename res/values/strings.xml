@@ -3,7 +3,7 @@
 
     <!--
     ******************************************************************
-     共通
+     共通 / common
     ******************************************************************
     -->
 
@@ -14,17 +14,17 @@
 
     <!--
     ******************************************************************
-     設定
+     設定 / setting / settings
     ******************************************************************
     -->
 
     <string name="pref_mn_setting">Preferences</string>
 
-    <!-- 「メモリスト」カテゴリ -->
+    <!-- 「メモリスト」カテゴリ / "Memorist" category-->
     <string name="pref_category_view">View</string>
     <string name="pref_cb_list_detail_visibility">To View details of list</string>
 
-    <!-- 「メモ」カテゴリ -->
+    <!-- 「メモ」カテゴリ / "Notes" category -->
     <string name="pref_category_memo">Note</string>
     <string name="pref_ds_memo_location_title">Notes folder</string>
     <string name="pref_cb_title_link_title">To synchronize the title and file name</string>
@@ -36,23 +36,23 @@
     <string name="pref_fixed_phrase_entries_control_dialog_delete_message">Delete fixed phrase/snippet?</string>
     <string name="pref_cb_encrypt_new_memo_tittle">To encrypt a new note</string>
 
-    <!-- 「エディター」カテゴリ -->
+    <!-- 「エディター」カテゴリ / "Editor" category -->
     <string name="pref_category_editor">Editor</string>
     <string name="pref_enable_editor_titlebar_title">To view the titlebar of the editor</string>
     <string name="pref_ls_font_family_title">Font family</string>
     <string name="pref_ls_font_size_title">Font size</string>
 
-    <!-- 「セキュリティ」カテゴリ -->
+    <!-- 「セキュリティ」カテゴリ / "Security" category -->
     <string name="pref_category_security">Security</string>
     <string name="pref_cb_randam_name_title">To a random file name at the time of encryption</string>
     <string name="pref_ls_autoclose_delaytime_title">Forget password timeout</string>
 
-    <!-- 「エンコーディング」カテゴリ -->
+    <!-- 「エンコーディング」カテゴリ / "Encoding" category -->
     <string name="pref_category_encoding">Encoding</string>
     <string name="pref_ls_encoding_title">Encoding</string>
     <string name="pref_ls_encoding_summary">Sets the encoding of the note.</string>
 
-    <!-- 「その他」カテゴリ -->
+    <!-- 「その他」カテゴリ / "Other" category -->
     <string name="pref_category_about">About</string>
     <string name="pref_version_title">Version</string>
 
@@ -81,12 +81,12 @@
     <string name="ui_close">Close</string>
     <string name="ui_add">Add</string>
 
-    <!-- メモリスト -->
+    <!-- メモリスト / Memorist -->
     <string name="memo_list_emply_message">Note does not exist</string>
     <string name="memo_list_create_progress_dialog_title">Note list</string>
     <string name="memo_list_create_progress_dialog_message">Updating list....</string>
 
-    <!-- ファイル操作ダイアログ -->
+    <!-- ファイル操作ダイアログ / File operation dialog -->
     <string name="memo_file_control_dialog_title">Operation of Note</string>
     <string name="memo_file_control_dialog_copy_title">Copy destination folder</string>
     <string name="memo_file_control_dialog_move_title">Move destination folder</string>
@@ -106,26 +106,26 @@
 
     <string name="memo_edit_dialog_confiem_open_error">Note open error.</string>
 
-    <!-- 新規作成ダイアログ -->
+    <!-- 新規作成ダイアログ / New creation dialog -->
     <string name="memo_list_control_dialog_title">Addition</string>
     <string name="folder_add_control_dialog_title">The folder name to add </string>
     <string name="memo_list_control_dialog_add_error">Add folder failed.</string>
     <string name="memo_list_control_dialog_add_error_duplicate">There is already a folder of a same name.</string>
     <string name="memo_list_control_dialog_add_error_noinput">The folder name is not inputted. </string>
 
-    <!-- メモ検索 -->
+    <!-- メモ検索 / Memo search -->
     <string name="search_memo_control_dialog_title">Search</string>
     <string name="search_memo_list_post_title_start">Searching note....</string>
     <string name="search_memo_list_post_title_end">Results</string>
 
-    <!-- 定型文 -->
+    <!-- 定型文 / Standard text-->
     <string name="fixed_phrase_dialog_title">Fixed phrase</string>
     <string name="fixed_phrase_pattern_letters">Pattern letters</string>
 
-    <!-- メモのソート方法 -->
+    <!-- メモのソート方法 / How to sort notes -->
     <string name="memo_sort_method_dialog_title">Sort conditions</string>
 
-    <!-- メモのパスワード統一処理 -->
+    <!-- メモのパスワード統一処理  / Unified password processing for notes -->
     <string name="unification_memo_type_title">Unification note type</string>
     <string name="unification_memo_type_confirm_encrypt_start">Apply same password to all notes.</string>
     <string name="unification_memo_type_confirm_decrypt_start">Decrypted all notes.</string>
@@ -134,18 +134,18 @@
     <string name="unification_memo_type_encrypt_title">Apply same password to all notes.</string>
     <string name="unification_memo_type_decrypt_title">Decrypted all notes.</string>
 
-    <!-- アクセス権 -->
+    <!-- アクセス権 / Access rights -->
     <string name="request_permission_dialog_confirm_title">Permission setting</string>
     <string name="request_permission_dialog_confirm_information">Kumagusu saves memo in the storage.\nPlease allow access to the file.</string>
 
     <!--
     ******************************************************************
-     その他
+     その他 / others
     ******************************************************************
     -->
 
 
-    <!-- メモファイル種別 -->
+    <!-- メモファイル種別 / Memo file type -->
     <string name="etc_memo_type_text">Plain</string>
     <string name="etc_memo_type_secret1">Encryption</string>
     <string name="etc_memo_type_secret2">Encryption</string>
@@ -153,7 +153,7 @@
     <string name="etc_memo_type_parent_folder">Parent foldere</string>
     <string name="etc_memo_type_none">(Unknown)</string>
 
-    <!-- メモファイル処理 -->
+    <!-- メモファイル処理 / Memo file processing -->
     <string name="etc_memo_file_untitled_4_filename">untitled</string>
     <string name="etc_memo_file_untitled_4_title">(untitled)</string>
 
