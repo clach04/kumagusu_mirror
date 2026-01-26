@@ -27,24 +27,24 @@
     <!-- 「メモ」カテゴリ / "Notes" category -->
     <string name="pref_category_memo">Note</string>
     <string name="pref_ds_memo_location_title">Notes folder</string>
-    <string name="pref_cb_title_link_title">To synchronize the title and file name</string>
-    <string name="pref_cb_title_link_summary">Match the first line of the note and file name when you save.</string>
-    <string name="pref_enable_auto_link_title">Using auto links</string>
-    <string name="pref_fixed_phrase_title">Fixed phrase</string>
+    <string name="pref_cb_title_link_title">Rename files to match first line/title</string>  <!-- Seen in settings, underneath Encoding -->
+    <string name="pref_cb_title_link_summary">Match the first line of the note and file name when you save.</string>  <!-- Not yet seen -->
+    <string name="pref_enable_auto_link_title">Auto link numbers and addresses</string>  <!-- underline and allow clicking phone numbers, email addresses, and URLs -->
+    <string name="pref_fixed_phrase_title">Edit Fixed phrases</string>
     <string name="pref_fixed_phrase_entries_control_dialog_title">Operation of fixed phrase</string>
     <string name="pref_fixed_phrase_entries_control_dialog_delete_title">Delete</string>
     <string name="pref_fixed_phrase_entries_control_dialog_delete_message">Delete fixed phrase/snippet?</string>
-    <string name="pref_cb_encrypt_new_memo_tittle">To encrypt a new note</string>
+    <string name="pref_cb_encrypt_new_memo_tittle">Encrypt new notes</string>
 
     <!-- 「エディター」カテゴリ / "Editor" category -->
     <string name="pref_category_editor">Editor</string>
-    <string name="pref_enable_editor_titlebar_title">To view the titlebar of the editor</string>
+    <string name="pref_enable_editor_titlebar_title">Titlebar in editor with icons</string>
     <string name="pref_ls_font_family_title">Font family</string>
     <string name="pref_ls_font_size_title">Font size</string>
 
     <!-- 「セキュリティ」カテゴリ / "Security" category -->
     <string name="pref_category_security">Security</string>
-    <string name="pref_cb_randam_name_title">To a random file name at the time of encryption</string>
+    <string name="pref_cb_randam_name_title">Random file name for new encrypted files</string>
     <string name="pref_ls_autoclose_delaytime_title">Forget password timeout</string>
 
     <!-- 「エンコーディング」カテゴリ / "Encoding" category -->
@@ -74,9 +74,9 @@
     <string name="ui_td_reinput_new_password">New password (Confirm)</string>
     <string name="ui_td_input_password_empty">Password has not been entered.</string>
     <string name="ui_td_input_password_incorrect">Passwords do not match.</string>
-    <string name="ui_search">Search</string>
-    <string name="ui_edit_start">Begin edit</string>
-    <string name="ui_edit_end">End edit</string>
+    <string name="ui_search">Search in Note</string>
+    <string name="ui_edit_start">Edit Mode</string>
+    <string name="ui_edit_end">View Mode</string>
     <string name="ui_confirm">Confirmation</string>
     <string name="ui_close">Close</string>
     <string name="ui_add">Add</string>
@@ -102,7 +102,8 @@
     <string name="folder_rename_control_dialog_title">Rename folder, new name</string>
     <string name="folder_rename_control_dialog_error_duplicate">A folder with that name already exists.</string>
     <string name="folder_rename_control_dialog_error_noinput">The folder name is not inputted.</string>
-    <string name="memo_edit_dialog_confiem_save">Do you want to save note changes?</string>
+    <string name="memo_edit_dialog_confiem_save">Save changes to note?</string>  <!-- Do you want to save note changes? -->
+
 
     <string name="memo_edit_dialog_confiem_open_error">Note open error.</string>
 
@@ -110,8 +111,8 @@
     <string name="memo_list_control_dialog_title">Addition</string>
     <string name="folder_add_control_dialog_title">The folder name to add </string>
     <string name="memo_list_control_dialog_add_error">Add folder failed.</string>
-    <string name="memo_list_control_dialog_add_error_duplicate">There is already a folder of a same name.</string>
-    <string name="memo_list_control_dialog_add_error_noinput">The folder name is not inputted. </string>
+    <string name="memo_list_control_dialog_add_error_duplicate">Folder already exists.</string>
+    <string name="memo_list_control_dialog_add_error_noinput">Missing folder name.</string>
 
     <!-- メモ検索 / Memo search -->
     <string name="search_memo_control_dialog_title">Search</string>
@@ -126,7 +127,7 @@
     <string name="memo_sort_method_dialog_title">Sort conditions</string>
 
     <!-- メモのパスワード統一処理  / Unified password processing for notes -->
-    <string name="unification_memo_type_title">Unification note type</string>
+    <string name="unification_memo_type_title">Batch Encrypt/Decrypt</string>
     <string name="unification_memo_type_confirm_encrypt_start">Apply same password to all notes.</string>
     <string name="unification_memo_type_confirm_decrypt_start">Decrypted all notes.</string>
     <string name="unification_memo_type_confirm_cancel">Note type unification processing was canceled.</string>

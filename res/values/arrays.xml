@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- 設定のエントリ -->
+    <!-- 設定のエントリ / Settings entries -->
     <string-array name="encoding_entries">
+        <!-- TODO is cp1252 an option -->
         <item>SJIS</item>
         <item>UTF-8</item>
         <item>UTF-16LE</item>
     </string-array>
     <string-array name="encoding_values">
+        <!-- TODO is cp1252 an option -->
         <item>MS932</item>
         <item>UTF8</item>
         <item>UnicodeLittleUnmarked</item>
@@ -97,7 +99,7 @@
         <item>Delete</item>
     </string-array>
 
-    <!-- メモのソート方法 -->
+    <!-- メモのソート方法 / How to sort notes -->
     <string-array name="memo_sort_method_kind_entries">
         <item>Title - ascending</item>
         <item>Title - descending</item>
@@ -116,13 +118,13 @@
         <item>21</item>
     </integer-array>
 
-    <!-- メモ種別・パスワード統一 -->
+    <!-- メモ種別・パスワード統一 / Memo type and password unified -->
     <string-array name="unification_memo_type_entries">
-        <item>Unified crypto (same password) text</item>
-        <item>Unified plain text</item>
+        <item>Encrypt all notes(same password)</item>
+        <item>Decrypt all notes to plain text</item>
     </string-array>
 
-    <!-- ファイル操作ダイアログのエントリ -->
+    <!-- ファイル操作ダイアログのエントリ / File operation dialog entries -->
     <string-array name="memo_file_control_dialog_entries_4_text">
         <item>Copy</item>
         <item>Move</item>
@@ -146,7 +148,7 @@
         <item>Send</item>
         </string-array>
 
-    <!-- フォルダ操作ダイアログのエントリ -->
+    <!-- フォルダ操作ダイアログのエントリ / Entries in the folder manipulation dialog -->
     <string-array name="memo_file_control_dialog_entries_4_folder">
         <item>Copy</item>
         <item>Move</item>
@@ -154,13 +156,13 @@
         <item>Rename</item>
     </string-array>
 
-    <!-- 追加のエントリ -->
+    <!-- 追加のエントリ / Additional entries -->
     <string-array name="memo_list_control_dialog_entries">
         <item>Create a new note</item>
         <item>Create a new folder</item>
     </string-array>
 
-    <!-- フォントファミリー -->
+    <!-- フォントファミリー / Font Family -->
     <string-array name="font_family_entries">
         <item>Serif</item>
         <item>Sans Serif</item>
@@ -173,7 +175,7 @@
         <item>monospace</item>
     </string-array>
 
-    <!-- フォントサイズ -->
+    <!-- フォントサイズ / Font size -->
     <string-array name="font_size_entries">
         <item>4</item>
         <item>6</item>
