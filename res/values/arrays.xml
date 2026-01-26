@@ -105,8 +105,8 @@
         <item>Title - descending</item>
         <item>Last modified - from the oldest</item>
         <item>Last modified - from the newest</item>
-        <item>Size - from minimum</item>
-        <item>Size - from maxmum</item>
+        <item>Size - from smallest</item>
+        <item>Size - from largest</item>
     </string-array>
 
     <integer-array name="memo_sort_method_kind_values">
